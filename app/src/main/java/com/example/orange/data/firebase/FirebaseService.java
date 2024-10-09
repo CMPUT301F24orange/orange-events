@@ -74,15 +74,26 @@ public class FirebaseService {
      * @param callback A callback to handle the result of the operation.
      */
     public void createUser(User user, FirebaseCallback<String> callback) {
+        Log.d(TAG, "Attempting to create user: " + user.getUsername());
         db.collection("users").add(user)
                 .addOnSuccessListener(documentReference -> {
                     String id = documentReference.getId();
                     user.setId(id);
+                    Log.d(TAG, "User created successfully with ID: " + id);
                     documentReference.set(user)
-                            .addOnSuccessListener(aVoid -> callback.onSuccess(id))
-                            .addOnFailureListener(callback::onFailure);
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "User data updated with ID");
+                                callback.onSuccess(id);
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Failed to update user with ID", e);
+                                callback.onFailure(e);
+                            });
                 })
-                .addOnFailureListener(callback::onFailure);
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create user", e);
+                    callback.onFailure(e);
+                });
     }
 
     /**

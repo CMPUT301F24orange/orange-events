@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     private SessionManager sessionManager;
     private DrawerLayout drawer;
     private NavigationView navigationView;
-    private ProgressBar progressBar;
 
     /**
      * Initializes the activity, sets up the UI components, and configures navigation.
@@ -50,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
         drawer = binding.drawerLayout;
         navigationView = binding.navView;
-        progressBar = findViewById(R.id.progressBar); // Make sure to add this to your layout
 
         // Initialize SessionManager
         sessionManager = new SessionManager(this);
@@ -149,5 +147,5 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
- 
+
 }

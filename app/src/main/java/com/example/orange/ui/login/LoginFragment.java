@@ -1,6 +1,7 @@
 package com.example.orange.ui.login;
 
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,6 +63,11 @@ public class LoginFragment extends Fragment {
         return root;
     }
 
+    private String getDeviceId() {
+        return Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+
     /**
      * Initiates the login process for a user with the specified user type.
      * If the user doesn't exist, it creates a new user account.
@@ -69,13 +75,7 @@ public class LoginFragment extends Fragment {
      * @param userType The type of user attempting to log in (ENTRANT, ORGANIZER, or ADMIN).
      */
     private void loginUser(UserType userType) {
-        String username = usernameEditText.getText().toString().trim();
-        if (username.isEmpty()) {
-            Toast.makeText(requireContext(), "Please enter a username", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-
+        String username = (userType == UserType.ENTRANT) ? getDeviceId() : usernameEditText.getText().toString().trim();
 
 
         firebaseService.getUserByUsernameAndType(username, userType, new FirebaseCallback<User>() {
@@ -104,6 +104,7 @@ public class LoginFragment extends Fragment {
 
     /**
      * Creates a new user account with the given username and user type.
+     * If the user selects entrant then the username is auto filled as the users unique deviceId
      *
      * @param username The username for the new user.
      * @param userType The type of the new user (ENTRANT, ORGANIZER, or ADMIN).
