@@ -1,4 +1,4 @@
-package data.model;
+package com.example.orange.data.model;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -59,8 +59,7 @@ public class Event {
 
     /**
      * Id getter
-     * @return
-     *  String: event id
+     * @return String: event id
      */
     public String getId() {
         return id;
@@ -76,8 +75,7 @@ public class Event {
 
     /**
      * Title getter
-     * @return
-     *  String: Title
+     * @return String: Title
      */
     public String getTitle() {
         return title;
@@ -93,8 +91,7 @@ public class Event {
 
     /**
      * Description getter
-     * @return
-     *  String: event description
+     * @return String: event description
      */
     public String getDescription() {
         return description;
@@ -110,8 +107,7 @@ public class Event {
 
     /**
      * Date getter
-     * @return
-     *  Timestamp: event date
+     * @return Timestamp: event date
      */
     public Timestamp getDate() {
         return date;
@@ -127,8 +123,7 @@ public class Event {
 
     /**
      * Capicity getter
-     * @return
-     *  int : capacity
+     * @return int : capacity
      */
     public int getCapacity() {
         return capacity;
@@ -144,8 +139,7 @@ public class Event {
 
     /**
      * OrganizerId getter
-     * @return
-     *  String: organizerId
+     * @return String: organizerId
      */
     public String getOrganizerId() {
         return organizerId;
@@ -161,8 +155,7 @@ public class Event {
 
     /**
      * WaitingList getter
-     * @return
-     * List<String>: waiting list
+     * @return List<String>: waiting list
      */
     public List<String> getWaitingList() {
         return waitingList;
@@ -178,8 +171,7 @@ public class Event {
 
     /**
      * Participants List getter
-     * @return
-     * List<String>: participant list
+     * @return List<String>: participant list
      */
     public List<String> getParticipants() {
         return participants;
@@ -224,7 +216,7 @@ public class Event {
 
     /**
      * This function checks if the participants list is at capacity
-     * @return
+     * @return Boolean
      */
     public boolean isFull() {
         return participants.size() >= capacity;
@@ -233,7 +225,7 @@ public class Event {
     /**
      * Function to return specific string for an object of type Event
      * Mostly useful for debugging
-     * @return
+     * @return String
      */
     @Override
     public String toString() {
