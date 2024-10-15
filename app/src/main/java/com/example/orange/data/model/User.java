@@ -15,10 +15,14 @@ public class User {
     private String id;
     private String username;
     private UserType userType;
+    private String email;
+    private String phone;
+    private String deviceId;  // Only used for Entrants
     private List<String> eventsParticipating;
     private List<String> eventsOrganizing;
     private boolean receiveOrganizerNotifications;
     private boolean receiveAdminNotifications;
+
 
     /**
      * Default constructor required for Firestore.
@@ -215,6 +219,54 @@ public class User {
     }
 
     /**
+     * Retrieves the user's email address.
+     * @return The email address of the user.
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Sets the user's email address.
+     * @param email The new email address to set for the user.
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * Retrieves the user's phone number.
+     * @return The phone number of the user.
+     */
+    public String getPhone() {
+        return phone;
+    }
+
+    /**
+     * Sets the user's phone number.
+     * @param phone The new phone number to set for the user.
+     */
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    /**
+     * Retrieves the user's device ID, which uniquely identifies the user's device.
+     * @return The device ID of the user.
+     */
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    /**
+     * Sets the user's device ID, which is used to uniquely identify the user based on their device.
+     * @param deviceId The new device ID to set for the user.
+     */
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    /**
      * Returns a string representation of the User object.
      * @return A string containing user details.
      */
@@ -230,4 +282,5 @@ public class User {
                 ", receiveAdminNotifications=" + receiveAdminNotifications +
                 '}';
     }
+
 }

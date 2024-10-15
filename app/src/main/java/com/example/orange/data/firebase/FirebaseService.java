@@ -148,4 +148,39 @@ public class FirebaseService {
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(e -> callback.onFailure(e));
     }
+
+    /**
+     * Retrieves a user by their unique user ID from Firebase Firestore.
+     * @param userId The unique identifier of the user.
+     * @param callback The callback to handle the response, which provides the User object if found,
+     *                 or null if the user is not found.
+     */
+    public void getUserById(String userId, FirebaseCallback<User> callback) {
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        callback.onSuccess(user);
+                    } else {
+                        callback.onSuccess(null);  // Handle user not found
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Updates the user details in Firebase Firestore.
+     * @param userId The unique identifier of the user to be updated.
+     * @param user The User object containing the updated information.
+     * @param callback The callback to handle the response, which provides success if the user details
+     *                 are updated successfully, or an error if the update fails.
+     */
+    public void updateUser(String userId, User user, FirebaseCallback<Void> callback) {
+        db.collection("users").document(userId)
+                .set(user)
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
 }

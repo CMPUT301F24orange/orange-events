@@ -1,26 +1,26 @@
 package com.example.orange.ui.login;
 
-import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+    import android.os.Bundle;
+    import android.provider.Settings;
+    import android.util.Log;
+    import android.view.LayoutInflater;
+    import android.view.View;
+    import android.view.ViewGroup;
+    import android.widget.Button;
+    import android.widget.EditText;
+    import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
+    import androidx.annotation.NonNull;
+    import androidx.fragment.app.Fragment;
+    import androidx.navigation.Navigation;
 
-import com.example.orange.R;
-import com.example.orange.data.firebase.FirebaseCallback;
-import com.example.orange.data.model.User;
-import com.example.orange.data.model.UserType;
-import com.example.orange.data.firebase.FirebaseService;
-import com.example.orange.utils.SessionManager;
-import com.example.orange.MainActivity;
+    import com.example.orange.R;
+    import com.example.orange.data.firebase.FirebaseCallback;
+    import com.example.orange.data.model.User;
+    import com.example.orange.data.model.UserType;
+    import com.example.orange.data.firebase.FirebaseService;
+    import com.example.orange.utils.SessionManager;
+    import com.example.orange.MainActivity;
 
 /**
  * LoginFragment handles user authentication and registration.
