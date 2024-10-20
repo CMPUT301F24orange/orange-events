@@ -39,12 +39,12 @@ public class FirebaseService {
      * @param userType The type of the user (e.g., ENTRANT, ORGANIZER, ADMIN).
      * @param callback A callback to handle the result of the operation.
      */
-    public void getUserByUsernameAndType(String username, UserType userType, FirebaseCallback<User> callback) {
-        Log.d(TAG, "Starting getUserByUsernameAndType for username: " + username);
+    public void getUserByDeviceIdAndType(String deviceId, UserType userType, FirebaseCallback<User> callback) {
+        Log.d(TAG, "Starting getUserByUsernameAndType for username: " + deviceId);
         long startTime = System.currentTimeMillis();
 
         Query query = db.collection("users")
-                .whereEqualTo("username", username)
+                .whereEqualTo("deviceId", deviceId)
                 .whereEqualTo("userType", userType)
                 .limit(1);
 
@@ -61,7 +61,7 @@ public class FirebaseService {
                     callback.onSuccess(null);
                 }
             } else {
-                Log.e(TAG, "Error in getUserByUsernameAndType", task.getException());
+                Log.e(TAG, "Error in getUserByDeviceIdAndType", task.getException());
                 callback.onFailure(task.getException());
             }
         });
@@ -74,7 +74,7 @@ public class FirebaseService {
      * @param callback A callback to handle the result of the operation.
      */
     public void createUser(User user, FirebaseCallback<String> callback) {
-        Log.d(TAG, "Attempting to create user: " + user.getUsername());
+        Log.d(TAG, "Attempting to create user: " + user.getDeviceId());
         db.collection("users").add(user)
                 .addOnSuccessListener(documentReference -> {
                     String id = documentReference.getId();

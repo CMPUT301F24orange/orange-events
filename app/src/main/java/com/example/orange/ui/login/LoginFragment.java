@@ -51,7 +51,6 @@ public class LoginFragment extends Fragment {
         sessionManager = new SessionManager(requireContext());
         mainActivity = (MainActivity) requireActivity();
 
-        usernameEditText = root.findViewById(R.id.usernameEditText);
         entrantButton = root.findViewById(R.id.entrantButton);
         organizerButton = root.findViewById(R.id.organizerButton);
         adminButton = root.findViewById(R.id.adminButton);
@@ -75,16 +74,16 @@ public class LoginFragment extends Fragment {
      * @param userType The type of user attempting to log in (ENTRANT, ORGANIZER, or ADMIN).
      */
     private void loginUser(UserType userType) {
-        String username = (userType == UserType.ENTRANT) ? getDeviceId() : usernameEditText.getText().toString().trim();
+        String deviceId = getDeviceId();
 
 
-        firebaseService.getUserByUsernameAndType(username, userType, new FirebaseCallback<User>() {
+        firebaseService.getUserByDeviceIdAndType(deviceId, userType, new FirebaseCallback<User>() {
             @Override
             public void onSuccess(User user) {
                 if (getActivity() == null) return;
                 requireActivity().runOnUiThread(() -> {
                     if (user == null) {
-                        createNewUser(username, userType);
+                        createNewUser(deviceId, userType);
                     } else {
                         finishLogin(user);
                     }
@@ -106,11 +105,11 @@ public class LoginFragment extends Fragment {
      * Creates a new user account with the given username and user type.
      * If the user selects entrant then the username is auto filled as the users unique deviceId
      *
-     * @param username The username for the new user.
+     * @param deviceId The deviceId for the new user.
      * @param userType The type of the new user (ENTRANT, ORGANIZER, or ADMIN).
      */
-    private void createNewUser(String username, UserType userType) {
-        User newUser = new User(username, userType);
+    private void createNewUser(String deviceId, UserType userType) {
+        User newUser = new User(deviceId, userType);
         firebaseService.createUser(newUser, new FirebaseCallback<String>() {
             @Override
             public void onSuccess(String userId) {
@@ -139,7 +138,7 @@ public class LoginFragment extends Fragment {
      * @param user The User object representing the logged-in user.
      */
     private void finishLogin(User user) {
-        sessionManager.createLoginSession(user.getUsername(), user.getUserType(), user.getId());
+        sessionManager.createLoginSession(user.getDeviceId(), user.getUserType(), user.getId());
         mainActivity.setupNavigationMenu();
         navigateToHome();
     }

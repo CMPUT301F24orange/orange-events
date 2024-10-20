@@ -17,7 +17,7 @@ public class User {
     private UserType userType;
     private String email;
     private String phone;
-    private String deviceId;  // Only used for Entrants
+    private String deviceId;
     private List<String> eventsParticipating;
     private List<String> eventsOrganizing;
     private boolean receiveOrganizerNotifications;
@@ -36,11 +36,11 @@ public class User {
     /**
      * Constructs a new User with specified username and user type.
      *
-     * @param username The username of the user.
+     * @param deviceId The deviceId of the user.
      * @param userType The type of the user (e.g., ENTRANT, ORGANIZER, ADMIN).
      */
-    public User(String username, UserType userType) {
-        this.username = username;
+    public User(String deviceId, UserType userType) {
+        this.deviceId = deviceId;
         this.userType = userType;
         this.eventsParticipating = new ArrayList<>();
         this.eventsOrganizing = new ArrayList<>();
