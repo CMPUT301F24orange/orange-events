@@ -106,8 +106,15 @@ public class FirebaseService {
         DocumentReference newEventRef = db.collection("events").document();
         event.setId(newEventRef.getId());
         newEventRef.set(event)
-                .addOnSuccessListener(aVoid -> callback.onSuccess(event.getId()))
-                .addOnFailureListener(e -> callback.onFailure(e));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Event created successfully in Firestore");
+                    callback.onSuccess(event.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create event in Firestore", e);
+                    callback.onFailure(e);
+                });
+
     }
 
     /**
