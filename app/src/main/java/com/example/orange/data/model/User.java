@@ -1,5 +1,6 @@
 package com.example.orange.data.model;
 
+import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.Exclude;
 
@@ -18,11 +19,12 @@ public class User {
     private String email;
     private String phone;
     private String deviceId;
+    private String profileImageUrl;
     private List<String> eventsParticipating;
     private List<String> eventsOrganizing;
     private boolean receiveOrganizerNotifications;
     private boolean receiveAdminNotifications;
-
+    private Blob profileImageData; // Changed from byte[] to Blob
 
     /**
      * Default constructor required for Firestore.
@@ -266,6 +268,25 @@ public class User {
         this.deviceId = deviceId;
     }
 
+    // Getter for profileImageUrl
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    // Setter for profileImageUrl
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    // Getter for profileImageData
+    public Blob getProfileImageData() {
+        return profileImageData;
+    }
+    // Setter for profileImageData
+    public void setProfileImageData(Blob profileImageData) {
+        this.profileImageData = profileImageData;
+    }
+
     /**
      * Returns a string representation of the User object.
      * @return A string containing user details.
@@ -282,5 +303,4 @@ public class User {
                 ", receiveAdminNotifications=" + receiveAdminNotifications +
                 '}';
     }
-
 }

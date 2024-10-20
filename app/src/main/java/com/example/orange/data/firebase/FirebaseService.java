@@ -5,43 +5,35 @@ import android.util.Log;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * FirebaseService provides methods to interact with Firebase Firestore.
  * It handles operations for users and events.
  */
 public class FirebaseService {
-    private FirebaseFirestore db;
     private static final String TAG = "FirebaseService";
-    private final ExecutorService executorService;
+    private FirebaseFirestore db;
 
     /**
      * Constructor for FirebaseService.
-     * Initializes the Firestore instance and creates a single-threaded executor.
+     * Initializes the Firestore instance.
      */
     public FirebaseService() {
         db = FirebaseFirestore.getInstance();
-        executorService = Executors.newSingleThreadExecutor();
     }
 
     /**
-     * Retrieves a user from Firestore based on username and user type.
+     * Retrieves a user from Firestore based on device ID and user type.
      *
-     * @param username The username of the user to retrieve.
+     * @param deviceId The device ID of the user to retrieve.
      * @param userType The type of the user (e.g., ENTRANT, ORGANIZER, ADMIN).
      * @param callback A callback to handle the result of the operation.
      */
     public void getUserByDeviceIdAndType(String deviceId, UserType userType, FirebaseCallback<User> callback) {
-        Log.d(TAG, "Starting getUserByUsernameAndType for username: " + deviceId);
-        long startTime = System.currentTimeMillis();
+        Log.d(TAG, "Starting getUserByDeviceIdAndType for deviceId: " + deviceId);
 
         Query query = db.collection("users")
                 .whereEqualTo("deviceId", deviceId)
@@ -52,12 +44,10 @@ public class FirebaseService {
             if (task.isSuccessful()) {
                 if (!task.getResult().isEmpty()) {
                     User user = task.getResult().getDocuments().get(0).toObject(User.class);
-                    long endTime = System.currentTimeMillis();
-                    Log.d(TAG, "getUserByUsernameAndType completed in " + (endTime - startTime) + " ms");
+                    Log.d(TAG, "User retrieved successfully");
                     callback.onSuccess(user);
                 } else {
-                    long endTime = System.currentTimeMillis();
-                    Log.d(TAG, "getUserByUsernameAndType completed in " + (endTime - startTime) + " ms. User not found.");
+                    Log.d(TAG, "User not found");
                     callback.onSuccess(null);
                 }
             } else {
@@ -70,7 +60,7 @@ public class FirebaseService {
     /**
      * Creates a new user in Firestore.
      *
-     * @param user The User object to be created in Firestore.
+     * @param user     The User object to be created in Firestore.
      * @param callback A callback to handle the result of the operation.
      */
     public void createUser(User user, FirebaseCallback<String> callback) {
@@ -97,68 +87,9 @@ public class FirebaseService {
     }
 
     /**
-     * Creates a new event in Firestore.
-     *
-     * @param event The Event object to be created in Firestore.
-     * @param callback A callback to handle the result of the operation.
-     */
-    public void createEvent(Event event, FirebaseCallback<String> callback) {
-        DocumentReference newEventRef = db.collection("events").document();
-        event.setId(newEventRef.getId());
-        newEventRef.set(event)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Event created successfully in Firestore");
-                    callback.onSuccess(event.getId());
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to create event in Firestore", e);
-                    callback.onFailure(e);
-                });
-
-    }
-
-    /**
-     * Retrieves an event from Firestore based on its ID.
-     *
-     * @param eventId The ID of the event to retrieve.
-     * @param callback A callback to handle the result of the operation.
-     */
-    public void getEventById(String eventId, FirebaseCallback<Event> callback) {
-        db.collection("events").document(eventId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    Event event = documentSnapshot.toObject(Event.class);
-                    callback.onSuccess(event);
-                })
-                .addOnFailureListener(e -> callback.onFailure(e));
-    }
-
-    /**
-     * Updates an existing event in Firestore.
-     *
-     * @param event The Event object with updated information.
-     * @param callback A callback to handle the result of the operation.
-     */
-    public void updateEvent(Event event, FirebaseCallback<Void> callback) {
-        db.collection("events").document(event.getId()).set(event)
-                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                .addOnFailureListener(e -> callback.onFailure(e));
-    }
-
-    /**
-     * Deletes an event from Firestore based on its ID.
-     *
-     * @param eventId The ID of the event to delete.
-     * @param callback A callback to handle the result of the operation.
-     */
-    public void deleteEvent(String eventId, FirebaseCallback<Void> callback) {
-        db.collection("events").document(eventId).delete()
-                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                .addOnFailureListener(e -> callback.onFailure(e));
-    }
-
-    /**
      * Retrieves a user by their unique user ID from Firebase Firestore.
-     * @param userId The unique identifier of the user.
+     *
+     * @param userId   The unique identifier of the user.
      * @param callback The callback to handle the response, which provides the User object if found,
      *                 or null if the user is not found.
      */
@@ -178,8 +109,9 @@ public class FirebaseService {
 
     /**
      * Updates the user details in Firebase Firestore.
-     * @param userId The unique identifier of the user to be updated.
-     * @param user The User object containing the updated information.
+     *
+     * @param userId   The unique identifier of the user to be updated.
+     * @param user     The User object containing the updated information.
      * @param callback The callback to handle the response, which provides success if the user details
      *                 are updated successfully, or an error if the update fails.
      */
@@ -190,4 +122,62 @@ public class FirebaseService {
                 .addOnFailureListener(callback::onFailure);
     }
 
+    /**
+     * Creates a new event in Firestore.
+     *
+     * @param event    The Event object to be created in Firestore.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void createEvent(Event event, FirebaseCallback<String> callback) {
+        DocumentReference newEventRef = db.collection("events").document();
+        event.setId(newEventRef.getId());
+        newEventRef.set(event)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Event created successfully in Firestore");
+                    callback.onSuccess(event.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create event in Firestore", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Retrieves an event from Firestore based on its ID.
+     *
+     * @param eventId  The ID of the event to retrieve.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void getEventById(String eventId, FirebaseCallback<Event> callback) {
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    Event event = documentSnapshot.toObject(Event.class);
+                    callback.onSuccess(event);
+                })
+                .addOnFailureListener(e -> callback.onFailure(e));
+    }
+
+    /**
+     * Updates an existing event in Firestore.
+     *
+     * @param event    The Event object with updated information.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void updateEvent(Event event, FirebaseCallback<Void> callback) {
+        db.collection("events").document(event.getId()).set(event)
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(e -> callback.onFailure(e));
+    }
+
+    /**
+     * Deletes an event from Firestore based on its ID.
+     *
+     * @param eventId  The ID of the event to delete.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void deleteEvent(String eventId, FirebaseCallback<Void> callback) {
+        db.collection("events").document(eventId).delete()
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(e -> callback.onFailure(e));
+    }
 }

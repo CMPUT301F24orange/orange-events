@@ -12,7 +12,7 @@ import com.example.orange.data.model.UserType;
  */
 public class SessionManager {
     private static final String PREF_NAME = "UserSession";
-    private static final String KEY_USERNAME = "username";
+    private static final String KEY_DEVICE_ID = "deviceID";
     private static final String KEY_USER_TYPE = "userType";
     private static final String KEY_USER_ID = "userId";
 
@@ -37,7 +37,7 @@ public class SessionManager {
      * @param userId The unique identifier of the user.
      */
     public void createLoginSession(String username, UserType userType, String userId) {
-        editor.putString(KEY_USERNAME, username);
+        editor.putString(KEY_DEVICE_ID, username);
         editor.putString(KEY_USER_TYPE, userType.name());
         editor.putString(KEY_USER_ID, userId);
         editor.commit();
@@ -48,13 +48,13 @@ public class SessionManager {
      * @return A UserSession object containing the user's details if a session exists, null otherwise.
      */
     public UserSession getUserSession() {
-        String username = pref.getString(KEY_USERNAME, null);
+        String deviceId = pref.getString(KEY_DEVICE_ID, null);
         String userTypeStr = pref.getString(KEY_USER_TYPE, null);
         String userId = pref.getString(KEY_USER_ID, null);
 
-        if (username != null && userTypeStr != null && userId != null) {
+        if (deviceId != null && userTypeStr != null && userId != null) {
             UserType userType = UserType.valueOf(userTypeStr);
-            return new UserSession(username, userType, userId);
+            return new UserSession(deviceId, userType, userId);
         }
         return null;
     }
@@ -72,6 +72,6 @@ public class SessionManager {
      * @return true if a user is logged in, false otherwise.
      */
     public boolean isLoggedIn() {
-        return pref.getString(KEY_USERNAME, null) != null;
+        return pref.getString(KEY_DEVICE_ID, null) != null;
     }
 }
