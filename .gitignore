@@ -50,3 +50,5 @@ render.experimental.xml
 .externalNativeBuild
 .cxx
 local.properties
+
+google-services.json
