@@ -39,12 +39,12 @@ public class FirebaseService {
      * @param userType The type of the user (e.g., ENTRANT, ORGANIZER, ADMIN).
      * @param callback A callback to handle the result of the operation.
      */
-    public void getUserByUsernameAndType(String username, UserType userType, FirebaseCallback<User> callback) {
-        Log.d(TAG, "Starting getUserByUsernameAndType for username: " + username);
+    public void getUserByDeviceIdAndType(String deviceId, UserType userType, FirebaseCallback<User> callback) {
+        Log.d(TAG, "Starting getUserByUsernameAndType for username: " + deviceId);
         long startTime = System.currentTimeMillis();
 
         Query query = db.collection("users")
-                .whereEqualTo("username", username)
+                .whereEqualTo("deviceId", deviceId)
                 .whereEqualTo("userType", userType)
                 .limit(1);
 
@@ -61,7 +61,7 @@ public class FirebaseService {
                     callback.onSuccess(null);
                 }
             } else {
-                Log.e(TAG, "Error in getUserByUsernameAndType", task.getException());
+                Log.e(TAG, "Error in getUserByDeviceIdAndType", task.getException());
                 callback.onFailure(task.getException());
             }
         });
@@ -74,7 +74,7 @@ public class FirebaseService {
      * @param callback A callback to handle the result of the operation.
      */
     public void createUser(User user, FirebaseCallback<String> callback) {
-        Log.d(TAG, "Attempting to create user: " + user.getUsername());
+        Log.d(TAG, "Attempting to create user: " + user.getDeviceId());
         db.collection("users").add(user)
                 .addOnSuccessListener(documentReference -> {
                     String id = documentReference.getId();
@@ -148,4 +148,39 @@ public class FirebaseService {
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(e -> callback.onFailure(e));
     }
+
+    /**
+     * Retrieves a user by their unique user ID from Firebase Firestore.
+     * @param userId The unique identifier of the user.
+     * @param callback The callback to handle the response, which provides the User object if found,
+     *                 or null if the user is not found.
+     */
+    public void getUserById(String userId, FirebaseCallback<User> callback) {
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        callback.onSuccess(user);
+                    } else {
+                        callback.onSuccess(null);  // Handle user not found
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Updates the user details in Firebase Firestore.
+     * @param userId The unique identifier of the user to be updated.
+     * @param user The User object containing the updated information.
+     * @param callback The callback to handle the response, which provides success if the user details
+     *                 are updated successfully, or an error if the update fails.
+     */
+    public void updateUser(String userId, User user, FirebaseCallback<Void> callback) {
+        db.collection("users").document(userId)
+                .set(user)
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
 }

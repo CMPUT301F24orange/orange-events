@@ -5,30 +5,30 @@ package com.example.orange.data.model;
  * This class stores information about the currently logged-in user.
  */
 public class UserSession {
-    private String username;
+    private String deviceId;
     private UserType userType;
     private String userId;
 
     /**
      * Constructs a new UserSession.
      *
-     * @param username The username of the logged-in user.
+     * @param deviceId The deviceId of the logged-in user.
      * @param userType The type of the logged-in user (ENTRANT, ORGANIZER, or ADMIN).
      * @param userId The unique identifier of the logged-in user.
      */
-    public UserSession(String username, UserType userType, String userId) {
-        this.username = username;
+    public UserSession(String deviceId, UserType userType, String userId) {
+        this.deviceId = deviceId;
         this.userType = userType;
         this.userId = userId;
     }
 
     /**
-     * Gets the username of the logged-in user.
+     * Gets the deviceId of the logged-in user.
      *
-     * @return The username.
+     * @return The deviceId.
      */
-    public String getUsername() {
-        return username;
+    public String getdeviceId() {
+        return deviceId;
     }
 
     /**
