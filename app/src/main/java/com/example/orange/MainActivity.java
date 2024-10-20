@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private SessionManager sessionManager;
     private DrawerLayout drawer;
     private NavigationView navigationView;
-
+    int test = 1;
     /**
      * Initializes the activity, sets up the UI components, and configures navigation.
      *
