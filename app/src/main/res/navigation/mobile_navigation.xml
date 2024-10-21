@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_login">
 
@@ -9,7 +9,9 @@
         android:id="@+id/nav_home"
         android:name="com.example.orange.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+
+    </fragment>
 
     <fragment
         android:id="@+id/nav_login"
@@ -33,11 +35,24 @@
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 
-
     <fragment
         android:id="@+id/nav_admin"
         android:name="com.example.orange.ui.home.HomeFragment"
         android:label="@string/menu_admin"
         tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_create_event"
+        android:name="com.example.orange.ui.organizer.CreateEventFragment"
+        android:label="Create Event"
+        tools:layout="@layout/fragment_create_event">
+        <action
+            android:id="@+id/action_createEventFragment_to_homeFragment"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_create_event"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+
 
 </navigation>

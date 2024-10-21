@@ -24,5 +24,11 @@
             android:id="@+id/nav_admin"
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/menu_admin" />
+
+        <item
+            android:id="@+id/nav_create_event"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="@string/menu_create_event" />
+
     </group>
 </menu>
