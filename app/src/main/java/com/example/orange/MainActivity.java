@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             switch (userType) {
                 case ORGANIZER:
                     // nav_Menu.findItem(R.id.nav_create_event).setVisible(true);
+                    nav_Menu.findItem(R.id.nav_create_event).setVisible(true);
                     break;
                 case ADMIN:
                     // nav_Menu.findItem(R.id.nav_create_event).setVisible(true);

@@ -25,7 +25,7 @@ public class Event {
     private String title;
     private String description;
     private Timestamp date;
-    private int capacity;
+    private Integer capacity;
     private String organizerId;
     private List<String> waitingList;
     private List<String> participants;
@@ -47,7 +47,7 @@ public class Event {
      * @param capacity
      * @param organizerId
      */
-    public Event(String title, String description, Timestamp date, int capacity, String organizerId) {
+    public Event(String title, String description, Timestamp date, Integer capacity, String organizerId) {
         this.title = title;
         this.description = description;
         this.date = date;
@@ -125,7 +125,7 @@ public class Event {
      * Capicity getter
      * @return int : capacity
      */
-    public int getCapacity() {
+    public Integer getCapacity() {
         return capacity;
     }
 
@@ -133,7 +133,7 @@ public class Event {
      * Capacity setter
      * @param capacity
      */
-    public void setCapacity(int capacity) {
+    public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
 
@@ -215,12 +215,16 @@ public class Event {
     }
 
     /**
-     * This function checks if the participants list is at capacity
+     * This function checks if the participants list is at capacity.
      * @return Boolean
      */
     public boolean isFull() {
+        if (capacity == null) {
+            return false;
+        }
         return participants.size() >= capacity;
     }
+
 
     /**
      * Function to return specific string for an object of type Event
