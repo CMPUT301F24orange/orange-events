@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "971996785004",
-    "project_id": "orange-events-bc634",
-    "storage_bucket": "orange-events-bc634.appspot.com"
+    "project_number": "299936146777",
+    "project_id": "event-lottery-system---orange",
+    "storage_bucket": "event-lottery-system---orange.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:971996785004:android:e332fd3cc075591a586b49",
+        "mobilesdk_app_id": "1:299936146777:android:f92fbbdfc80fe364191848",
         "android_client_info": {
           "package_name": "com.example.orange"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDXJx3ToRVcQG2CWzE5VpCce3N_mGBlyuM"
+          "current_key": "AIzaSyA_tPthOXldfR1NmUfBP9ghHikRVLH3ybI"
         }
       ],
       "services": {
