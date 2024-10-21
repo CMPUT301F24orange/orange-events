@@ -21,7 +21,6 @@ import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.utils.SessionManager;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
 
@@ -30,7 +29,6 @@ public class CreateEventFragment extends Fragment {
     private Button createEventButton;
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
-    private FirebaseFirestore db;
 
     @Nullable
     @Override
@@ -44,7 +42,6 @@ public class CreateEventFragment extends Fragment {
 
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(requireContext());
-        db = FirebaseFirestore.getInstance();
 
         createEventButton.setOnClickListener(v -> createEvent());
 
@@ -56,26 +53,37 @@ public class CreateEventFragment extends Fragment {
         String description = descriptionEditText.getText().toString().trim();
         String capacityStr = capacityEditText.getText().toString().trim();
 
-        if (TextUtils.isEmpty(title) || TextUtils.isEmpty(description) || TextUtils.isEmpty(capacityStr)) {
-            Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+        // Check if title or description is empty
+        if (TextUtils.isEmpty(title) || TextUtils.isEmpty(description)) {
+            Toast.makeText(requireContext(), "Title and description are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int capacity = Integer.parseInt(capacityStr);
+        // Handle empty capacity
+        Integer capacity = null;
+        if (!TextUtils.isEmpty(capacityStr)) {
+            try {
+                capacity = Integer.parseInt(capacityStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(requireContext(), "Invalid capacity value", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        // Create event object with a nullable capacity
         String organizerId = sessionManager.getUserSession().getUserId();
         Event event = new Event(title, description, new Timestamp(new Date()), capacity, organizerId);
         Log.d("CreateEventFragment", "Attempting to create event: " + event);
 
+        // Save event to Firestore
         firebaseService.createEvent(event, new FirebaseCallback<String>() {
             @Override
             public void onSuccess(String eventId) {
                 Log.d("CreateEventFragment", "Event created successfully with ID: " + eventId);
                 Toast.makeText(requireContext(), "Event created successfully", Toast.LENGTH_SHORT).show();
 
-                // Add read operation to verify event creation in Firestore
-                verifyEventCreation();
-
-                Navigation.findNavController(requireView()).navigate(R.id.nav_home);
+                // Navigate back to home, clearing the back stack
+                Navigation.findNavController(requireView()).navigate(R.id.action_createEventFragment_to_homeFragment);
             }
 
             @Override
@@ -84,20 +92,5 @@ public class CreateEventFragment extends Fragment {
                 Toast.makeText(requireContext(), "Failed to create event", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void verifyEventCreation() {
-        db.collection("events").get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        Log.d("CreateEventFragment", "Events found: " + queryDocumentSnapshots.size());
-                        for (Event event : queryDocumentSnapshots.toObjects(Event.class)) {
-                            Log.d("CreateEventFragment", "Event in Firestore: " + event.getTitle());
-                        }
-                    } else {
-                        Log.d("CreateEventFragment", "No events found in Firestore");
-                    }
-                })
-                .addOnFailureListener(e -> Log.e("CreateEventFragment", "Failed to read events from Firestore", e));
     }
 }
