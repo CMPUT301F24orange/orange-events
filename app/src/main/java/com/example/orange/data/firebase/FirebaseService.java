@@ -5,9 +5,13 @@ import com.example.orange.data.model.Event;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.example.orange.data.model.UserSession;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * FirebaseService provides methods to interact with Firebase Firestore.
@@ -211,5 +215,101 @@ public class FirebaseService {
         db.collection("events").document(eventId).delete()
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(e -> callback.onFailure(e));
+    }
+
+    /**
+     * Adds a user to the waitlist of an event.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void addToEventWaitlist(String eventId, String userId, FirebaseCallback<Void> callback) {
+        getEventById(eventId, new FirebaseCallback<Event>() {
+            @Override
+            public void onSuccess(Event event) {
+                if (event != null) {
+                    event.addToWaitingList(userId);
+                    updateEvent(event, callback);
+                } else {
+                    callback.onFailure(new Exception("Event not found"));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+    /**
+     * Removes a user from the waitlist of an event.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void removeFromEventWaitlist(String eventId, String userId, FirebaseCallback<Void> callback) {
+        getEventById(eventId, new FirebaseCallback<Event>() {
+            @Override
+            public void onSuccess(Event event) {
+                if (event != null) {
+                    event.removeFromWaitingList(userId);
+                    updateEvent(event, callback);
+                } else {
+                    callback.onFailure(new Exception("Event not found"));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+    /**
+     * Moves the first user from the waitlist to participants if the event is not full.
+     * @param eventId The ID of the event.
+     * @param callback Callback for success or failure.
+     */
+    public void moveFromWaitlistToParticipants(String eventId, FirebaseCallback<Void> callback) {
+        getEventById(eventId, new FirebaseCallback<Event>() {
+            @Override
+            public void onSuccess(Event event) {
+                if (event != null && !event.getWaitingList().isEmpty() && !event.isFull()) {
+                    String userId = event.getWaitingList().get(0);
+                    event.removeFromWaitingList(userId);
+                    event.addParticipant(userId);
+                    updateEvent(event, callback);
+                } else {
+                    callback.onFailure(new Exception("No users in waitlist or event is full"));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+    /**
+     * Retrieves all events from Firestore.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void getAllEvents(FirebaseCallback<List<Event>> callback) {
+        db.collection("events")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Event> events = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        Event event = document.toObject(Event.class);
+                        if (event != null) {
+                            events.add(event);
+                        }
+                    }
+                    callback.onSuccess(events);
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 }

@@ -230,10 +230,13 @@ public class Event {
      * @param userId
      */
     public void addParticipant(String userId) {
-        if (!participants.contains(userId) && participants.size() < capacity) {
-            participants.add(userId);
+        if (capacity == null || participants.size() < capacity) {
+            if (!participants.contains(userId)) {
+                participants.add(userId);
+            }
         }
     }
+
 
     /**
      * This function checks if the participants list is at capacity.
@@ -264,4 +267,5 @@ public class Event {
                 ", participants=" + participants.size() +
                 '}';
     }
+
 }
