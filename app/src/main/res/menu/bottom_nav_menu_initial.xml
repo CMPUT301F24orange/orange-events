@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_join_event"
+        android:icon="@drawable/ic_join_event"
+        android:title="Join Event"
+        android:orderInCategory="1" />
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home"
+        android:orderInCategory="2" />
+
+    <item
+        android:id="@+id/navigation_create_event"
+        android:icon="@drawable/ic_create_event"
+        android:title="Create Event"
+        android:orderInCategory="3" />
+</menu>
