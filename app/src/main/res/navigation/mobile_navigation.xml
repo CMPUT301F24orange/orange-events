@@ -1,61 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android/tools"
-    android:id="@+id/nav_graph"
-    app:startDestination="@id/nav_login"
-    >
-
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
     <fragment
-        android:id="@+id/nav_home"
+        android:id="@+id/navigation_join_event"
+        android:name="com.example.orange.ui.join.JoinEventFragment"
+        android:label="Join Event" />
+    <fragment
+        android:id="@+id/navigation_home"
         android:name="com.example.orange.ui.home.HomeFragment"
-        android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home">
-
-    </fragment>
+        android:label="Home" />
 
     <fragment
-        android:id="@+id/nav_login"
-        android:name="com.example.orange.ui.login.LoginFragment"
-        android:label="Login"
-        tools:layout="@layout/fragment_login">
-        <action
-            android:id="@+id/action_loginFragment_to_homeFragment"
-            app:destination="@id/nav_home"
-            app:popUpTo="@id/nav_login"
-            app:popUpToInclusive="true"/>
-    </fragment>
+        android:id="@+id/navigation_create_event"
+        android:name="com.example.orange.ui.create.CreateEventFragment"
+        android:label="Create Event" />
 
     <fragment
-        android:id="@+id/nav_events"
-        android:name="com.example.orange.ui.home.HomeFragment"
-        android:label="@string/menu_events"
-        tools:layout="@layout/fragment_home" />
+        android:id="@+id/navigation_my_events"
+        android:name="com.example.orange.ui.events.MyEventsFragment"
+        android:label="My Events" />
 
     <fragment
-        android:id="@+id/nav_profile"
+        android:id="@+id/navigation_view_my_events"
+        android:name="com.example.orange.ui.organizer.ViewMyEventsFragment"
+        android:label="My Events" />
+    <fragment
+        android:id="@+id/navigation_profile"
         android:name="com.example.orange.ui.profile.ProfileFragment"
-        android:label="Profile"
-        tools:layout="@layout/fragment_profile" />
-
-    <fragment
-        android:id="@+id/nav_admin"
-        android:name="com.example.orange.ui.home.HomeFragment"
-        android:label="@string/menu_admin"
-        tools:layout="@layout/fragment_home" />
-
-    <fragment
-        android:id="@+id/nav_create_event"
-        android:name="com.example.orange.ui.organizer.CreateEventFragment"
-        android:label="Create Event"
-        tools:layout="@layout/fragment_create_event">
-        <action
-            android:id="@+id/action_createEventFragment_to_homeFragment"
-            app:destination="@id/nav_home"
-            app:popUpTo="@id/nav_create_event"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-
-
+        android:label="Profile" />
 </navigation>

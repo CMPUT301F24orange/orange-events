@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /* Todo:
-*    Add in event image functionality
-*   Complete overall functionality
-     */
+ *    Add in event image functionality
+ *   Complete overall functionality
+ */
 
 /**
  * This class defines an Event
+ *
  * @author Graham Flokstra
- * @version 1.0.0
  */
 public class Event {
     @DocumentId // Helps auto populate document id with firestore
@@ -32,6 +32,7 @@ public class Event {
 
     /**
      * Default constructor required for Firestone
+     *
      * @see <a href="https://firebase.google.com/docs/firestore/manage-data/add-data#custom_objects">...</a>
      */
     public Event() {
@@ -41,6 +42,7 @@ public class Event {
 
     /**
      * Constructor
+     *
      * @param title
      * @param description
      * @param date
@@ -59,6 +61,7 @@ public class Event {
 
     /**
      * Id getter
+     *
      * @return String: event id
      */
     public String getId() {
@@ -67,6 +70,7 @@ public class Event {
 
     /**
      * Id setter
+     *
      * @param id
      */
     public void setId(String id) {
@@ -75,6 +79,7 @@ public class Event {
 
     /**
      * Title getter
+     *
      * @return String: Title
      */
     public String getTitle() {
@@ -83,6 +88,7 @@ public class Event {
 
     /**
      * Title setter
+     *
      * @param title
      */
     public void setTitle(String title) {
@@ -91,6 +97,7 @@ public class Event {
 
     /**
      * Description getter
+     *
      * @return String: event description
      */
     public String getDescription() {
@@ -99,6 +106,7 @@ public class Event {
 
     /**
      * Description setter
+     *
      * @param description
      */
     public void setDescription(String description) {
@@ -107,6 +115,7 @@ public class Event {
 
     /**
      * Date getter
+     *
      * @return Timestamp: event date
      */
     public Timestamp getDate() {
@@ -115,6 +124,7 @@ public class Event {
 
     /**
      * Date setter
+     *
      * @param date
      */
     public void setDate(Timestamp date) {
@@ -122,7 +132,8 @@ public class Event {
     }
 
     /**
-     * Capicity getter
+     * Capacity getter
+     *
      * @return int : capacity
      */
     public Integer getCapacity() {
@@ -131,6 +142,7 @@ public class Event {
 
     /**
      * Capacity setter
+     *
      * @param capacity
      */
     public void setCapacity(Integer capacity) {
@@ -139,6 +151,7 @@ public class Event {
 
     /**
      * OrganizerId getter
+     *
      * @return String: organizerId
      */
     public String getOrganizerId() {
@@ -147,6 +160,7 @@ public class Event {
 
     /**
      * OrganizerId setter
+     *
      * @param organizerId
      */
     public void setOrganizerId(String organizerId) {
@@ -155,6 +169,7 @@ public class Event {
 
     /**
      * WaitingList getter
+     *
      * @return List<String>: waiting list
      */
     public List<String> getWaitingList() {
@@ -163,6 +178,7 @@ public class Event {
 
     /**
      * WaitingList setter
+     *
      * @param waitingList
      */
     public void setWaitingList(List<String> waitingList) {
@@ -171,6 +187,7 @@ public class Event {
 
     /**
      * Participants List getter
+     *
      * @return List<String>: participant list
      */
     public List<String> getParticipants() {
@@ -179,6 +196,7 @@ public class Event {
 
     /**
      * ParticipantsList setter
+     *
      * @param participants
      */
     public void setParticipants(List<String> participants) {
@@ -188,6 +206,7 @@ public class Event {
     // Utility methods
     /**
      * Function to add user to waiting list
+     *
      * @param userId
      */
     public void addToWaitingList(String userId) {
@@ -198,6 +217,7 @@ public class Event {
 
     /**
      * Function to remove user from waitingList
+     *
      * @param userId
      */
     public void removeFromWaitingList(String userId) {
@@ -206,6 +226,7 @@ public class Event {
 
     /**
      * Function to add user to participants list
+     *
      * @param userId
      */
     public void addParticipant(String userId) {
@@ -216,6 +237,7 @@ public class Event {
 
     /**
      * This function checks if the participants list is at capacity.
+     *
      * @return Boolean
      */
     public boolean isFull() {
@@ -229,6 +251,7 @@ public class Event {
     /**
      * Function to return specific string for an object of type Event
      * Mostly useful for debugging
+     *
      * @return String
      */
     @Override
