@@ -76,4 +76,26 @@ public class JoinEventFragment extends Fragment {
             }
         });
     }
+
+    public void leaveWaitlist(Event event) {
+        String userId = sessionManager.getUserSession().getUserId();
+
+        firebaseService.removeFromEventWaitlist(event.getId(), userId, new FirebaseCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Toast.makeText(requireContext(), "Removed from waitlist", Toast.LENGTH_SHORT).show();
+                loadEvents();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to remove from waitlist", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager;
+    }
+
 }
