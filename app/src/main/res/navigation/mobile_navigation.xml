@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+    <fragment
+        android:id="@+id/navigation_join_event"
+        android:name="com.example.orange.ui.join.JoinEventFragment"
+        android:label="Join Event" />
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.orange.ui.home.HomeFragment"
+        android:label="Home" />
+
+    <fragment
+        android:id="@+id/navigation_create_event"
+        android:name="com.example.orange.ui.create.CreateEventFragment"
+        android:label="Create Event" />
+
+    <fragment
+        android:id="@+id/navigation_my_events"
+        android:name="com.example.orange.ui.events.MyEventsFragment"
+        android:label="My Events" />
+
+    <fragment
+        android:id="@+id/navigation_view_my_events"
+        android:name="com.example.orange.ui.organizer.ViewMyEventsFragment"
+        android:label="My Events" />
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.orange.ui.profile.ProfileFragment"
+        android:label="Profile" />
+
+</navigation>

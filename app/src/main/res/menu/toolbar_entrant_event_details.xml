@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/toolbar_back_entrant_event_details"
+        android:icon="@drawable/ic_back"
+        android:title="Back"
+        android:orderInCategory="1" />
+</menu>
