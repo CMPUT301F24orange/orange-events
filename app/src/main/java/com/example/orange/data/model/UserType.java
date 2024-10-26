@@ -2,6 +2,7 @@ package com.example.orange.data.model;
 
 /**
  * Enum representing the different types of users in the application.
+ * @author graham flokstra
  */
 public enum UserType {
     /**

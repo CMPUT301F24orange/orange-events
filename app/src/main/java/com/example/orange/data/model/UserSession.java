@@ -3,6 +3,7 @@ package com.example.orange.data.model;
 /**
  * Represents a user session in the application.
  * This class stores information about the currently logged-in user.
+ * @author graham flokstra
  */
 public class UserSession {
     private String deviceId;
@@ -48,4 +49,5 @@ public class UserSession {
     public String getUserId() {
         return userId;
     }
+
 }

@@ -1,21 +1,28 @@
 package com.example.orange.data.firebase;
 
 import android.util.Log;
-
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.example.orange.data.model.UserSession;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * FirebaseService provides methods to interact with Firebase Firestore.
  * It handles operations for users and events.
+ *
+ * @author graham flokstra
  */
 public class FirebaseService {
     private static final String TAG = "FirebaseService";
     private FirebaseFirestore db;
+    private UserSession currentUserSession; // Hold the session of the logged-in user
 
     /**
      * Constructor for FirebaseService.
@@ -33,28 +40,62 @@ public class FirebaseService {
      * @param callback A callback to handle the result of the operation.
      */
     public void getUserByDeviceIdAndType(String deviceId, UserType userType, FirebaseCallback<User> callback) {
-        Log.d(TAG, "Starting getUserByDeviceIdAndType for deviceId: " + deviceId);
+        String userId = generateUserId(deviceId, userType);
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        callback.onSuccess(user);
+                    } else {
+                        callback.onSuccess(null);
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
 
-        Query query = db.collection("users")
-                .whereEqualTo("deviceId", deviceId)
-                .whereEqualTo("userType", userType)
-                .limit(1);
+    /**
+     * Signs in a user or organizer. If the user does not exist in Firestore, it creates a new one.
+     *
+     * @param deviceId The device ID of the user.
+     * @param userType The type of user (ENTRANT or ORGANIZER).
+     * @param callback A callback to handle the result of the sign-in operation.
+     */
+    public void signInUser(String deviceId, UserType userType, FirebaseCallback<Boolean> callback) {
+        getUserByDeviceIdAndType(deviceId, userType, new FirebaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user == null) {
+                    user = new User(deviceId, userType);
+                    createUser(user, new FirebaseCallback<String>() {
+                        @Override
+                        public void onSuccess(String userId) {
+                            currentUserSession = new UserSession(deviceId, userType, userId);
+                            callback.onSuccess(true);
+                        }
 
-        query.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                if (!task.getResult().isEmpty()) {
-                    User user = task.getResult().getDocuments().get(0).toObject(User.class);
-                    Log.d(TAG, "User retrieved successfully");
-                    callback.onSuccess(user);
+                        @Override
+                        public void onFailure(Exception e) {
+                            callback.onFailure(e);
+                        }
+                    });
                 } else {
-                    Log.d(TAG, "User not found");
-                    callback.onSuccess(null);
+                    currentUserSession = new UserSession(deviceId, userType, user.getId());
+                    callback.onSuccess(true);
                 }
-            } else {
-                Log.e(TAG, "Error in getUserByDeviceIdAndType", task.getException());
-                callback.onFailure(task.getException());
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
             }
         });
+    }
+
+    /**
+     * Logs out the current user by clearing the session.
+     */
+    public void logOut() {
+        currentUserSession = null;
     }
 
     /**
@@ -64,26 +105,36 @@ public class FirebaseService {
      * @param callback A callback to handle the result of the operation.
      */
     public void createUser(User user, FirebaseCallback<String> callback) {
-        Log.d(TAG, "Attempting to create user: " + user.getDeviceId());
-        db.collection("users").add(user)
-                .addOnSuccessListener(documentReference -> {
-                    String id = documentReference.getId();
-                    user.setId(id);
-                    Log.d(TAG, "User created successfully with ID: " + id);
-                    documentReference.set(user)
-                            .addOnSuccessListener(aVoid -> {
-                                Log.d(TAG, "User data updated with ID");
-                                callback.onSuccess(id);
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Failed to update user with ID", e);
-                                callback.onFailure(e);
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to create user", e);
-                    callback.onFailure(e);
-                });
+        String userId = generateUserId(user.getDeviceId(), user.getUserType());
+        db.collection("users").document(userId)
+                .set(user)
+                .addOnSuccessListener(aVoid -> callback.onSuccess(userId))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Updates an existing user in Firestore.
+     *
+     * @param user
+     * @param callback
+     */
+    public void updateUser(User user, FirebaseCallback<Void> callback) {
+        String userId = generateUserId(user.getDeviceId(), user.getUserType());
+        db.collection("users").document(userId)
+                .set(user)
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Generates a userId based on deviceId and userType.
+     *
+     * @param deviceId
+     * @param userType
+     * @return String
+     */
+    private String generateUserId(String deviceId, UserType userType) {
+        return deviceId + "_" + userType.name();
     }
 
     /**
@@ -101,24 +152,9 @@ public class FirebaseService {
                         User user = documentSnapshot.toObject(User.class);
                         callback.onSuccess(user);
                     } else {
-                        callback.onSuccess(null);  // Handle user not found
+                        callback.onSuccess(null);
                     }
                 })
-                .addOnFailureListener(callback::onFailure);
-    }
-
-    /**
-     * Updates the user details in Firebase Firestore.
-     *
-     * @param userId   The unique identifier of the user to be updated.
-     * @param user     The User object containing the updated information.
-     * @param callback The callback to handle the response, which provides success if the user details
-     *                 are updated successfully, or an error if the update fails.
-     */
-    public void updateUser(String userId, User user, FirebaseCallback<Void> callback) {
-        db.collection("users").document(userId)
-                .set(user)
-                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(callback::onFailure);
     }
 
@@ -179,5 +215,101 @@ public class FirebaseService {
         db.collection("events").document(eventId).delete()
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(e -> callback.onFailure(e));
+    }
+
+    /**
+     * Adds a user to the waitlist of an event.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void addToEventWaitlist(String eventId, String userId, FirebaseCallback<Void> callback) {
+        getEventById(eventId, new FirebaseCallback<Event>() {
+            @Override
+            public void onSuccess(Event event) {
+                if (event != null) {
+                    event.addToWaitingList(userId);
+                    updateEvent(event, callback);
+                } else {
+                    callback.onFailure(new Exception("Event not found"));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+    /**
+     * Removes a user from the waitlist of an event.
+     * @param eventId The ID of the event.
+     * @param userId The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void removeFromEventWaitlist(String eventId, String userId, FirebaseCallback<Void> callback) {
+        getEventById(eventId, new FirebaseCallback<Event>() {
+            @Override
+            public void onSuccess(Event event) {
+                if (event != null) {
+                    event.removeFromWaitingList(userId);
+                    updateEvent(event, callback);
+                } else {
+                    callback.onFailure(new Exception("Event not found"));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+    /**
+     * Moves the first user from the waitlist to participants if the event is not full.
+     * @param eventId The ID of the event.
+     * @param callback Callback for success or failure.
+     */
+    public void moveFromWaitlistToParticipants(String eventId, FirebaseCallback<Void> callback) {
+        getEventById(eventId, new FirebaseCallback<Event>() {
+            @Override
+            public void onSuccess(Event event) {
+                if (event != null && !event.getWaitingList().isEmpty() && !event.isFull()) {
+                    String userId = event.getWaitingList().get(0);
+                    event.removeFromWaitingList(userId);
+                    event.addParticipant(userId);
+                    updateEvent(event, callback);
+                } else {
+                    callback.onFailure(new Exception("No users in waitlist or event is full"));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+    /**
+     * Retrieves all events from Firestore.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void getAllEvents(FirebaseCallback<List<Event>> callback) {
+        db.collection("events")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Event> events = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        Event event = document.toObject(Event.class);
+                        if (event != null) {
+                            events.add(event);
+                        }
+                    }
+                    callback.onSuccess(events);
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 }
