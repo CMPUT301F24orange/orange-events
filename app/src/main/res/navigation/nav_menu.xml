@@ -29,6 +29,9 @@
             android:id="@+id/nav_create_event"
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/menu_create_event" />
-
+        <item
+            android:id="@+id/nav_ScanQR"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="@string/menu_ScanQR" />
     </group>
 </menu>

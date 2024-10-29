@@ -28,6 +28,9 @@
             android:id="@+id/nav_admin"
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/menu_admin" />
-
+        <item
+            android:id="@+id/nav_ScanQR"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="@string/menu_ScanQR" />
     </group>
 </menu>

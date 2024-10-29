@@ -63,5 +63,6 @@ dependencies {
     // Glide; allows for image retrieval from firebase storage
     implementation(platform("androidx.compose:compose-bom:2024.09.03"))
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
 }
