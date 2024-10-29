@@ -14,4 +14,9 @@
         <item>Declined</item>
         <item>Enrolled</item>
     </string-array>
+    <string-array name="profile_filter_options">
+        <item>All</item>
+        <item>Entrants</item>
+        <item>Organizations</item>
+    </string-array>
 </resources>
