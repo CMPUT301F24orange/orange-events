@@ -1,8 +1,10 @@
 package com.example.orange.data.firebase;
 
 /**
- * Interface for handling asynchronous Firebase operations.
+ * Interface for handling asynchronous Firebase operations.\
+ *
  * @param <T> The type of result expected from the Firebase operation.
+ * @author graham flokstra
  */
 public interface FirebaseCallback<T> {
     /**

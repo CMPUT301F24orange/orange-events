@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/navigation_join_event"
+        android:icon="@drawable/ic_join_event"
+        android:title="Join Event" />
+
+
+    <item
+        android:id="@+id/navigation_view_my_events"
+        android:icon="@drawable/ic_my_events"
+        android:title="View Events" />
+    <item
+        android:id="@+id/navigation_create_event"
+        android:icon="@drawable/ic_create_event"
+        android:title="Create Event" />
+
+    <item
+        android:id="@+id/navigation_my_events"
+        android:icon="@drawable/ic_my_events"
+        android:title="My Events" />
+
+
+</menu>

@@ -1,42 +1,32 @@
 package com.example.orange;
 
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ProgressBar;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.example.orange.databinding.ActivityMainBinding;
-import com.example.orange.utils.SessionManager;
-import com.example.orange.data.model.UserSession;
+import com.example.orange.data.firebase.FirebaseService;
+import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.model.UserType;
-import com.google.android.material.navigation.NavigationView;
+import com.example.orange.utils.SessionManager;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import com.example.orange.databinding.ActivityMainBinding;
+import com.google.firebase.FirebaseApp;
 
 /**
- * MainActivity is the main entry point of the application.
- * It sets up the navigation drawer, handles user sessions, and manages the main UI components.
+ * The main activity
  */
 public class MainActivity extends AppCompatActivity {
-
-    private AppBarConfiguration mAppBarConfiguration;
+    private static final String TAG = "MainActivity";
     private ActivityMainBinding binding;
-    private NavController navController;
+    private FirebaseService firebaseService;
     private SessionManager sessionManager;
-    private DrawerLayout drawer;
-    private NavigationView navigationView;
-    /**
-     * Initializes the activity, sets up the UI components, and configures navigation.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
-     *                           this contains the data it most recently supplied in onSaveInstanceState(Bundle).
-     */
+    private NavController navController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,108 +34,207 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setSupportActionBar(binding.appBarMain.toolbar);
+        // Setup Toolbar
+        Toolbar toolbar = binding.toolbar;
+        setSupportActionBar(toolbar);
 
-        drawer = binding.drawerLayout;
-        navigationView = binding.navView;
+        if (FirebaseApp.getApps(this).isEmpty()) {
+            FirebaseApp.initializeApp(this);
+        }
 
-        // Initialize SessionManager
+        firebaseService = new FirebaseService();
         sessionManager = new SessionManager(this);
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
-        // Set up the AppBarConfiguration
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_login, R.id.nav_events, R.id.nav_profile, R.id.nav_admin)
-                .setOpenableLayout(drawer)
-                .build();
+        binding.navView.inflateMenu(R.menu.bottom_nav_menu);
 
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.nav_host_fragment_content_main);
-        navController = navHostFragment.getNavController();
+        if (sessionManager.isLoggedIn()) {
+            UserType userType = sessionManager.getUserSession().getUserType();
+            updateMenuVisibility(userType);
+        } else {
+            setupInitialNavigation();
+        }
+    }
 
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
+    /**
+     * Creates the option menu at the top of the page.
+     *
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (sessionManager.isLoggedIn()) {
+            getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+            return true;
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
 
-        // Set up the navigation menu based on user type
-        setupNavigationMenu();
+    /**
+     * Sets the profile button in the top right corner of the app
+     *
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.navigation_profile) {
+            navController.navigate(R.id.navigation_profile);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-        // Hide the drawer and toolbar on the login screen
-        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            if (destination.getId() == R.id.nav_login) {
-                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                if (getSupportActionBar() != null) {
-                    getSupportActionBar().hide();
-                }
+    /**
+     * Sets up the bottom navigation.
+     */
+    private void setupInitialNavigation() {
+        Log.d(TAG, "Setting up initial navigation");
+        // Show only initial menu items
+        updateMenuForInitialState();
+        setInitialClickListener();
+        navController.navigate(R.id.navigation_home);
+    }
+
+    /**
+     * Sets all on click listeners.
+     */
+    private void setInitialClickListener() {
+        binding.navView.setOnItemSelectedListener(item -> {
+            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+            Log.d(TAG, "Initial menu item clicked: " + item.getTitle());
+
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_join_event) {
+                handleUserSignIn(deviceId, UserType.ENTRANT);
+                return true;
+            } else if (itemId == R.id.navigation_create_event) {
+                handleUserSignIn(deviceId, UserType.ORGANIZER);
+                return true;
+            } else if (itemId == R.id.navigation_home) {
+                handleLogout();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Updates menu to only show proper selection based on userSession
+     */
+    private void updateMenuForInitialState() {
+        Log.d(TAG, "Updating menu for initial state");
+        Menu menu = binding.navView.getMenu();
+        if (menu != null) {
+            // Hide all items first
+            for (int i = 0; i < menu.size(); i++) {
+                menu.getItem(i).setVisible(false);
+            }
+
+            // Show only initial items
+            MenuItem joinItem = menu.findItem(R.id.navigation_join_event);
+            MenuItem homeItem = menu.findItem(R.id.navigation_home);
+            MenuItem createItem = menu.findItem(R.id.navigation_create_event);
+
+            if (joinItem != null) joinItem.setVisible(true);
+            if (homeItem != null) homeItem.setVisible(true);
+            if (createItem != null) createItem.setVisible(true);
+        }
+    }
+
+    /**
+     * After selection it updates menu visibility based on user type
+     * @param userType
+     */
+    private void updateMenuVisibility(UserType userType) {
+        Log.d(TAG, "Updating menu visibility for user type: " + userType);
+        Menu menu = binding.navView.getMenu();
+        if (menu != null) {
+            // First hide all items
+            for (int i = 0; i < menu.size(); i++) {
+                menu.getItem(i).setVisible(false);
+            }
+
+            // Show home for all users
+            MenuItem homeItem = menu.findItem(R.id.navigation_home);
+            if (homeItem != null) homeItem.setVisible(true);
+
+            if (userType == UserType.ENTRANT) {
+                MenuItem myEventsItem = menu.findItem(R.id.navigation_my_events);
+                MenuItem joinItem = menu.findItem(R.id.navigation_join_event);
+
+                if (myEventsItem != null) myEventsItem.setVisible(true);
+                if (joinItem != null) joinItem.setVisible(true);
+            } else if (userType == UserType.ORGANIZER) {
+                MenuItem viewEventsItem = menu.findItem(R.id.navigation_view_my_events);
+                MenuItem createItem = menu.findItem(R.id.navigation_create_event);
+
+                if (viewEventsItem != null) viewEventsItem.setVisible(true);
+                if (createItem != null) createItem.setVisible(true);
+            }
+
+            // Set the appropriate click listener
+            setLoggedInClickListener(userType);
+        }
+    }
+
+    /**
+     * Listener for user login
+     * @param userType
+     */
+    private void setLoggedInClickListener(UserType userType) {
+        binding.navView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            Log.d(TAG, "Logged in menu item clicked: " + item.getTitle());
+
+            if (itemId == R.id.navigation_home) {
+                handleLogout();
             } else {
-                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                if (getSupportActionBar() != null) {
-                    getSupportActionBar().show();
-                }
-                // Refresh the navigation menu when changing destinations
-                setupNavigationMenu();
+                navController.navigate(itemId);
+            }
+            return true;
+        });
+    }
+
+    /**
+     * Function to handle login/signup and create the user session
+     *
+     * @param deviceId
+     * @param userType
+     */
+    private void handleUserSignIn(String deviceId, UserType userType) {
+        Log.d(TAG, "Handling sign in for device: " + deviceId + " as " + userType);
+        firebaseService.signInUser(deviceId, userType, new FirebaseCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                sessionManager.createLoginSession(deviceId, userType, deviceId);
+                runOnUiThread(() -> {
+                    updateMenuVisibility(userType);
+                    invalidateOptionsMenu(); // This will show the profile icon
+                    if (userType == UserType.ENTRANT) {
+                        navController.navigate(R.id.navigation_join_event);
+                    } else {
+                        navController.navigate(R.id.navigation_create_event);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Sign in failed", e);
             }
         });
     }
 
     /**
-     * Sets up the navigation menu based on the user's session and type.
-     * This method is called to refresh the menu when the user's session changes.
+     * Logs user out of session.
      */
-    public void setupNavigationMenu() {
-        Menu nav_Menu = navigationView.getMenu();
-        UserSession userSession = sessionManager.getUserSession();
-
-        // Hide all menu items first
-        for (int i = 0; i < nav_Menu.size(); i++) {
-            nav_Menu.getItem(i).setVisible(false);
-        }
-
-        if (userSession != null) {
-            UserType userType = userSession.getUserType();
-
-            // Show common menu items
-            nav_Menu.findItem(R.id.nav_home).setVisible(true);
-            nav_Menu.findItem(R.id.nav_profile).setVisible(true);
-            nav_Menu.findItem(R.id.nav_events).setVisible(true);
-
-            // Show specific menu items based on user type
-            switch (userType) {
-                case ORGANIZER:
-                    // nav_Menu.findItem(R.id.nav_create_event).setVisible(true);
-                    nav_Menu.findItem(R.id.nav_create_event).setVisible(true);
-                    break;
-                case ADMIN:
-                    // nav_Menu.findItem(R.id.nav_create_event).setVisible(true);
-                    nav_Menu.findItem(R.id.nav_admin).setVisible(true);
-                    break;
-            }
-        } else {
-            // If no user is logged in, only show login
-            nav_Menu.findItem(R.id.nav_login).setVisible(true);
-        }
+    private void handleLogout() {
+        Log.d(TAG, "Handling logout");
+        firebaseService.logOut();
+        sessionManager.logoutUser();
+        invalidateOptionsMenu(); // This will hide the profile icon
+        setupInitialNavigation();
     }
-
-    /**
-     * Initializes the contents of the Activity's standard options menu.
-     *
-     * @param menu The options menu in which you place your items.
-     * @return You must return true for the menu to be displayed; if you return false it will not be shown.
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    /**
-     * This method is called whenever the user chooses to navigate Up within your application's activity hierarchy from the action bar.
-     *
-     * @return true if Up navigation completed successfully and this Activity was finished, false otherwise.
-     */
-    @Override
-    public boolean onSupportNavigateUp() {
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
-    }
-
-
 }

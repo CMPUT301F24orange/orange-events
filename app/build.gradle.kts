@@ -1,8 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-
-    //Added from firebase tutorial
-//    id("com.android.application")
     id("com.google.gms.google-services")
 }
 
@@ -47,22 +44,19 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
-    //Added from firebase tutorial
-    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
-    implementation("com.google.firebase:firebase-firestore")
+    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation( "androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation ("androidx.test:rules:1.5.0")
 
     // Added to allow for Image picker
     implementation( "androidx.activity:activity:1.7.2" )
     implementation ("androidx.activity:activity-ktx:1.7.2")
 
-    // Glide; allows for image retrieval from firebase storage
-    implementation(platform("androidx.compose:compose-bom:2024.09.03"))
-    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    //Added from firebase tutorial
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-firestore")
 
 }
