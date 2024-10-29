@@ -7,4 +7,16 @@
     <string name="hint_event_title">Event Title</string>
     <string name="hint_event_description">Event Description</string>
     <string name="hint_event_capacity">Maximum Capacity (optional)</string>
+    <string-array name="filter_options">
+        <item>All</item>
+        <item>Chosen</item>
+        <item>Cancelled</item>
+        <item>Declined</item>
+        <item>Enrolled</item>
+    </string-array>
+    <string-array name="profile_filter_options">
+        <item>All</item>
+        <item>Entrants</item>
+        <item>Organizations</item>
+    </string-array>
 </resources>
