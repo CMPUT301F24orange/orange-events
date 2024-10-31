@@ -26,14 +26,6 @@
                 android:orientation="vertical">
 
                 <!-- Event Name -->
-                <ImageButton
-                    android:id="@+id/backButton"
-                    android:layout_width="59dp"
-                    android:layout_height="54dp"
-                    android:layout_gravity="start"
-                    android:backgroundTint="@color/primary"
-                    android:contentDescription="Back"
-                    android:src="@drawable/ic_back" />
 
                 <TextView
                     android:id="@+id/eventName"

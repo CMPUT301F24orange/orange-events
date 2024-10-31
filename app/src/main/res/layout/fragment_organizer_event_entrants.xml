@@ -9,14 +9,6 @@
     <!-- Back Button -->
 
     <!-- Title -->
-    <ImageButton
-        android:id="@+id/backButton"
-        android:layout_width="59dp"
-        android:layout_height="53dp"
-        android:layout_gravity="start"
-        android:backgroundTint="@color/primary"
-        android:contentDescription="Back"
-        android:src="@drawable/ic_back" />
 
     <TextView
         android:id="@+id/titleText"
