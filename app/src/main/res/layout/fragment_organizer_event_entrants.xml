@@ -7,27 +7,32 @@
     android:background="@color/white">
 
     <!-- Back Button -->
-    <ImageButton
-        android:id="@+id/backButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_back"
-        android:contentDescription="Back"
-        android:layout_gravity="start" />
 
     <!-- Title -->
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="59dp"
+        android:layout_height="53dp"
+        android:layout_gravity="start"
+        android:backgroundTint="@color/primary"
+        android:contentDescription="Back"
+        android:src="@drawable/ic_back" />
+
     <TextView
         android:id="@+id/titleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Entrant List"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:background="@color/primary"
         android:gravity="center"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="16dp"
+        android:text="Entrant List"
+        android:textColor="#090909"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <!-- Map Image -->
+
     <ImageView
         android:id="@+id/mapImage"
         android:layout_width="match_parent"
