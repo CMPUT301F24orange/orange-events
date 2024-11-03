@@ -30,5 +30,9 @@
         android:id="@+id/navigation_profile"
         android:name="com.example.orange.ui.profile.ProfileFragment"
         android:label="Profile" />
+    <fragment
+        android:id="@+id/navigation_camera"
+        android:name="com.example.orange.ui.entrant.CreateQRFragment"
+        android:label="Camera" />
 
 </navigation>

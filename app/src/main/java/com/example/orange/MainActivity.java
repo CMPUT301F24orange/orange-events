@@ -83,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.navigation_profile);
             return true;
         }
+        else if(item.getItemId() == R.id.navigation_camera){
+            navController.navigate(R.id.navigation_camera);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 

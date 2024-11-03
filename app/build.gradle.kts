@@ -58,6 +58,8 @@ dependencies {
     //Added from firebase tutorial
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-firestore")
+
+    //Added for QR scanning
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
 }
