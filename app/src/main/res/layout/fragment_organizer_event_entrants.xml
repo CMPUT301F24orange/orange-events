@@ -6,9 +6,6 @@
     android:padding="16dp"
     android:background="@color/white">
 
-    <!-- Back Button -->
-
-    <!-- Title -->
 
     <TextView
         android:id="@+id/titleText"
@@ -24,7 +21,6 @@
         android:textStyle="bold" />
 
     <!-- Map Image -->
-
     <ImageView
         android:id="@+id/mapImage"
         android:layout_width="match_parent"
