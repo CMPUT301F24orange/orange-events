@@ -1,5 +1,7 @@
 package com.example.orange.ui.create;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -9,8 +11,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -24,6 +29,8 @@ import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.example.orange.utils.SessionManager;
 import com.google.firebase.Timestamp;
+//import com.google.firebase.storage.FirebaseStorage;
+//import com.google.firebase.storage.StorageReference;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,15 +44,35 @@ import java.util.Locale;
  *
  * @author Graham Flokstra
  * @author George
+ * @author Dhairya Prajapati
  */
 public class CreateEventFragment extends Fragment {
     private static final String TAG = "CreateEventFragment";
     private EditText titleEditText, descriptionEditText, capacityEditText, startDateEditText, endDateEditText;
     private EditText registrationOpensEditText, registrationDeadlineEditText, lotteryDayEditText, eventPriceEditText, waitlistLimitEditText;
     private CheckBox waitlistLimitCheckbox;
-    private Button createEventButton;
+    private Button createEventButton, uploadImageButton;
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
+    private Uri selectedImageUri;
+    private ImageView eventImageView;
+
+    /**
+     * Activity launcher for selecting an image from the device's gallery
+     * @author Dhairya Prajapati
+     */
+    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    selectedImageUri = result.getData().getData();
+                    if (selectedImageUri != null) {
+                        // Display the selected image in the ImageView
+                        eventImageView.setImageURI(selectedImageUri);
+                    }
+                }
+            }
+    );
 
     /**
      * Called to create and initialize the fragment's UI, including setting up
@@ -83,6 +110,11 @@ public class CreateEventFragment extends Fragment {
         // Set up click listener to handle event creation
         createEventButton.setOnClickListener(v -> createEvent());
 
+        // Set up views and click listener to handle image uploading
+        uploadImageButton = view.findViewById(R.id.upload_image_button);
+        eventImageView = view.findViewById(R.id.add_image_button);
+        uploadImageButton.setOnClickListener(v -> openImagePicker());
+
         return view;
     }
 
@@ -93,6 +125,7 @@ public class CreateEventFragment extends Fragment {
      *
      * @author Graham Flokstra
      * @author George
+     * @author Dhairya Prajapati
      */
     private void createEvent() {
         String title = titleEditText.getText().toString().trim();
@@ -132,6 +165,13 @@ public class CreateEventFragment extends Fragment {
         firebaseService.createEvent(event, new FirebaseCallback<String>() {
             @Override
             public void onSuccess(String eventId) {
+//                if (selectedImageUri != null){
+//                    uploadImageToFirestore(eventId, selectedImageUri);
+//                }
+//                else{
+//                Toast.makeText(requireContext(), "Event created successfully", Toast.LENGTH_SHORT).show();
+//                Navigation.findNavController(requireView()).navigate(R.id.navigation_view_my_events);
+//                }
                 Toast.makeText(requireContext(), "Event created successfully", Toast.LENGTH_SHORT).show();
                 Navigation.findNavController(requireView()).navigate(R.id.navigation_view_my_events);
             }
@@ -141,6 +181,8 @@ public class CreateEventFragment extends Fragment {
                 Toast.makeText(requireContext(), "Failed to create event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+
     }
 
 
@@ -180,4 +222,51 @@ public class CreateEventFragment extends Fragment {
         try { return new Timestamp(new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).parse(dateString)); }
         catch (ParseException e) { return null; }
     }
+
+    /**
+     * Opens the device's gallery for the user to pick a poster image for the event.
+     * @author Dhairya Prajapati
+     */
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        imagePickerLauncher.launch(intent);
+    }
+
+    /**
+     * Handles image upload to Firebase storage
+     * @author Dhairya Prajapati
+     * @param eventId The Id of the event being created by the user.
+     * @param imageUri The URI of the image selected by the user.
+     */
+//    private void uploadImageToFirestore(String eventId, Uri imageUri) {
+//        FirebaseStorage storage = FirebaseStorage.getInstance();
+//        StorageReference storageRef = storage.getReference();
+//
+//        // Create a reference to 'event_images/eventId.jpg'
+//        String imagePath = "event_images/" + eventId + ".jpg";
+//        StorageReference imageRef = storageRef.child(imagePath);
+//
+//        imageRef.putFile(imageUri)
+//                .addOnSuccessListener(taskSnapshot -> {
+//                    // Get the download URL
+//                    imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+//                        // Update the event document with the image URL
+//                        firebaseService.updateEventImageUrl(eventId, downloadUri.toString(), new FirebaseCallback<Void>() {
+//                            @Override
+//                            public void onSuccess(Void result) {
+//                                showSuccessAndNavigate();
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Exception e) {
+//                                Toast.makeText(requireContext(), "Failed to update event image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//                    });
+//                })
+//                .addOnFailureListener(e -> {
+//                    Toast.makeText(requireContext(), "Failed to upload image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                });
+//    }
 }
