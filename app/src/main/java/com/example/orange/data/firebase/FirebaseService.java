@@ -6,11 +6,14 @@ import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.example.orange.data.model.UserSession;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -312,4 +315,101 @@ public class FirebaseService {
                 })
                 .addOnFailureListener(callback::onFailure);
     }
+
+    /**
+     * Retrieves a list of events that the current user is participating in or is on the waitlist for.
+     *
+     * @author Graham Flokstra
+     * @param userId   String representing the unique ID of the current user.
+     * @param callback FirebaseCallback<List<Event>> to handle the result, providing a list of Event objects
+     *                 the user is associated with (either in the participants or waiting list).
+     */
+    public void getUserEvents(String userId, FirebaseCallback<List<Event>> callback) {
+        db.collection("events")
+                .whereArrayContainsAny("waitingList", Collections.singletonList(userId))
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Event> events = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        Event event = document.toObject(Event.class);
+                        if (event != null) {
+                            events.add(event);
+                        }
+                    }
+                    callback.onSuccess(events);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Removes a specified user from the list of participants in a given event.
+     * This function enables the "Leave Event" functionality, allowing users to leave events they have joined.
+     *
+     * @author Graham Flokstra
+     * @param eventId  String representing the unique ID of the event from which the user will be removed.
+     * @param userId   String representing the unique ID of the user to be removed from the participants list.
+     * @param callback FirebaseCallback<Void> to handle the success or failure of the operation.
+     */
+    public void removeFromEventParticipants(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        eventRef.update("participants", FieldValue.arrayRemove(userId))
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Adds a specified user to the selected participants list for an event.
+     * This is typically used for users chosen through a lottery system.
+     *
+     * @author Graham Flokstra
+     * @param eventId  String representing the unique ID of the event.
+     * @param userId   String representing the unique ID of the user to be added to the selected participants list.
+     * @param callback FirebaseCallback<Void> to handle the success or failure of the operation.
+     */
+    public void addToSelectedParticipants(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        eventRef.update("selectedParticipants", FieldValue.arrayUnion(userId))
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Removes a specified user from the selected participants list for an event.
+     * This may be used if a user decides not to participate or if they are no longer eligible.
+     *
+     * @author Graham Flokstra
+     * @param eventId  String representing the unique ID of the event.
+     * @param userId   String representing the unique ID of the user to be removed from the selected participants list.
+     * @param callback FirebaseCallback<Void> to handle the success or failure of the operation.
+     */
+    public void removeFromSelectedParticipants(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        eventRef.update("selectedParticipants", FieldValue.arrayRemove(userId))
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Retrieves all events created by a specified organizer from Firebase.
+     *
+     * @param organizerId String representing the unique ID of the organizer.
+     * @param callback    FirebaseCallback<List<Event>> to handle the result, providing a list of Event objects.
+     */
+    public void getOrganizerEvents(String organizerId, FirebaseCallback<List<Event>> callback) {
+        db.collection("events")
+                .whereEqualTo("organizerId", organizerId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Event> events = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        Event event = document.toObject(Event.class);
+                        if (event != null) {
+                            events.add(event);
+                        }
+                    }
+                    callback.onSuccess(events);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
 }
