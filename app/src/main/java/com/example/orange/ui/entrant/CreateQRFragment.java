@@ -1,38 +1,37 @@
 package com.example.orange.ui.entrant;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import com.example.orange.R;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
-
+/**
+ * QR scanner that scans event QR codes to send it to the event details
+ *
+ * @author Brandon Ramirez
+ */
 public class CreateQRFragment extends Fragment {
     private final ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(
             new ScanContract(),
             result -> {
-                // Handle scan result here
+                // Send to the event here
             }
     );
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        scanQRCode(); // Start scanning immediately upon fragment creation
+        scanQRCode();
     }
 
+    /**
+     * Creates a new scan option which activates the camera and changes it settings
+     */
     private void scanQRCode() {
         ScanOptions options = new ScanOptions();
-        options.setPrompt("Scan the code");
+        options.setPrompt("Scan your QR code");
         options.setBeepEnabled(true);
         options.setOrientationLocked(true);
         options.setCaptureActivity(CaptureAct.class);
