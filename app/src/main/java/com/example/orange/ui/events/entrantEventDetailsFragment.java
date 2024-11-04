@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import com.example.orange.R;
 
 
-public class EntrantEventDetailsFragment extends Fragment {
+public class entrantEventDetailsFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

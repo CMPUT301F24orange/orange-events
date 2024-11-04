@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/fragment_entrant_event_details"
-    tools:context=".ui.events.EntrantEventDetailsFragment">
+    tools:context=".ui.events.entrantEventDetailsFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <RelativeLayout
