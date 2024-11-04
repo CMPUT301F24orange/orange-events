@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- @author Radhe Patel -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/facility_profile_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Facility Profile"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="16dp" />
+
+    <!-- Name Field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/facility_name_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Name:"
+            android:textSize="18sp"
+            android:gravity="end"
+            android:paddingEnd="8dp" />
+
+        <EditText
+            android:id="@+id/facility_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="Enter name"
+            android:textSize="16sp"
+            android:padding="4dp"
+            android:background="@android:drawable/edit_text" />
+    </LinearLayout>
+
+    <!-- Email Field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/facility_email_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Email:"
+            android:textSize="18sp"
+            android:gravity="end"
+            android:paddingEnd="8dp" />
+
+        <EditText
+            android:id="@+id/facility_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="Enter email"
+            android:textSize="16sp"
+            android:inputType="textEmailAddress"
+            android:padding="4dp"
+            android:background="@android:drawable/edit_text" />
+    </LinearLayout>
+
+    <!-- Phone Field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/facility_phone_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Phone:"
+            android:textSize="18sp"
+            android:gravity="end"
+            android:paddingEnd="8dp" />
+
+        <EditText
+            android:id="@+id/facility_phone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="Enter phone number"
+            android:textSize="16sp"
+            android:inputType="phone"
+            android:padding="4dp"
+            android:background="@android:drawable/edit_text" />
+    </LinearLayout>
+
+    <!-- Address Field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/facility_address_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Address:"
+            android:textSize="18sp"
+            android:gravity="end"
+            android:paddingEnd="8dp" />
+
+        <EditText
+            android:id="@+id/facility_address"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="Enter address"
+            android:textSize="16sp"
+            android:padding="4dp"
+            android:background="@android:drawable/edit_text" />
+    </LinearLayout>
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/facility_save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Save Profile"
+        android:backgroundTint="@color/primary"
+        android:padding="12dp"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>
