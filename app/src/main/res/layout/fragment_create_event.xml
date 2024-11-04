@@ -27,7 +27,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
             android:src="@drawable/ic_image"
-            android:background="@color/primary"/>
+            android:background="@color/primary" />
 
         <!-- Upload and Delete Image Buttons -->
         <LinearLayout
@@ -43,8 +43,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/primary"
                 android:text="Upload Image"
-                android:layout_marginEnd="8dp"
-                />
+                android:layout_marginEnd="8dp" />
 
             <Button
                 android:id="@+id/delete_image_button"
@@ -83,66 +82,113 @@
             android:layout_height="wrap_content"
             android:hint="Enter event description"
             android:inputType="textMultiLine"
-            android:minHeight="100dp"
-            android:gravity="top" />
+            android:gravity="top"
+            android:padding="8dp"
+            android:lineSpacingExtra="4dp"/>
 
-        <!-- Start Date -->
-        <TextView
-            android:id="@+id/start_date_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="*Start Date:"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/start_date_input"
+        <!-- Start Date and End Date Fields Side by Side -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="YYYY/MM/DD"
-            android:inputType="date" />
-
-        <!-- End Date -->
-        <TextView
-            android:id="@+id/end_date_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="*End Date:"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/end_date_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="YYYY/MM/DD"
-            android:inputType="date" />
-
-        <!-- Registration Opens -->
-        <TextView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="*Registration Opens:" />
+            android:orientation="horizontal"
+            android:weightSum="2">
 
-        <EditText
-            android:id="@+id/registration_opens_edit_text"
+            <!-- Start Date -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/start_date_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*Start Date:"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/start_date_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="YYYY/MM/DD"
+                    android:inputType="date" />
+            </LinearLayout>
+
+            <!-- End Date -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:id="@+id/end_date_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*End Date:"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/end_date_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="YYYY/MM/DD"
+                    android:inputType="date" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Registration Opens and Registration Deadline Fields Side by Side -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="YYYY/MM/DD"
-            android:inputType="date" />
-
-        <!-- Registration Deadline -->
-        <TextView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="*Registration Deadline:" />
+            android:orientation="horizontal"
+            android:weightSum="2">
 
-        <EditText
-            android:id="@+id/registration_deadline_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="YYYY/MM/DD"
-            android:inputType="date" />
+            <!-- Registration Opens -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*Registration Opens:" />
+
+                <EditText
+                    android:id="@+id/registration_opens_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="YYYY/MM/DD"
+                    android:inputType="date" />
+            </LinearLayout>
+
+            <!-- Registration Deadline -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*Registration Deadline:" />
+
+                <EditText
+                    android:id="@+id/registration_deadline_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="YYYY/MM/DD"
+                    android:inputType="date" />
+            </LinearLayout>
+        </LinearLayout>
 
         <!-- Waitlist Limit -->
         <LinearLayout

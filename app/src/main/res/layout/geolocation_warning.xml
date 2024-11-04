@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF"
+    android:gravity="center">
+
+    <!-- Warning CardView -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:cardCornerRadius="8dp"
+        android:layout_marginBottom="16dp">
+
+        <!-- Warning Text -->
+        <TextView
+            android:id="@+id/warningText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Warning:\nRequires Geo location"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/rounded_background"
+            android:padding="16dp"
+            android:gravity="center"
+            android:textStyle="bold" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Continue Button -->
+    <Button
+        android:id="@+id/continueButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Continue"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#74A662"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"/>
+</LinearLayout>
