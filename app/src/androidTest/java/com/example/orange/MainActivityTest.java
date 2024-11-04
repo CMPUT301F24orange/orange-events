@@ -50,7 +50,7 @@ public class MainActivityTest {
 
         // Verify we're on the Create Event screen
         Thread.sleep(1000); // Give time for navigation
-        onView(withId(R.id.fragment_create_event))
+        onView(withId(R.layout.fragment_create_event))
                 .check(matches(isDisplayed()));
     }
 
