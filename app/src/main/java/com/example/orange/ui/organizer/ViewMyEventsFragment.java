@@ -19,6 +19,9 @@ import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.utils.SessionManager;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -97,7 +100,7 @@ public class ViewMyEventsFragment extends Fragment {
             eventDate.setText("Date: " + (event.getEventDate() != null ? event.getEventDate().toDate().toString() : "N/A"));
 
             viewWaitlistButton.setOnClickListener(v -> showWaitlist(event));
-            GenerateButton.setOnClickListener(v-> GenerateQR(event));
+            GenerateButton.setOnClickListener(v-> generateQR(event));
             organizerEventsContainer.addView(eventView);
         }
     }
@@ -123,30 +126,54 @@ public class ViewMyEventsFragment extends Fragment {
                     .show();
         }
     }
-    public void GenerateQR(Event event) {
+    public void generateQR(Event event) {
         try {
-            // Prepare event details including eventId for QR content
+            // Prepare event details for QR content
             String qrContent = "Event ID: " + event.getId() + "\n"
                     + "Event Name: " + event.getTitle() + "\n"
                     + "Date: " + (event.getEventDate() != null ? event.getEventDate().toDate().toString() : "N/A") + "\n"
                     + "Description: " + event.getDescription();
 
-            // Generate the QR code bitmap
+            // Generate QR code bitmap
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
+
+            // Generate SHA-256 hash of the event details
+            String hash = generateHash(qrContent);
+
+            // Store the hash in Firebase Firestore
+            if (hash != null) {
+                firebaseService.storeEventHash(event.getId(), hash);
+            }
 
             // Pass both qr_bitmap and eventId to DisplayQRFragment
             Bundle args = new Bundle();
             args.putParcelable("qr_bitmap", bitmap);
             args.putString("event_id", event.getId());
 
-            // Navigate to the DisplayQRFragment with the bundle
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
             navController.navigate(R.id.navigation_displayqr, args);
 
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String generateHash(String data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(data.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

@@ -65,9 +65,5 @@ dependencies {
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation ("com.google.zxing:core:3.3.3")
 
-    androidTestImplementation ("androidx.test:core:1.5.0")
-    androidTestImplementation ("androidx.test:runner:1.5.2")
-    debugImplementation ("androidx.fragment:fragment-testing:1.6.2")
-    androidTestImplementation ("org.mockito:mockito-android:5.3.1")
-    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
+
 }

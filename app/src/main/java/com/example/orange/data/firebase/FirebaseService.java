@@ -10,11 +10,14 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.example.orange.data.model.UserSession;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * FirebaseService provides methods to interact with Firebase Firestore.
@@ -410,6 +413,15 @@ public class FirebaseService {
                     callback.onSuccess(events);
                 })
                 .addOnFailureListener(callback::onFailure);
+    }
+    public void storeEventHash(String eventId, String hash) {
+        Map<String, Object> hashData = new HashMap<>();
+        hashData.put("qr_hash", hash);
+
+        db.collection("events").document(eventId)
+                .set(hashData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> Log.d("FirebaseService", "Hash stored successfully"))
+                .addOnFailureListener(e -> Log.w("FirebaseService", "Error storing hash", e));
     }
 
 }

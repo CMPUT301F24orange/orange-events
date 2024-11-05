@@ -1,5 +1,6 @@
 package com.example.orange.ui.organizer;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,9 +16,8 @@ import com.example.orange.R;
 
 public class DisplayQRFragment extends Fragment {
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_displayqr, container, false);
 
         ImageView qrImageView = view.findViewById(R.id.qrImageView);
@@ -31,5 +31,11 @@ public class DisplayQRFragment extends Fragment {
 
         return view;
     }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Nullify or release resources here
+    }
+
 }
 
