@@ -1,32 +1,57 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp"
     android:background="?attr/selectableItemBackground">
 
     <TextView
         android:id="@+id/organizer_event_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:paddingBottom="4dp"
         android:text="Event Title"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:paddingBottom="4dp" />
+        app:layout_constraintBottom_toTopOf="@+id/organizer_event_date"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/organizer_event_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:paddingBottom="8dp"
         android:text="Event Date"
         android:textSize="14sp"
-        android:paddingBottom="8dp" />
+        app:layout_constraintBottom_toTopOf="@+id/view_waitlist_button"
+        app:layout_constraintStart_toStartOf="@+id/organizer_event_title"
+        app:layout_constraintTop_toBottomOf="@+id/organizer_event_title" />
 
     <Button
         android:id="@+id/view_waitlist_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Waitlist"
+        android:layout_marginStart="16dp"
         android:backgroundTint="@color/primary"
-        android:textColor="@android:color/white" />
-</LinearLayout>
+        android:text="View Waitlist"
+        android:textColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/organizer_event_date" />
+
+    <Button
+        android:id="@+id/generate_QR_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primary"
+        android:text="Generate QR Code"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/organizer_event_date" />
+</androidx.constraintlayout.widget.ConstraintLayout>

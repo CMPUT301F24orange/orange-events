@@ -11,12 +11,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
 import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.utils.SessionManager;
 import java.util.List;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+
+import com.google.zxing.BarcodeFormat;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 /**
  * ViewMyEventsFragment displays all events created by the current organizer.
@@ -83,12 +91,13 @@ public class ViewMyEventsFragment extends Fragment {
             TextView eventTitle = eventView.findViewById(R.id.organizer_event_title);
             TextView eventDate = eventView.findViewById(R.id.organizer_event_date);
             Button viewWaitlistButton = eventView.findViewById(R.id.view_waitlist_button);
+            Button GenerateButton = eventView.findViewById(R.id.generate_QR_button);
 
             eventTitle.setText(event.getTitle());
             eventDate.setText("Date: " + (event.getEventDate() != null ? event.getEventDate().toDate().toString() : "N/A"));
 
             viewWaitlistButton.setOnClickListener(v -> showWaitlist(event));
-
+            GenerateButton.setOnClickListener(v-> GenerateQR(event));
             organizerEventsContainer.addView(eventView);
         }
     }
@@ -114,4 +123,31 @@ public class ViewMyEventsFragment extends Fragment {
                     .show();
         }
     }
+    public void GenerateQR(Event event) {
+        try {
+            // Prepare event details including eventId for QR content
+            String qrContent = "Event ID: " + event.getId() + "\n"
+                    + "Event Name: " + event.getTitle() + "\n"
+                    + "Date: " + (event.getEventDate() != null ? event.getEventDate().toDate().toString() : "N/A") + "\n"
+                    + "Description: " + event.getDescription();
+
+            // Generate the QR code bitmap
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
+
+            // Pass both qr_bitmap and eventId to DisplayQRFragment
+            Bundle args = new Bundle();
+            args.putParcelable("qr_bitmap", bitmap);
+            args.putString("event_id", event.getId());
+
+            // Navigate to the DisplayQRFragment with the bundle
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            navController.navigate(R.id.navigation_displayqr, args);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

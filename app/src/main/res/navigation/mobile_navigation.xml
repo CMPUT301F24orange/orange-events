@@ -34,5 +34,13 @@
         android:id="@+id/navigation_camera"
         android:name="com.example.orange.ui.entrant.CreateQRFragment"
         android:label="Camera" />
+    <fragment
+        android:id="@+id/navigation_displayqr"
+        android:name="com.example.orange.ui.organizer.DisplayQRFragment"
+        android:label="DisplayQR" />
+    <fragment
+        android:id="@+id/navigation_eventDetails"
+        android:name="com.example.orange.ui.events.entrantEventDetailsFragment"
+        android:label="EventDetails" />
 
 </navigation>
