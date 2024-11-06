@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,13 +37,14 @@ import java.io.InputStream;
 /**
  * This fragment facilitates the viewing and editing of a user profile.
  *
- * @author graham flokstra
+ * Author: Graham Flokstra
  */
 public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
     private EditText editTextName, editTextEmail, editTextPhone;
     private ImageView profileImage;
     private Button uploadImageButton, saveButton, deleteImageButton, logoutButton;
+    private CheckBox receiveNotificationsCheckbox;
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
     private UserSession userSession;
@@ -67,7 +69,7 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Verifies we are logged in and fetches that users data.
+     * Verifies we are logged in and fetches that user's data.
      */
     private void verifySessionAndLoadData() {
         // Get current session
@@ -104,9 +106,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Initializes the views
+     * Initializes the views.
      *
-     * @param view
+     * @param view The root view of the fragment.
      */
     private void initializeViews(View view) {
         editTextName = view.findViewById(R.id.editTextName);
@@ -117,6 +119,7 @@ public class ProfileFragment extends Fragment {
         saveButton = view.findViewById(R.id.save_button);
         deleteImageButton = view.findViewById(R.id.delete_image_button);
         logoutButton = view.findViewById(R.id.logout_button);
+        receiveNotificationsCheckbox = view.findViewById(R.id.receive_notifications_checkbox);
 
         // Disable buttons until user data is loaded
         setButtonsEnabled(false);
@@ -135,7 +138,7 @@ public class ProfileFragment extends Fragment {
     /**
      * Enables buttons once our user is found.
      *
-     * @param enabled
+     * @param enabled Whether buttons should be enabled.
      */
     private void setButtonsEnabled(boolean enabled) {
         saveButton.setEnabled(enabled);
@@ -144,9 +147,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Loads user data for placement into the profile page
+     * Loads user data for placement into the profile page.
      *
-     * @param userId
+     * @param userId The user's ID.
      */
     private void loadUserData(String userId) {
         Log.d(TAG, "Loading user data for ID: " + userId);
@@ -172,6 +175,9 @@ public class ProfileFragment extends Fragment {
                             profileImage.setImageResource(R.drawable.ic_profile);
                         }
 
+                        // Set notification preference
+                        receiveNotificationsCheckbox.setChecked(user.isReceiveNotifications());
+
                         // Enable buttons after data is loaded
                         setButtonsEnabled(true);
                     });
@@ -190,9 +196,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Returns user back to home.
+     * Navigates the user back to the home screen.
      *
-     * @param message
+     * @param message Message to display upon navigation.
      */
     private void navigateToHome(String message) {
         if (getActivity() != null) {
@@ -206,7 +212,7 @@ public class ProfileFragment extends Fragment {
     /**
      * Saves user data to the correct user profile.
      *
-     * @param imageUri
+     * @param imageUri URI of the user's profile image.
      */
     private void saveUserProfile(Uri imageUri) {
         if (currentUser == null || userSession == null) {
@@ -227,6 +233,7 @@ public class ProfileFragment extends Fragment {
         currentUser.setUsername(editTextName.getText().toString().trim());
         currentUser.setEmail(editTextEmail.getText().toString().trim());
         currentUser.setPhone(editTextPhone.getText().toString().trim());
+        currentUser.setReceiveNotifications(receiveNotificationsCheckbox.isChecked());
 
         if (imageUri != null) {
             try {
@@ -283,7 +290,7 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Deletes users profile image.
+     * Deletes user's profile image.
      */
     private void deleteProfileImage() {
         if (currentUser != null && userSession != null) {
@@ -312,7 +319,7 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Logs user out of userSession.
+     * Logs the user out of the current session.
      */
     private void handleLogout() {
         firebaseService.logOut();
