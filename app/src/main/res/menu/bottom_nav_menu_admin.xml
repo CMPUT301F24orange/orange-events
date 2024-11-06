@@ -4,14 +4,14 @@
     <item
         android:id="@+id/admin_navigation_view_events"
         android:icon="@drawable/ic_my_events"
-        android:title="My Events"
-        android:orderInCategory="1" />
+        android:title="View Events"
+        android:orderInCategory="2" />
 
     <item
         android:id="@+id/admin_navigation_home"
         android:icon="@drawable/ic_home"
         android:title="Home"
-        android:orderInCategory="2" />
+        android:orderInCategory="1" />
 
     <item
         android:id="@+id/admin_navigation_view_facilities"

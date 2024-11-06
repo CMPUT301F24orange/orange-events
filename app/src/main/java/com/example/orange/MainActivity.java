@@ -82,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.navigation_profile) {
             navController.navigate(R.id.navigation_profile);
             return true;
+        } else if (item.getItemId() == R.id.navigation_admin) {
+            navController.navigate(R.id.navigation_admin);
+            updateBottomNavForAdmin();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -237,4 +241,32 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu(); // This will hide the profile icon
         setupInitialNavigation();
     }
+
+    private void updateBottomNavForAdmin() {
+        Log.d(TAG, "Updating bottom navigation for admin");
+
+        // Clear existing menu
+        binding.navView.getMenu().clear();
+
+        // Inflate admin menu
+        binding.navView.inflateMenu(R.menu.bottom_nav_menu_admin);
+
+        // Set up admin-specific item click handling
+        binding.navView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.admin_navigation_home) {
+                navController.navigate(R.id.admin_navigation_home);
+                return true;
+            } else if (itemId == R.id.admin_navigation_view_events) {
+                navController.navigate(R.id.admin_navigation_view_events);
+                return true;
+            } else if (itemId == R.id.admin_navigation_view_facilities) {
+                navController.navigate(R.id.admin_navigation_view_facilities);
+                return true;
+            }
+            return false;
+        });
+    }
+
+
 }
