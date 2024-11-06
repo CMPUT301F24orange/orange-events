@@ -25,6 +25,8 @@ import static java.lang.Thread.sleep;
 /**
  * Instrumented test suite for the MainActivity, testing navigation and visibility
  * of elements based on user state.
+ *
+ * @author Graham Flokstra
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -117,13 +119,35 @@ public class MainActivityTest {
      * @author Graham Flokstra
      */
     @Test
-    public void testNavigationForOrganizer() {
+    public void testNavigationForOrganizer() throws InterruptedException {
         sessionManager.createLoginSession("testDeviceId", UserType.ORGANIZER, "testDeviceId");
         activityRule.getScenario().recreate();
         onView(withId(R.id.navigation_view_my_events))
                 .check(matches(isDisplayed()))
                 .perform(click());
-        onView(withId(R.id.fragment_view_my_events)).check(matches(isDisplayed()));
+        sleep(2000);
+        onView(withId(R.id.fragment_view_my_organizer_events)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * Tests navigation for a user logged in as an ENTRANT.
+     * Verifies that the "View Events" navigation item is displayed and navigates to the appropriate fragment.
+     *
+     * @author Graham Flokstra
+     */
+    @Test
+    public void testNavigationForEntrant() throws InterruptedException {
+        sessionManager.createLoginSession("testDeviceId", UserType.ENTRANT, "testDeviceId");
+        activityRule.getScenario().recreate();
+        onView(withId(R.id.navigation_join_event))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        sleep(2000);
+        onView(withId(R.id.navigation_my_events))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        onView(withId(R.id.entrant_events_page)).check(matches(isDisplayed()));
     }
 
     /**
