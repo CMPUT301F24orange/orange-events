@@ -2,7 +2,11 @@ package com.example.orange.ui.profile;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,13 +41,14 @@ import java.io.InputStream;
 /**
  * This fragment facilitates the viewing and editing of a user profile.
  *
- * @author graham flokstra
+ * Author: Graham Flokstra
  */
 public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
     private EditText editTextName, editTextEmail, editTextPhone;
     private ImageView profileImage;
     private Button uploadImageButton, saveButton, deleteImageButton, logoutButton;
+    private CheckBox receiveNotificationsCheckbox;
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
     private UserSession userSession;
@@ -67,10 +73,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Verifies we are logged in and fetches that users data.
+     * Verifies we are logged in and fetches that user's data.
      */
     private void verifySessionAndLoadData() {
-        // Get current session
         userSession = sessionManager.getUserSession();
         if (userSession == null) {
             Log.e(TAG, "No user session found");
@@ -78,16 +83,13 @@ public class ProfileFragment extends Fragment {
             return;
         }
 
-        // Get the user type and device ID
         UserType userType = userSession.getUserType();
         String deviceId = userSession.getdeviceId();
 
-        // Verify Firebase session first
         firebaseService.getUserByDeviceIdAndType(deviceId, userType, new FirebaseCallback<User>() {
             @Override
             public void onSuccess(User user) {
                 if (user != null) {
-                    // Now that we have verified the user exists, load their full profile
                     loadUserData(user.getId());
                 } else {
                     Log.e(TAG, "User not found in Firebase");
@@ -104,9 +106,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Initializes the views
+     * Initializes the views.
      *
-     * @param view
+     * @param view The root view of the fragment.
      */
     private void initializeViews(View view) {
         editTextName = view.findViewById(R.id.editTextName);
@@ -117,11 +119,10 @@ public class ProfileFragment extends Fragment {
         saveButton = view.findViewById(R.id.save_button);
         deleteImageButton = view.findViewById(R.id.delete_image_button);
         logoutButton = view.findViewById(R.id.logout_button);
+        receiveNotificationsCheckbox = view.findViewById(R.id.receive_notifications_checkbox);
 
-        // Disable buttons until user data is loaded
         setButtonsEnabled(false);
 
-        // Set button listeners
         saveButton.setOnClickListener(v -> saveUserProfile(selectedImageUri));
         uploadImageButton.setOnClickListener(v -> {
             pickMedia.launch(new PickVisualMediaRequest.Builder()
@@ -135,7 +136,7 @@ public class ProfileFragment extends Fragment {
     /**
      * Enables buttons once our user is found.
      *
-     * @param enabled
+     * @param enabled Whether buttons should be enabled.
      */
     private void setButtonsEnabled(boolean enabled) {
         saveButton.setEnabled(enabled);
@@ -144,13 +145,11 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Loads user data for placement into the profile page
+     * Loads user data for placement into the profile page.
      *
-     * @param userId
+     * @param userId The user's ID.
      */
     private void loadUserData(String userId) {
-        Log.d(TAG, "Loading user data for ID: " + userId);
-
         firebaseService.getUserById(userId, new FirebaseCallback<User>() {
             @Override
             public void onSuccess(User user) {
@@ -159,40 +158,39 @@ public class ProfileFragment extends Fragment {
                     if (getActivity() == null) return;
 
                     getActivity().runOnUiThread(() -> {
-                        Log.d(TAG, "Setting user data to views");
                         editTextName.setText(user.getUsername());
                         editTextEmail.setText(user.getEmail());
                         editTextPhone.setText(user.getPhone());
 
+                        // Set profile image or initials drawable
                         if (user.getProfileImageData() != null) {
                             byte[] imageData = user.getProfileImageData().toBytes();
                             Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
                             profileImage.setImageBitmap(bitmap);
                         } else {
-                            profileImage.setImageResource(R.drawable.ic_profile);
+                            Bitmap initialsBitmap = createInitialsBitmap(user.getUsername());
+                            profileImage.setImageBitmap(initialsBitmap);
                         }
 
-                        // Enable buttons after data is loaded
+                        receiveNotificationsCheckbox.setChecked(user.isReceiveNotifications());
                         setButtonsEnabled(true);
                     });
                 } else {
-                    Log.e(TAG, "User data is null");
                     navigateToHome("Failed to load user data");
                 }
             }
 
             @Override
             public void onFailure(Exception e) {
-                Log.e(TAG, "Error loading user data", e);
                 navigateToHome("Error loading profile");
             }
         });
     }
 
     /**
-     * Returns user back to home.
+     * Navigates the user back to the home screen.
      *
-     * @param message
+     * @param message Message to display upon navigation.
      */
     private void navigateToHome(String message) {
         if (getActivity() != null) {
@@ -206,41 +204,35 @@ public class ProfileFragment extends Fragment {
     /**
      * Saves user data to the correct user profile.
      *
-     * @param imageUri
+     * @param imageUri URI of the user's profile image.
      */
     private void saveUserProfile(Uri imageUri) {
         if (currentUser == null || userSession == null) {
-            Log.e(TAG, "No user data or session available");
             Toast.makeText(getContext(), "No active session", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Ensure we have the device ID set
         String deviceId = userSession.getdeviceId();
-        currentUser.setDeviceId(deviceId);  // Make sure device ID is set
-        currentUser.setId(deviceId);        // Use device ID as document ID
-        currentUser.setUserType(userSession.getUserType()); // Ensure user type is set
+        currentUser.setDeviceId(deviceId);
+        currentUser.setId(deviceId);
+        currentUser.setUserType(userSession.getUserType());
 
-        Log.d(TAG, "Saving profile for user: " + deviceId);
-
-        // Update user data
         currentUser.setUsername(editTextName.getText().toString().trim());
         currentUser.setEmail(editTextEmail.getText().toString().trim());
         currentUser.setPhone(editTextPhone.getText().toString().trim());
+        currentUser.setReceiveNotifications(receiveNotificationsCheckbox.isChecked());
 
         if (imageUri != null) {
             try {
                 InputStream inputStream = getContext().getContentResolver().openInputStream(imageUri);
                 Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-                // Resize image
                 int maxSize = 500;
-                float scale = Math.min(((float)maxSize / bitmap.getWidth()), ((float)maxSize / bitmap.getHeight()));
+                float scale = Math.min(((float) maxSize / bitmap.getWidth()), ((float) maxSize / bitmap.getHeight()));
                 Matrix matrix = new Matrix();
                 matrix.postScale(scale, scale);
                 Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
-                // Compress image
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
                 byte[] imageData = baos.toByteArray();
@@ -255,14 +247,17 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(getContext(), "Error reading image", Toast.LENGTH_SHORT).show();
                 return;
             }
+        } else if (currentUser.getProfileImageData() == null) {
+            Bitmap initialsBitmap = createInitialsBitmap(currentUser.getUsername());
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            initialsBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            currentUser.setProfileImageData(Blob.fromBytes(baos.toByteArray()));
         }
 
-        // Save to Firebase using the updated user object
         firebaseService.updateUser(currentUser, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
                 if (getActivity() == null) return;
-
                 getActivity().runOnUiThread(() -> {
                     Toast.makeText(getContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
                     selectedImageUri = null;
@@ -271,9 +266,7 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onFailure(Exception e) {
-                Log.e(TAG, "Error updating profile", e);
                 if (getActivity() == null) return;
-
                 getActivity().runOnUiThread(() ->
                         Toast.makeText(getContext(), "Error updating profile: " + e.getMessage(),
                                 Toast.LENGTH_SHORT).show()
@@ -283,7 +276,7 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Deletes users profile image.
+     * Deletes user's profile image.
      */
     private void deleteProfileImage() {
         if (currentUser != null && userSession != null) {
@@ -295,7 +288,7 @@ public class ProfileFragment extends Fragment {
 
                     getActivity().runOnUiThread(() -> {
                         Toast.makeText(getContext(), "Profile image deleted", Toast.LENGTH_SHORT).show();
-                        profileImage.setImageResource(R.drawable.ic_profile);
+                        profileImage.setImageBitmap(createInitialsBitmap(currentUser.getUsername()));
                     });
                 }
 
@@ -312,12 +305,60 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Logs user out of userSession.
+     * Logs the user out of the current session.
      */
     private void handleLogout() {
         firebaseService.logOut();
         sessionManager.logoutUser();
         Navigation.findNavController(requireView()).navigate(R.id.navigation_home);
+    }
+
+    /**
+     * Generates a bitmap with initials for the user's name.
+     *
+     * @author Graham Flokstra
+     * @link https://dev.to/pranavpandey/android-create-bitmap-from-a-view-3lck
+     * @param name User's name.
+     * @return Bitmap with initials.
+     */
+    private Bitmap createInitialsBitmap(String name) {
+        int size = 120;
+        Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.LTGRAY);
+
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(48f);
+        paint.setAntiAlias(true);
+        paint.setTextAlign(Paint.Align.CENTER);
+
+        String initials = getInitials(name);
+
+        Rect bounds = new Rect();
+        paint.getTextBounds(initials, 0, initials.length(), bounds);
+        float x = size / 2f;
+        float y = size / 2f - bounds.exactCenterY();
+
+        canvas.drawText(initials, x, y, paint);
+        return bitmap;
+    }
+
+    /**
+     * Extracts initials from the user's name.
+     *
+     * @param name User's name.
+     * @return Initials.
+     */
+    private String getInitials(String name) {
+        String[] words = name.trim().split("\\s+");
+        StringBuilder initials = new StringBuilder();
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                initials.append(Character.toUpperCase(word.charAt(0)));
+            }
+        }
+        return initials.length() > 2 ? initials.substring(0, 2) : initials.toString();
     }
 
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia = registerForActivityResult(

@@ -22,6 +22,7 @@ public class User {
     private String phone;
     private String deviceId;
     private String profileImageUrl;
+    private boolean receiveNotifications;
     private List<String> eventsParticipating;
     private List<String> eventsOrganizing;
     private boolean receiveOrganizerNotifications;
@@ -294,8 +295,9 @@ public class User {
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
+
     /**
-     * Retrieves the user's device ID, which uniquely identifies the user's device.
+     * Retrieves the user's profile image data.
      *
      * @return The profile image of the user.
      */
@@ -309,6 +311,22 @@ public class User {
      */
     public void setProfileImageData(Blob profileImageData) {
         this.profileImageData = profileImageData;
+    }
+
+    /**
+     * Retrieves notification preference.
+     *
+     * @return boolean
+     */    public boolean isReceiveNotifications() {
+        return receiveNotifications;
+    }
+    /**
+     * Sets the user's notification settings.
+     *
+     * @param receiveNotifications The notification preferences.
+     */
+    public void setReceiveNotifications(boolean receiveNotifications) {
+        this.receiveNotifications = receiveNotifications;
     }
 
     /**

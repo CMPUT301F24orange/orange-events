@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- @author Radhe Patel -->
+<!-- @author Radhe Patel
+This is currently the one used to id the main activity test-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/entrant_events_page"
     android:padding="8dp">
 
     <LinearLayout
