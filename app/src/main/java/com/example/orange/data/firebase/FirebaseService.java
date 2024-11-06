@@ -412,4 +412,28 @@ public class FirebaseService {
                 .addOnFailureListener(callback::onFailure);
     }
 
+    /**
+     * Retrieves a list of entrants on the waiting list for a specific event.
+     *
+     * @param eventId  The ID of the event to retrieve waitlist details.
+     * @param callback Callback to handle the result of the operation.
+     */
+    public void getEventWaitlist(String eventId, FirebaseCallback<List<String>> callback) {
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Event event = documentSnapshot.toObject(Event.class);
+                        if (event != null && event.getWaitingList() != null) {
+                            callback.onSuccess(event.getWaitingList());
+                        } else {
+                            callback.onSuccess(new ArrayList<>());
+                        }
+                    } else {
+                        callback.onFailure(new Exception("Event not found"));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+
 }
