@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- @author Radhe Patel -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -27,19 +26,28 @@
                 android:orientation="vertical">
 
                 <!-- Event Name -->
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="62dp"
+                    android:layout_height="56dp"
+                    android:layout_gravity="start"
+                    android:backgroundTint="@color/primary"
+                    android:contentDescription="Back"
+                    android:src="@drawable/ic_back" />
+
+                <!-- Event Image -->
 
                 <TextView
                     android:id="@+id/eventName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_marginTop="12dp"
                     android:text="Event Name"
-                    android:textSize="24sp"
                     android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:layout_gravity="center" />
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
-                <!-- Event Image -->
                 <ImageView
                     android:id="@+id/eventImage"
                     android:layout_width="match_parent"
@@ -280,21 +288,12 @@
             android:background="#FFFFFF">
 
             <Button
-                android:id="@+id/joinWaitlistButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Join Waitlist"
-                android:backgroundTint="@color/primary"
-                android:textColor="#000000" />
-
-            <Button
-                android:id="@+id/leaveWaitlistButton"
-                android:layout_width="wrap_content"
+                android:id="@+id/delete_button"
+                android:layout_width="215dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="Leave Waitlist"
                 android:backgroundTint="@color/primary"
+                android:text="Delete"
                 android:textColor="#000000" />
         </LinearLayout>
     </RelativeLayout>
