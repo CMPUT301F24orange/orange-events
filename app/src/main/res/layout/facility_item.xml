@@ -8,8 +8,7 @@
     android:background="#FFA500"
     android:layout_marginBottom="8dp"
     android:layout_marginStart="16dp"
-    android:layout_marginEnd="16dp"
-    android:cornerRadius="8dp">
+    android:layout_marginEnd="16dp">
 
 
     <TextView
