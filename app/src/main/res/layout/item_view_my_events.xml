@@ -58,16 +58,5 @@
             android:backgroundTint="@color/primary"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
-        <!-- Add this Button inside your LinearLayout in item_view_my_events.xml -->
-        <Button
-            android:id="@+id/change_image_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Change Image"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/primary"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -148,7 +148,7 @@ public class ViewMyEventsFragment extends Fragment {
         LayoutInflater inflater = LayoutInflater.from(requireContext());
 
         for (Event event : events) {
-            View eventView = inflater.inflate(R.layout.item_view_my_events, organizerEventsContainer, false);
+            View eventView = inflater.inflate(R.layout.item_view_organizer_event, organizerEventsContainer, false);
 
             ImageView eventImage = eventView.findViewById(R.id.event_image);
             TextView eventTitle = eventView.findViewById(R.id.event_title);
