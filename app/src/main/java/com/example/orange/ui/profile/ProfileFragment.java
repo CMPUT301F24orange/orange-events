@@ -247,7 +247,7 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(getContext(), "Error reading image", Toast.LENGTH_SHORT).show();
                 return;
             }
-        } else if (currentUser.getProfileImageData() == null) {
+        } else if (currentUser.getProfileImageData() == null && ( currentUser.getUsername() != null || !currentUser.getUsername().trim().equals("")) ) {
             Bitmap initialsBitmap = createInitialsBitmap(currentUser.getUsername());
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             initialsBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
