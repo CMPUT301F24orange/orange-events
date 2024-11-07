@@ -43,6 +43,21 @@
             android:id="@+id/action_navigation_profile_to_facilityProfileFragment"
             app:destination="@id/facilityProfileFragment" />
     </fragment>
+  
+    <fragment
+        android:id="@+id/navigation_admin"
+        android:name="com.example.orange.ui.admin.AdminFragment"
+        android:label="Admin" />
+  
+    <fragment
+        android:id="@+id/navigation_admin_view_facilities"
+        android:name="com.example.orange.ui.admin.AdminFacilityListFragment"
+        android:label="Admin View Facilities" />
+  
+    <fragment
+        android:id="@+id/navigation_admin_view_events"
+        android:name="com.example.orange.ui.admin.AdminEventListFragment"
+        android:label="Admin View Events" />
 
     <fragment
         android:id="@+id/navigation_admin"
