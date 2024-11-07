@@ -22,22 +22,22 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * MyEventsFragment is responsible for displaying a list of events
- * the current user has joined. It fetches the user's events from Firebase
- * and displays relevant information for each event, including the event status
- * and date. Users can also leave the waitlist or event as appropriate.
+ * AdminEventListFragment is responsible for displaying all the events
+ * that are currently stored in the database. It also shows some event
+ * details. Each event also contains a delete button to delete the
+ * event from the database entirely.
  *
- * @author Graham Flokstra
+ * @author Radhe Patel
  */
 public class AdminEventListFragment extends Fragment {
     private FirebaseService firebaseService;
-    private SessionManager sessionManager;
     private LinearLayout eventsContainer;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
     /**
      * Called to initialize the fragment's view.
      *
+     * @author Radhe Patel
      * @param inflater           LayoutInflater to inflate the fragment's layout.
      * @param container          Parent view the fragment's UI should be attached to.
      * @param savedInstanceState Previous state data if fragment is being re-created.
@@ -49,7 +49,6 @@ public class AdminEventListFragment extends Fragment {
 
         // Initialize Firebase service and session manager
         firebaseService = new FirebaseService();
-        sessionManager = new SessionManager(requireContext());
 
         // Set up the container for displaying events
         eventsContainer = view.findViewById(R.id.admin_events_container);
@@ -61,9 +60,9 @@ public class AdminEventListFragment extends Fragment {
     }
 
     /**
-     * Loads the current user's events from Firebase and calls displayEvents to render them.
+     * Loads all events from Firebase and calls displayEvents to render them.
      *
-     * @author Graham Flokstra
+     * @author Radhe Patel
      */
     private void loadAdminEvents() {
 
@@ -81,12 +80,12 @@ public class AdminEventListFragment extends Fragment {
     }
 
     /**
-     * Displays a list of events the user has joined, rendering relevant
-     * information about each event's status and allowing the user to leave
-     * the event or queue if applicable.
+     * Displays a list of all events , rendering relevant
+     * information about each event's status and allowing the
+     * admin to delete the event if necessary.
      *
-     * @author Graham Flokstra
-     * @param events List of Event objects representing the user's events.
+     * @author Radhe Patel
+     * @param events List of Event objects representing all events in the database
      */
     private void displayEvents(List<Event> events) {
         eventsContainer.removeAllViews();
@@ -131,9 +130,10 @@ public class AdminEventListFragment extends Fragment {
     /**
      * Deletes an event entirely from the database with no trace left.
      *
+     * @author Radhe Patel
      * @param eventId Unique ID of the event to be deleted.
      */
-    private void deleteEvent(String eventId) {
+    public void deleteEvent(String eventId) {
         firebaseService.deleteEvent(eventId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {

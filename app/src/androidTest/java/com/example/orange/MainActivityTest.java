@@ -156,4 +156,27 @@ public class MainActivityTest {
                 .check(matches(isDisplayed()))
                 .perform(click());
     }
+
+    /**
+     * Tests the Admin mode button in the top navigation.
+     * Verifies that the Admin view is displayed after clicking the button.
+     * goes back to the home page after and checks that the user returns correctly.
+     *
+     * @author Radhe Patel
+     * @throws InterruptedException if the thread sleep is interrupted
+     */
+    @Test
+    public void testAdminMode() throws InterruptedException {
+        // Locate and click the Admin mode button
+        onView(withId(R.id.navigation_admin)).check(matches(isDisplayed())).perform(click());
+        sleep(1000);
+        onView(withId(R.id.admin_navigation_view_facilities)).check(matches(isDisplayed()));
+        sleep(2000);
+        onView(withId(R.id.admin_navigation_home)).check(matches(isDisplayed())).perform(click());
+        sleep(2000);
+        onView(withId(R.id.navigation_join_event)).check(matches(isDisplayed()));
+    }
+
+
+
 }
