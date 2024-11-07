@@ -36,7 +36,10 @@ import com.google.firebase.firestore.Blob;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * ViewMyEventsFragment displays all events created by the current organizer.
@@ -93,6 +96,8 @@ public class ViewMyEventsFragment extends Fragment {
 
     /**
      * Loads events created by the current organizer from Firebase and displays them in the container.
+     * Retrieves the current user session and fetches events associated with the organizer's ID.
+     * Displays error messages if the session is invalid or if data retrieval fails.
      */
     private void loadOrganizerEvents() {
         UserSession userSession = sessionManager.getUserSession();
@@ -122,6 +127,12 @@ public class ViewMyEventsFragment extends Fragment {
         });
     }
 
+    /**
+     * Retrieves and displays events for a specific organizer from Firebase.
+     *
+     * @author Graham Flokstra
+     * @param organizerId The unique identifier of the organizer whose events should be loaded
+     */
     private void loadEventsForOrganizer(String organizerId) {
         firebaseService.getOrganizerEvents(organizerId, new FirebaseCallback<List<Event>>() {
             @Override
@@ -139,13 +150,23 @@ public class ViewMyEventsFragment extends Fragment {
 
     /**
      * Dynamically displays each event in the organizer's events list.
+     * Creates and populates view elements for each event, including:
+     * - Event image
+     * - Title
+     * - Relevant dates (registration deadline, lottery draw, or event date)
+     * - Waitlist count
+     * - Action buttons for viewing waitlist and managing event image
      *
+     * @author Graham Flokstra
      * @param events List of Event objects created by the organizer.
      */
     private void displayEvents(List<Event> events) {
         organizerEventsContainer.removeAllViews();
 
         LayoutInflater inflater = LayoutInflater.from(requireContext());
+
+        Date currentDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
         for (Event event : events) {
             View eventView = inflater.inflate(R.layout.item_view_organizer_event, organizerEventsContainer, false);
@@ -159,7 +180,6 @@ public class ViewMyEventsFragment extends Fragment {
 
             // Set the data
             eventTitle.setText(event.getTitle());
-            eventDate.setText("Date: " + (event.getEventDate() != null ? event.getEventDate().toDate().toString() : "N/A"));
 
             // Load event image if available
             Blob eventImageData = event.getEventImageData();
@@ -171,8 +191,21 @@ public class ViewMyEventsFragment extends Fragment {
                 eventImage.setImageResource(R.drawable.ic_image); // Placeholder if no image is available
             }
 
-            // Hide the lotteryStatus TextView as it's not needed for organizers
-            lotteryStatus.setVisibility(View.GONE);
+            // Display the relevant date based on event's current status
+            if (event.getRegistrationDeadline() != null && currentDate.before(event.getRegistrationDeadline().toDate())) {
+                eventDate.setText("Waitlist closes: " + dateFormat.format(event.getRegistrationDeadline().toDate()));
+            } else if (event.getLotteryDrawDate() != null && currentDate.before(event.getLotteryDrawDate().toDate())) {
+                eventDate.setText("Lottery draw: " + dateFormat.format(event.getLotteryDrawDate().toDate()));
+            } else if (event.getEventDate() != null) {
+                eventDate.setText("Event Date: " + dateFormat.format(event.getEventDate().toDate()));
+            } else {
+                // Handle case where no date is available
+                eventDate.setText("No date available");
+            }
+
+            // Show waitlist count
+            int waitlistCount = event.getWaitingList() != null ? event.getWaitingList().size() : 0;
+            lotteryStatus.setText("Waitlist Count: " + waitlistCount);
 
             // Set the actionButton text to "View Waitlist"
             actionButton.setText("View Waitlist");
@@ -190,6 +223,15 @@ public class ViewMyEventsFragment extends Fragment {
         }
     }
 
+    /**
+     * Displays a dialog with options to change or remove the event image.
+     * Options include:
+     * - Change Image: Opens image picker
+     * - Remove Image: Removes current event image
+     * - Cancel: Dismisses the dialog
+     *
+     * @author Graham Flokstra
+     */
     private void showImageOptions() {
         String[] options = {"Change Image", "Remove Image", "Cancel"};
 
@@ -210,12 +252,26 @@ public class ViewMyEventsFragment extends Fragment {
         builder.show();
     }
 
+    /**
+     * Launches the system's image picker to select a new event image.
+     * Uses ActivityResultContracts.PickVisualMedia to handle image selection.
+     */
     private void openImagePicker() {
         pickMedia.launch(new PickVisualMediaRequest.Builder()
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                 .build());
     }
 
+    /**
+     * Processes the selected image for an event.
+     * - Resizes the image to a maximum dimension of 500px
+     * - Compresses the image to JPEG format with 50% quality
+     * - Checks if the resulting file size is within the 1MB limit
+     * - Updates the event image in Firebase if all checks pass
+     *
+     * @author Graham Flokstra
+     * @param event The event whose image should be updated
+     */
     private void processEventImage(Event event) {
         try {
             InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
@@ -247,6 +303,14 @@ public class ViewMyEventsFragment extends Fragment {
         }
     }
 
+
+    /**
+     * Updates the event image in Firebase with the provided image data.
+     *
+     * @author Graham Flokstra
+     * @param eventId The unique identifier of the event to update
+     * @param imageData The processed image data as a byte array
+     */
     private void updateEventImage(String eventId, byte[] imageData) {
         firebaseService.updateEventImage(eventId, imageData, new FirebaseCallback<Void>() {
             @Override
@@ -263,6 +327,12 @@ public class ViewMyEventsFragment extends Fragment {
         });
     }
 
+    /**
+     * Removes the current image from the selected event.
+     * Updates Firebase and refreshes the event list upon successful removal.
+     *
+     * @author Graham Flokstra
+     */
     private void removeEventImage() {
         firebaseService.removeEventImage(selectedEvent.getId(), new FirebaseCallback<Void>() {
             @Override
