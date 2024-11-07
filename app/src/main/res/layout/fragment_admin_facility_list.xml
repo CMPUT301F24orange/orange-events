@@ -1,29 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--@author Viral Bhavsar -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="#FFFFFF">
+    android:id="@+id/fragment_admin_facility_list"
+    android:padding="16dp">
 
-    <!-- Title -->
-    <TextView
-        android:id="@+id/facilitiesTitle"
-        android:layout_width="206dp"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:gravity="center"
-        android:text="Facilities"
-        android:textSize="40sp"
-        android:textStyle="bold" />
-
-    <!-- RecyclerView for Dynamic Facilities List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewFacilities"
+    <LinearLayout
+        android:id="@+id/admin_facilities_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/facilitiesTitle"
-        android:layout_marginTop="16dp" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
 
-</RelativeLayout>
+</ScrollView>
