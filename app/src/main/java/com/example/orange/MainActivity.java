@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         if (sessionManager.isLoggedIn()) {
             getMenuInflater().inflate(R.menu.toolbar_menu, menu);
             return true;
+        } else {
+            getMenuInflater().inflate(R.menu.toolbar_admin_button, menu);
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -83,12 +85,17 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.navigation_profile);
             return true;
         } else if (item.getItemId() == R.id.navigation_admin) {
+            // Navigate to admin screen
             navController.navigate(R.id.navigation_admin);
-            updateBottomNavForAdmin();
+
+            // Clear current menu and inflate the admin menu
+            binding.toolbar.getMenu().clear();
+            getMenuInflater().inflate(R.menu.toolbar_admin, binding.toolbar.getMenu());
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     /**
      * Sets up the bottom navigation.
@@ -241,32 +248,4 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu(); // This will hide the profile icon
         setupInitialNavigation();
     }
-
-    private void updateBottomNavForAdmin() {
-        Log.d(TAG, "Updating bottom navigation for admin");
-
-        // Clear existing menu
-        binding.navView.getMenu().clear();
-
-        // Inflate admin menu
-        binding.navView.inflateMenu(R.menu.bottom_nav_menu_admin);
-
-        // Set up admin-specific item click handling
-        binding.navView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.admin_navigation_home) {
-                navController.navigate(R.id.admin_navigation_home);
-                return true;
-            } else if (itemId == R.id.admin_navigation_view_events) {
-                navController.navigate(R.id.admin_navigation_view_events);
-                return true;
-            } else if (itemId == R.id.admin_navigation_view_facilities) {
-                navController.navigate(R.id.admin_navigation_view_facilities);
-                return true;
-            }
-            return false;
-        });
-    }
-
-
 }
