@@ -37,15 +37,37 @@ public class MainActivityTest {
     private SessionManager sessionManager;
 
     /**
-     * Setup method to initialize the SessionManager and ensure the user is logged out.
+     * Setup method to initialize the SessionManager, ensure the user is logged out,
+     * and navigate to the home screen.
      *
      * @author Graham Flokstra
      */
     @Before
-    public void setup() {
+    public void setup() throws InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
         sessionManager = new SessionManager(context);
         sessionManager.logoutUser(); // Ensure test starts in logged-out state
+
+        // Always start with home navigation
+        sleep(1000); // Wait for view to be ready
+        onView(withId(R.id.navigation_home))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        onView(withId(R.id.fragment_home_main)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * Tests the Home navigation button in the bottom navigation.
+     * Verifies that the Home fragment is displayed after clicking the Home button.
+     *
+     * @author Graham Flokstra
+     */
+    @Test
+    public void testBottomNavigation_Home() {
+        onView(withId(R.id.navigation_home))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        onView(withId(R.id.fragment_home_main)).check(matches(isDisplayed()));
     }
 
     /**
@@ -77,23 +99,6 @@ public class MainActivityTest {
                 .check(matches(isDisplayed()))
                 .perform(click());
         onView(withId(R.id.fragment_create_event_main)).check(matches(isDisplayed()));
-        onView(withId(R.id.navigation_home))
-                .check(matches(isDisplayed()))
-                .perform(click());
-    }
-
-    /**
-     * Tests the Home navigation button in the bottom navigation.
-     * Verifies that the Home fragment is displayed after clicking the Home button.
-     *
-     * @author Graham Flokstra
-     */
-    @Test
-    public void testBottomNavigation_Home() {
-        onView(withId(R.id.navigation_home))
-                .check(matches(isDisplayed()))
-                .perform(click());
-        onView(withId(R.id.fragment_home_main)).check(matches(isDisplayed()));
     }
 
     /**
@@ -107,9 +112,6 @@ public class MainActivityTest {
         sessionManager.createLoginSession("testDeviceId", UserType.ENTRANT, "testDeviceId");
         activityRule.getScenario().recreate();
         onView(withId(R.id.navigation_profile)).check(matches(isDisplayed()));
-        onView(withId(R.id.navigation_home))
-                .check(matches(isDisplayed()))
-                .perform(click());
     }
 
     /**
@@ -157,12 +159,26 @@ public class MainActivityTest {
      * @author Graham Flokstra
      */
     @Test
-    public void testLogoutBehavior() {
+    public void testLogoutBehavior() throws InterruptedException {
+        // First log in as an entrant
         sessionManager.createLoginSession("testDeviceId", UserType.ENTRANT, "testDeviceId");
         activityRule.getScenario().recreate();
-        onView(withId(R.id.navigation_home)).perform(click());
-        onView(withId(R.id.navigation_join_event)).check(matches(isDisplayed()));
-        onView(withId(R.id.navigation_create_event)).check(matches(isDisplayed()));
+
+        // Then perform logout
+        onView(withId(R.id.navigation_home))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        // Wait for UI to update
+        sleep(1000);
+
+        // Verify the initial navigation state is restored
+        onView(withId(R.id.navigation_join_event))
+                .check(matches(isDisplayed()));
+        onView(withId(R.id.navigation_create_event))
+                .check(matches(isDisplayed()));
+        onView(withId(R.id.navigation_home))
+                .check(matches(isDisplayed()));
     }
 
     /**
@@ -176,8 +192,5 @@ public class MainActivityTest {
         onView(withId(R.id.navigation_join_event)).check(matches(isDisplayed()));
         onView(withId(R.id.navigation_create_event)).check(matches(isDisplayed()));
         onView(withId(R.id.navigation_home)).check(matches(isDisplayed()));
-        onView(withId(R.id.navigation_home))
-                .check(matches(isDisplayed()))
-                .perform(click());
     }
 }

@@ -37,7 +37,7 @@ import com.google.firebase.firestore.Blob;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
+import com.example.orange.MainActivity;
 /**
  * ProfileFragment manages user profile functionality within the Orange application.
  * This fragment handles the display and editing of user information, including profile
@@ -412,13 +412,20 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Handles user logout by clearing Firebase and session data,
-     * then navigates to the home screen.
+     * Handles user logout by delegating to MainActivity's logout handler
      */
     private void handleLogout() {
-        firebaseService.logOut();
-        sessionManager.logoutUser();
-        Navigation.findNavController(requireView()).navigate(R.id.navigation_home);
+        if (getActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            mainActivity.handleLogout();  // Let MainActivity handle everything
+        } else {
+            // Fallback if fragment is not attached to MainActivity
+            firebaseService.logOut();
+            sessionManager.logoutUser();
+            if (getActivity() != null) {
+                Navigation.findNavController(requireView()).navigate(R.id.navigation_home);
+            }
+        }
     }
 
     /**
