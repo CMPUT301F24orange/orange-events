@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         if (sessionManager.isLoggedIn()) {
             getMenuInflater().inflate(R.menu.toolbar_menu, menu);
             return true;
+        } else {
+            getMenuInflater().inflate(R.menu.toolbar_admin_button, menu);
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -82,9 +84,18 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.navigation_profile) {
             navController.navigate(R.id.navigation_profile);
             return true;
+        } else if (item.getItemId() == R.id.navigation_admin) {
+            // Navigate to admin screen
+            navController.navigate(R.id.navigation_admin);
+
+            // Clear current menu and inflate the admin menu
+            binding.toolbar.getMenu().clear();
+            getMenuInflater().inflate(R.menu.toolbar_admin, binding.toolbar.getMenu());
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     /**
      * Sets up the bottom navigation.
