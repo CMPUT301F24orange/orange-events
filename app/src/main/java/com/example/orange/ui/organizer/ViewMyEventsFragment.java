@@ -17,12 +17,17 @@ import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.User;
+import com.example.orange.data.model.UserSession;
+import com.example.orange.data.model.UserType;
 import com.example.orange.utils.SessionManager;
 import java.util.List;
 
 /**
  * ViewMyEventsFragment displays all events created by the current organizer.
  * Organizers can view each event and check its waitlist.
+ *
+ * @author Graham Flokstra, George
  */
 public class ViewMyEventsFragment extends Fragment {
     private FirebaseService firebaseService;
@@ -54,8 +59,34 @@ public class ViewMyEventsFragment extends Fragment {
      * Loads events created by the current organizer from Firebase and displays them in the container.
      */
     private void loadOrganizerEvents() {
-        String organizerId = sessionManager.getUserSession().getUserId();
+        UserSession userSession = sessionManager.getUserSession();
+        if (userSession == null) {
+            Toast.makeText(requireContext(), "No active session", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        String deviceId = userSession.getdeviceId();
+        UserType userType = userSession.getUserType();
+
+        firebaseService.getUserByDeviceIdAndType(deviceId, userType, new FirebaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user != null) {
+                    String organizerId = user.getId(); // Use the correct user ID
+                    loadEventsForOrganizer(organizerId);
+                } else {
+                    Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Error retrieving user data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadEventsForOrganizer(String organizerId) {
         firebaseService.getOrganizerEvents(organizerId, new FirebaseCallback<List<Event>>() {
             @Override
             public void onSuccess(List<Event> events) {
@@ -68,6 +99,7 @@ public class ViewMyEventsFragment extends Fragment {
             }
         });
     }
+
 
     /**
      * Dynamically displays each event in the organizer's events list.
@@ -102,6 +134,7 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Displays the waitlist for a specified event in an AlertDialog.
      *
+     * @author George
      * @param event Event object whose waitlist should be displayed.
      */
     private void showWaitlist(Event event) {

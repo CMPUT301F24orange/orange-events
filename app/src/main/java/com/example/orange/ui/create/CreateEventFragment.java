@@ -29,6 +29,8 @@ import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.User;
+import com.example.orange.data.model.UserSession;
+import com.example.orange.data.model.UserType;
 import com.example.orange.utils.SessionManager;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Blob;
@@ -165,14 +167,44 @@ public class CreateEventFragment extends Fragment {
         Event event = buildEventFromInputs();
         if (event == null) return;
 
-        String organizerId = sessionManager.getUserSession().getUserId();
-        if (organizerId == null) {
-            Toast.makeText(requireContext(), "Error: No organizer ID found", Toast.LENGTH_SHORT).show();
+        UserSession userSession = sessionManager.getUserSession();
+        if (userSession == null) {
+            Toast.makeText(requireContext(), "Error: No user session found", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        processUserAndCreateEvent(organizerId, event);
+        String deviceId = userSession.getdeviceId();
+        UserType userType = userSession.getUserType();
+
+        firebaseService.getUserByDeviceIdAndType(deviceId, userType, new FirebaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user != null && user.getFacilityId() != null) {
+                    String organizerId = user.getId();
+                    event.setOrganizerId(organizerId);
+                    event.setFacilityId(user.getFacilityId());
+
+                    if (selectedImageUri != null) {
+                        processEventImage(event);
+                    }
+
+                    saveEventToFirebase(event);
+                } else {
+                    Toast.makeText(requireContext(),
+                            "Organizer's facility not found. Please update your facility profile.",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(),
+                        "Error retrieving organizer data: " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     /**
      * Builds an Event object from user input fields.
