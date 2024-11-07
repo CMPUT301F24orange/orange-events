@@ -56,6 +56,11 @@ public class AdminFacilityListFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Loads all facilities from Firebase and calls displayFacilities to render them.
+     *
+     * @author Radhe Patel
+     */
     private void loadFacilities() {
         firebaseService.getAllFacilities(new FirebaseCallback<List<Facility>>() {
             @Override
@@ -70,6 +75,14 @@ public class AdminFacilityListFragment extends Fragment {
         });
     }
 
+    /**
+     * Displays a list of all facilities , rendering the name and address
+     *  for each facility and allowing the
+     * admin to delete the facility if necessary.
+     *
+     * @author Radhe Patel
+     * @param facilities List of Event objects representing all events in the database
+     */
     private void displayFacilities(List<Facility> facilities) {
         facilityListContainer.removeAllViews();
 
@@ -91,6 +104,12 @@ public class AdminFacilityListFragment extends Fragment {
         }
     }
 
+    /**
+     * Deletes a facility entirely from the database with no trace left.
+     *
+     * @author Radhe Patel
+     * @param facilityId Unique ID of the event to be deleted.
+     */
     public void delFacility(String facilityId) {
         firebaseService.deleteFacility(facilityId, new FirebaseCallback<Void>() {
             @Override
