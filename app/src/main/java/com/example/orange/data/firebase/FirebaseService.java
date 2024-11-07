@@ -2,6 +2,7 @@ package com.example.orange.data.firebase;
 
 import android.util.Log;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.Facility;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.google.firebase.firestore.DocumentReference;
@@ -109,11 +110,13 @@ public class FirebaseService {
      */
     public void createUser(User user, FirebaseCallback<String> callback) {
         String userId = generateUserId(user.getDeviceId(), user.getUserType());
+        user.setId(userId); // Set the user's ID
         db.collection("users").document(userId)
                 .set(user)
                 .addOnSuccessListener(aVoid -> callback.onSuccess(userId))
                 .addOnFailureListener(callback::onFailure);
     }
+
 
     /**
      * Updates an existing user in Firestore.
@@ -122,12 +125,13 @@ public class FirebaseService {
      * @param callback
      */
     public void updateUser(User user, FirebaseCallback<Void> callback) {
-        String userId = generateUserId(user.getDeviceId(), user.getUserType());
+        String userId = user.getId(); // Use the user's existing ID
         db.collection("users").document(userId)
                 .set(user)
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(callback::onFailure);
     }
+
 
     /**
      * Generates a userId based on deviceId and userType.
@@ -408,6 +412,80 @@ public class FirebaseService {
                         }
                     }
                     callback.onSuccess(events);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Retrieves a list of entrants on the waiting list for a specific event.
+     *
+     * @param eventId  The ID of the event to retrieve waitlist details.
+     * @param callback Callback to handle the result of the operation.
+     */
+    public void getEventWaitlist(String eventId, FirebaseCallback<List<String>> callback) {
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Event event = documentSnapshot.toObject(Event.class);
+                        if (event != null && event.getWaitingList() != null) {
+                            callback.onSuccess(event.getWaitingList());
+                        } else {
+                            callback.onSuccess(new ArrayList<>());
+                        }
+                    } else {
+                        callback.onFailure(new Exception("Event not found"));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Creates a new facility in Firestore.
+     *
+     * @param facility The Facility object to be created in Firestore.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void createFacility(Facility facility, FirebaseCallback<String> callback) {
+        DocumentReference newFacilityRef = db.collection("facilities").document();
+        facility.setId(newFacilityRef.getId());
+        newFacilityRef.set(facility)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Facility created successfully in Firestore");
+                    callback.onSuccess(facility.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create facility in Firestore", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Updates an existing facility in Firestore.
+     *
+     * @param facility The Facility object with updated information.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void updateFacility(Facility facility, FirebaseCallback<Void> callback) {
+        db.collection("facilities").document(facility.getId()).set(facility)
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Retrieves a facility from Firestore based on its ID.
+     *
+     * @param facilityId The ID of the facility to retrieve.
+     * @param callback   A callback to handle the result of the operation.
+     */
+    public void getFacilityById(String facilityId, FirebaseCallback<Facility> callback) {
+        db.collection("facilities").document(facilityId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Facility facility = documentSnapshot.toObject(Facility.class);
+                        callback.onSuccess(facility);
+                    } else {
+                        callback.onSuccess(null);
+                    }
                 })
                 .addOnFailureListener(callback::onFailure);
     }
