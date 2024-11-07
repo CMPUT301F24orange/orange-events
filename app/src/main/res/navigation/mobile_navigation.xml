@@ -35,7 +35,17 @@
     <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.orange.ui.profile.ProfileFragment"
-        android:label="Profile" />
+        android:label="title_profile">
+
+        <action
+            android:id="@+id/action_navigation_profile_to_facilityProfileFragment"
+            app:destination="@id/facilityProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/facilityProfileFragment"
+        android:name="com.example.orange.ui.facility.FacilityProfileFragment"
+        android:label="Facility Profile" />
 
     <fragment
         android:id="@+id/view_event_waitlist"

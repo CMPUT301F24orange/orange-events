@@ -39,41 +39,113 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * This fragment facilitates the viewing and editing of a user profile.
+ * ProfileFragment manages user profile functionality within the Orange application.
+ * This fragment handles the display and editing of user information, including profile
+ * images, personal details, and type-specific features for different user roles
+ * (Entrant vs Organizer).
  *
- * Author: Graham Flokstra
+ * @author Graham Flokstra
  */
 public class ProfileFragment extends Fragment {
+
     private static final String TAG = "ProfileFragment";
-    private EditText editTextName, editTextEmail, editTextPhone;
+
+    private EditText editTextName;
+    private EditText editTextEmail;
+    private EditText editTextPhone;
+
     private ImageView profileImage;
-    private Button uploadImageButton, saveButton, deleteImageButton, logoutButton;
+
+    private Button uploadImageButton;
+    private Button saveButton;
+    private Button deleteImageButton;
+    private Button logoutButton;
+    private Button facilityButton;
+
     private CheckBox receiveNotificationsCheckbox;
+
     private FirebaseService firebaseService;
+
     private SessionManager sessionManager;
     private UserSession userSession;
     private User currentUser;
+
     private Uri selectedImageUri;
 
+    /**
+     * Creates and returns the view hierarchy associated with the fragment.
+     *
+     * @param inflater LayoutInflater object to inflate views
+     * @param container If non-null, parent view that the fragment's UI should be attached to
+     * @param savedInstanceState If non-null, fragment is being re-constructed from previous saved state
+     * @return The View for the fragment's UI
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        // Initialize services
-        firebaseService = new FirebaseService();
-        sessionManager = new SessionManager(requireContext());
-
-        // Initialize views
+        initializeServices();
         initializeViews(view);
-
-        // Verify session and load data
         verifySessionAndLoadData();
 
         return view;
     }
 
     /**
-     * Verifies we are logged in and fetches that user's data.
+     * Initializes Firebase and session management services.
+     */
+    private void initializeServices() {
+        firebaseService = new FirebaseService();
+        sessionManager = new SessionManager(requireContext());
+    }
+
+    /**
+     * Initializes all view components and sets up their click listeners.
+     * Also handles initial visibility states based on user type.
+     *
+     * @param view The root view of the fragment
+     */
+    private void initializeViews(View view) {
+        // Initialize view references
+        editTextName = view.findViewById(R.id.editTextName);
+        editTextEmail = view.findViewById(R.id.editTextEmail);
+        editTextPhone = view.findViewById(R.id.editTextPhone);
+        profileImage = view.findViewById(R.id.profile_image);
+        uploadImageButton = view.findViewById(R.id.upload_image_button);
+        saveButton = view.findViewById(R.id.save_button);
+        deleteImageButton = view.findViewById(R.id.delete_image_button);
+        logoutButton = view.findViewById(R.id.logout_button);
+        receiveNotificationsCheckbox = view.findViewById(R.id.receive_notifications_checkbox);
+        facilityButton = view.findViewById(R.id.facility_button);
+
+        // Set initial button states
+        setButtonsEnabled(false);
+
+        // Set initial visibility
+        facilityButton.setVisibility(View.GONE);
+        receiveNotificationsCheckbox.setVisibility(View.GONE);
+
+        // Set up click listeners
+        setupClickListeners();
+    }
+
+    /**
+     * Sets up click listeners for all interactive elements in the fragment.
+     */
+    private void setupClickListeners() {
+        saveButton.setOnClickListener(v -> saveUserProfile(selectedImageUri));
+        uploadImageButton.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build()));
+        deleteImageButton.setOnClickListener(v -> deleteProfileImage());
+        logoutButton.setOnClickListener(v -> handleLogout());
+        facilityButton.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_navigation_profile_to_facilityProfileFragment));
+    }
+
+    /**
+     * Verifies the current user session and loads user data if session is valid.
+     * Navigates to home screen if session is invalid.
      */
     private void verifySessionAndLoadData() {
         userSession = sessionManager.getUserSession();
@@ -106,37 +178,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Initializes the views.
+     * Enables or disables interactive buttons based on user data availability.
      *
-     * @param view The root view of the fragment.
-     */
-    private void initializeViews(View view) {
-        editTextName = view.findViewById(R.id.editTextName);
-        editTextEmail = view.findViewById(R.id.editTextEmail);
-        editTextPhone = view.findViewById(R.id.editTextPhone);
-        profileImage = view.findViewById(R.id.profile_image);
-        uploadImageButton = view.findViewById(R.id.upload_image_button);
-        saveButton = view.findViewById(R.id.save_button);
-        deleteImageButton = view.findViewById(R.id.delete_image_button);
-        logoutButton = view.findViewById(R.id.logout_button);
-        receiveNotificationsCheckbox = view.findViewById(R.id.receive_notifications_checkbox);
-
-        setButtonsEnabled(false);
-
-        saveButton.setOnClickListener(v -> saveUserProfile(selectedImageUri));
-        uploadImageButton.setOnClickListener(v -> {
-            pickMedia.launch(new PickVisualMediaRequest.Builder()
-                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                    .build());
-        });
-        deleteImageButton.setOnClickListener(v -> deleteProfileImage());
-        logoutButton.setOnClickListener(v -> handleLogout());
-    }
-
-    /**
-     * Enables buttons once our user is found.
-     *
-     * @param enabled Whether buttons should be enabled.
+     * @param enabled true to enable buttons, false to disable
      */
     private void setButtonsEnabled(boolean enabled) {
         saveButton.setEnabled(enabled);
@@ -145,9 +189,10 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Loads user data for placement into the profile page.
+     * Loads user data from Firebase and populates the UI.
+     * Handles different UI configurations based on user type.
      *
-     * @param userId The user's ID.
+     * @param userId The ID of the user whose data should be loaded
      */
     private void loadUserData(String userId) {
         firebaseService.getUserById(userId, new FirebaseCallback<User>() {
@@ -158,21 +203,8 @@ public class ProfileFragment extends Fragment {
                     if (getActivity() == null) return;
 
                     getActivity().runOnUiThread(() -> {
-                        editTextName.setText(user.getUsername());
-                        editTextEmail.setText(user.getEmail());
-                        editTextPhone.setText(user.getPhone());
-
-                        // Set profile image or initials drawable
-                        if (user.getProfileImageData() != null) {
-                            byte[] imageData = user.getProfileImageData().toBytes();
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-                            profileImage.setImageBitmap(bitmap);
-                        } else {
-                            Bitmap initialsBitmap = createInitialsBitmap(user.getUsername());
-                            profileImage.setImageBitmap(initialsBitmap);
-                        }
-
-                        receiveNotificationsCheckbox.setChecked(user.isReceiveNotifications());
+                        populateUserInterface(user);
+                        configureUserTypeSpecificUI(user);
                         setButtonsEnabled(true);
                     });
                 } else {
@@ -188,9 +220,45 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Navigates the user back to the home screen.
+     * Populates the user interface with the provided user data.
      *
-     * @param message Message to display upon navigation.
+     * @param user The user whose data should be displayed
+     */
+    private void populateUserInterface(User user) {
+        editTextName.setText(user.getUsername());
+        editTextEmail.setText(user.getEmail());
+        editTextPhone.setText(user.getPhone());
+
+        if (user.getProfileImageData() != null) {
+            byte[] imageData = user.getProfileImageData().toBytes();
+            Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+            profileImage.setImageBitmap(bitmap);
+        } else {
+            Bitmap initialsBitmap = createInitialsBitmap(user.getUsername());
+            profileImage.setImageBitmap(initialsBitmap);
+        }
+    }
+
+    /**
+     * Configures UI elements specific to user type (Entrant or Organizer).
+     *
+     * @param user The user whose type determines the UI configuration
+     */
+    private void configureUserTypeSpecificUI(User user) {
+        if (user.getUserType() == UserType.ENTRANT) {
+            receiveNotificationsCheckbox.setVisibility(View.VISIBLE);
+            facilityButton.setVisibility(View.GONE);
+            receiveNotificationsCheckbox.setChecked(user.isReceiveNotifications());
+        } else if (user.getUserType() == UserType.ORGANIZER) {
+            receiveNotificationsCheckbox.setVisibility(View.GONE);
+            facilityButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Navigates to the home screen with a toast message.
+     *
+     * @param message Message to display in toast
      */
     private void navigateToHome(String message) {
         if (getActivity() != null) {
@@ -202,9 +270,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Saves user data to the correct user profile.
+     * Saves the user profile with updated information and optional new profile image.
      *
-     * @param imageUri URI of the user's profile image.
+     * @param imageUri URI of the new profile image, if one was selected
      */
     private void saveUserProfile(Uri imageUri) {
         if (currentUser == null || userSession == null) {
@@ -212,48 +280,87 @@ public class ProfileFragment extends Fragment {
             return;
         }
 
-        String deviceId = userSession.getdeviceId();
-        currentUser.setDeviceId(deviceId);
-        currentUser.setId(deviceId);
-        currentUser.setUserType(userSession.getUserType());
+        updateUserFields();
+        handleProfileImage(imageUri);
+        updateUserProfile();
+    }
 
+    /**
+     * Updates user fields from UI input.
+     */
+    private void updateUserFields() {
+        currentUser.setDeviceId(userSession.getdeviceId());
+        currentUser.setUserType(userSession.getUserType());
         currentUser.setUsername(editTextName.getText().toString().trim());
         currentUser.setEmail(editTextEmail.getText().toString().trim());
         currentUser.setPhone(editTextPhone.getText().toString().trim());
-        currentUser.setReceiveNotifications(receiveNotificationsCheckbox.isChecked());
 
+        if (currentUser.getUserType() == UserType.ENTRANT) {
+            currentUser.setReceiveNotifications(receiveNotificationsCheckbox.isChecked());
+        }
+    }
+
+    /**
+     * Handles profile image processing and updates.
+     *
+     * @param imageUri URI of the new image to process
+     */
+    private void handleProfileImage(Uri imageUri) {
         if (imageUri != null) {
-            try {
-                InputStream inputStream = getContext().getContentResolver().openInputStream(imageUri);
-                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            processNewProfileImage(imageUri);
+        } else if (currentUser.getProfileImageData() == null &&
+                (currentUser.getUsername() != null && !currentUser.getUsername().trim().isEmpty())) {
+            setDefaultProfileImage();
+        }
+    }
 
-                int maxSize = 500;
-                float scale = Math.min(((float) maxSize / bitmap.getWidth()), ((float) maxSize / bitmap.getHeight()));
-                Matrix matrix = new Matrix();
-                matrix.postScale(scale, scale);
-                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    /**
+     * Processes and compresses a new profile image.
+     *
+     * @param imageUri URI of the image to process
+     */
+    private void processNewProfileImage(Uri imageUri) {
+        try {
+            InputStream inputStream = getContext().getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-                byte[] imageData = baos.toByteArray();
+            int maxSize = 500;
+            float scale = Math.min(((float) maxSize / bitmap.getWidth()),
+                    ((float) maxSize / bitmap.getHeight()));
+            Matrix matrix = new Matrix();
+            matrix.postScale(scale, scale);
+            Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
+                    bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
-                if (imageData.length > 1048576) {
-                    Toast.makeText(getContext(), "Image is too large to upload", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+            byte[] imageData = baos.toByteArray();
 
-                currentUser.setProfileImageData(Blob.fromBytes(imageData));
-            } catch (IOException e) {
-                Toast.makeText(getContext(), "Error reading image", Toast.LENGTH_SHORT).show();
+            if (imageData.length > 1048576) {
+                Toast.makeText(getContext(), "Image is too large to upload", Toast.LENGTH_SHORT).show();
                 return;
             }
-        } else if (currentUser.getProfileImageData() == null && ( currentUser.getUsername() != null || !currentUser.getUsername().trim().equals("")) ) {
-            Bitmap initialsBitmap = createInitialsBitmap(currentUser.getUsername());
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            initialsBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            currentUser.setProfileImageData(Blob.fromBytes(baos.toByteArray()));
-        }
 
+            currentUser.setProfileImageData(Blob.fromBytes(imageData));
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Error reading image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Sets a default profile image using user's initials.
+     */
+    private void setDefaultProfileImage() {
+        Bitmap initialsBitmap = createInitialsBitmap(currentUser.getUsername());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        initialsBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        currentUser.setProfileImageData(Blob.fromBytes(baos.toByteArray()));
+    }
+
+    /**
+     * Updates the user profile in Firebase.
+     */
+    private void updateUserProfile() {
         firebaseService.updateUser(currentUser, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -276,7 +383,7 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Deletes user's profile image.
+     * Deletes the user's profile image and updates UI accordingly.
      */
     private void deleteProfileImage() {
         if (currentUser != null && userSession != null) {
@@ -305,7 +412,8 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Logs the user out of the current session.
+     * Handles user logout by clearing Firebase and session data,
+     * then navigates to the home screen.
      */
     private void handleLogout() {
         firebaseService.logOut();
@@ -314,12 +422,11 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Generates a bitmap with initials for the user's name.
+     * Creates a bitmap containing the user's initials in a circular background.
+     * This is used as a default profile picture when no image is uploaded.
      *
-     * @author Graham Flokstra
-     * @link https://dev.to/pranavpandey/android-create-bitmap-from-a-view-3lck
-     * @param name User's name.
-     * @return Bitmap with initials.
+     * @param name The user's full name from which to extract initials
+     * @return Bitmap containing the user's initials in a styled format
      */
     private Bitmap createInitialsBitmap(String name) {
         int size = 120;
@@ -345,10 +452,11 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Extracts initials from the user's name.
+     * Extracts initials from a user's name. Takes the first letter of each word
+     * in the name, up to a maximum of two letters.
      *
-     * @param name User's name.
-     * @return Initials.
+     * @param name The full name to extract initials from
+     * @return String containing the user's initials (max 2 characters)
      */
     private String getInitials(String name) {
         String[] words = name.trim().split("\\s+");
@@ -361,6 +469,11 @@ public class ProfileFragment extends Fragment {
         return initials.length() > 2 ? initials.substring(0, 2) : initials.toString();
     }
 
+    /**
+     * Activity result launcher for handling image selection from the device's media store.
+     * When an image is selected, it updates the profile image view and stores the URI
+     * for later processing.
+     */
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia = registerForActivityResult(
             new ActivityResultContracts.PickVisualMedia(),
             uri -> {
