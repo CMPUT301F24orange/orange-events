@@ -28,7 +28,7 @@ public class User {
     private boolean receiveOrganizerNotifications;
     private boolean receiveAdminNotifications;
     private Blob profileImageData; // Changed from byte[] to Blob
-
+    private String facilityId;
     /**
      * Default constructor required for Firestore.
      * Initializes empty lists for events.
@@ -227,7 +227,6 @@ public class User {
      *
      * @return true if the user is an organizer, false otherwise.
      */
-    @Exclude
     public boolean isOrganizer() {
         return this.userType == UserType.ORGANIZER;
     }
@@ -237,7 +236,6 @@ public class User {
      *
      * @return true if the user is an admin, false otherwise.
      */
-    @Exclude
     public boolean isAdmin() {
         return this.userType == UserType.ADMIN;
     }
@@ -304,6 +302,7 @@ public class User {
     public Blob getProfileImageData() {
         return profileImageData;
     }
+
     /**
      * Sets the user's profile image.
      *
@@ -317,9 +316,11 @@ public class User {
      * Retrieves notification preference.
      *
      * @return boolean
-     */    public boolean isReceiveNotifications() {
+     */
+    public boolean isReceiveNotifications() {
         return receiveNotifications;
     }
+
     /**
      * Sets the user's notification settings.
      *
@@ -327,6 +328,25 @@ public class User {
      */
     public void setReceiveNotifications(boolean receiveNotifications) {
         this.receiveNotifications = receiveNotifications;
+    }
+
+
+    /**
+     * Gets the facility ID associated with the user.
+     *
+     * @return The facility ID.
+     */
+    public String getFacilityId() {
+        return facilityId;
+    }
+
+    /**
+     * Sets the facility ID associated with the user.
+     *
+     * @param facilityId The facility ID to set.
+     */
+    public void setFacilityId(String facilityId) {
+        this.facilityId = facilityId;
     }
 
     /**

@@ -36,7 +36,7 @@ public class Event {
     private List<String> participants;
     private List<String> selectedParticipants;
     private Blob eventImageData; // Changed from byte[] to Blob
-
+    private String facilityId;
 
     /**
      * Default constructor required for Firestone
@@ -416,6 +416,7 @@ public class Event {
     public Blob getEventImageData() {
         return eventImageData;
     }
+
     /**
      * Sets the user's profile image.
      *
@@ -424,6 +425,26 @@ public class Event {
     public void setEventImageData(Blob eventImageData) {
         this.eventImageData = eventImageData;
     }
+
+    /**
+     * Gets the facility ID associated with the event.
+     *
+     * @return The facility ID.
+     */
+    public String getFacilityId() {
+        return facilityId;
+    }
+
+    /**
+     * Sets the facility ID associated with the event.
+     *
+     * @param facilityId The facility ID to set.
+     */
+    public void setFacilityId(String facilityId) {
+        this.facilityId = facilityId;
+    }
+
+
     /**
      * Function to return specific string for an object of type Event
      * Mostly useful for debugging
