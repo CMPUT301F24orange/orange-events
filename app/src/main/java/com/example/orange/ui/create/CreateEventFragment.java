@@ -67,7 +67,7 @@ public class CreateEventFragment extends Fragment {
     private EditText waitlistLimitEditText;
 
     private CheckBox waitlistLimitCheckbox;
-
+    private CheckBox geolocation_checkbox;
     private Button createEventButton;
     private Button uploadImageButton;
     private Button deleteImageButton;
@@ -138,10 +138,12 @@ public class CreateEventFragment extends Fragment {
         eventPriceEditText = view.findViewById(R.id.event_price_edit_text);
         waitlistLimitEditText = view.findViewById(R.id.waitlist_limit_edit_text);
         waitlistLimitCheckbox = view.findViewById(R.id.waitlist_limit_checkbox);
+        geolocation_checkbox = view.findViewById(R.id.geolocation_checkbox);
         createEventButton = view.findViewById(R.id.createEventButton);
         eventImage = view.findViewById(R.id.add_image_button);
         uploadImageButton = view.findViewById(R.id.upload_image_button);
         deleteImageButton = view.findViewById(R.id.delete_image_button);
+
     }
 
     /**
@@ -223,6 +225,7 @@ public class CreateEventFragment extends Fragment {
         Timestamp lotteryDay = parseDate(lotteryDayEditText.getText().toString());
         Integer waitlistLimit = waitlistLimitCheckbox.isChecked() ?
                 parseIntegerField(waitlistLimitEditText.getText().toString().trim()) : null;
+        Boolean geolocation = geolocation_checkbox.isChecked();
 
         Event event = new Event();
         event.setTitle(title);
@@ -235,6 +238,7 @@ public class CreateEventFragment extends Fragment {
         event.setRegistrationDeadline(registrationDeadline);
         event.setLotteryDrawDate(lotteryDay);
         event.setWaitlistLimit(waitlistLimit);
+        event.setGeolocationEvent(geolocation);
 
         return event;
     }
