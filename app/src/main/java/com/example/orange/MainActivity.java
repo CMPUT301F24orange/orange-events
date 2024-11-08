@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         if (sessionManager.isLoggedIn()) {
             getMenuInflater().inflate(R.menu.toolbar_menu, menu);
             return true;
+        } else {
+            getMenuInflater().inflate(R.menu.toolbar_admin_button, menu);
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -82,6 +84,14 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.navigation_profile) {
             navController.navigate(R.id.navigation_profile);
             return true;
+        } else if (item.getItemId() == R.id.navigation_admin) {
+            // Navigate to admin screen
+            navController.navigate(R.id.navigation_admin);
+
+            // Clear current menu and inflate the admin menu
+            binding.toolbar.getMenu().clear();
+            getMenuInflater().inflate(R.menu.toolbar_admin, binding.toolbar.getMenu());
+            return true;
         }
         else if(item.getItemId() == R.id.navigation_camera){
             navController.navigate(R.id.navigation_camera);
@@ -89,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     /**
      * Sets up the bottom navigation.
@@ -131,21 +142,40 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Updating menu for initial state");
         Menu menu = binding.navView.getMenu();
         if (menu != null) {
+            // First clear all listeners
+            binding.navView.setOnItemSelectedListener(null);
+
             // Hide all items first
             for (int i = 0; i < menu.size(); i++) {
                 menu.getItem(i).setVisible(false);
             }
 
-            // Show only initial items
+            // Show initial items and ensure they're enabled
             MenuItem joinItem = menu.findItem(R.id.navigation_join_event);
             MenuItem homeItem = menu.findItem(R.id.navigation_home);
             MenuItem createItem = menu.findItem(R.id.navigation_create_event);
 
-            if (joinItem != null) joinItem.setVisible(true);
-            if (homeItem != null) homeItem.setVisible(true);
-            if (createItem != null) createItem.setVisible(true);
+            if (joinItem != null) {
+                joinItem.setVisible(true);
+                joinItem.setEnabled(true);
+            }
+            if (homeItem != null) {
+                homeItem.setVisible(true);
+                homeItem.setEnabled(true);
+            }
+            if (createItem != null) {
+                createItem.setVisible(true);
+                createItem.setEnabled(true);
+            }
+
+            // Ensure the view is refreshed
+            binding.navView.invalidate();
+
+            // Set the click listener after updating visibility
+            setInitialClickListener();
         }
     }
+
 
     /**
      * After selection it updates menu visibility based on user type
@@ -234,11 +264,24 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Logs user out of session.
      */
-    private void handleLogout() {
+    public void handleLogout() {
         Log.d(TAG, "Handling logout");
+
+        // First clear the session data
         firebaseService.logOut();
         sessionManager.logoutUser();
+
+        // Then update the UI
         invalidateOptionsMenu(); // This will hide the profile icon
+
+        // Force menu refresh
+        binding.navView.getMenu().clear();
+        binding.navView.inflateMenu(R.menu.bottom_nav_menu);
+
+        // Finally set up navigation and navigate home
         setupInitialNavigation();
+
+        // Ensure the view is refreshed
+        binding.navView.invalidate();
     }
 }

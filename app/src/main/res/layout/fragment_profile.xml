@@ -65,6 +65,17 @@
             android:layout_marginTop="16dp"
             android:text="Receive Notifications" />
 
+
+        <!-- Facility Button for Organizers -->
+        <Button
+            android:id="@+id/facility_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Manage Facility"
+            android:backgroundTint="@color/primary"
+            android:layout_marginTop="16dp"
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/save_button"
             android:layout_width="match_parent"

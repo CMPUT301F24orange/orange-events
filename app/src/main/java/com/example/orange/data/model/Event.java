@@ -1,6 +1,7 @@
 package com.example.orange.data.model;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentId;
 
 import java.util.ArrayList;
@@ -31,9 +32,12 @@ public class Event {
     private Integer capacity;
     private Integer waitlistLimit;
     private String organizerId;
+    private Boolean geolocationEvent;
     private List<String> waitingList;
     private List<String> participants;
     private List<String> selectedParticipants;
+    private Blob eventImageData; // Changed from byte[] to Blob
+    private String facilityId;
 
     /**
      * Default constructor required for Firestone
@@ -402,6 +406,63 @@ public class Event {
      * @param waitlistLimit Integer representing the maximum waitlist size.
      */
     public void setWaitlistLimit(Integer waitlistLimit) { this.waitlistLimit = waitlistLimit; }
+
+
+
+    /**
+     * Retrieves the user's device ID, which uniquely identifies the user's device.
+     *
+     * @return The profile image of the user.
+     */
+    public Blob getEventImageData() {
+        return eventImageData;
+    }
+
+    /**
+     * Sets the user's profile image.
+     *
+     * @param eventImageData The new device image to set for the user.
+     */
+    public void setEventImageData(Blob eventImageData) {
+        this.eventImageData = eventImageData;
+    }
+
+    /**
+     * Gets the facility ID associated with the event.
+     *
+     * @return The facility ID.
+     */
+    public String getFacilityId() {
+        return facilityId;
+    }
+
+    /**
+     * Sets the facility ID associated with the event.
+     *
+     * @param facilityId The facility ID to set.
+     */
+    public void setFacilityId(String facilityId) {
+        this.facilityId = facilityId;
+    }
+
+    /**
+     *
+     * @author Graham Flokstra
+     * @return
+     */
+    public Boolean getGeolocationEvent() {
+        return geolocationEvent;
+    }
+
+    /**
+     * Set geolocation on or off
+     *
+     * @author Graham Flokstra
+     * @param geolocationEvent
+     */
+    public void setGeolocationEvent(Boolean geolocationEvent) {
+        this.geolocationEvent = geolocationEvent;
+    }
 
     /**
      * Function to return specific string for an object of type Event

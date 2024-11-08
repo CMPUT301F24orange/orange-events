@@ -22,12 +22,13 @@ public class User {
     private String phone;
     private String deviceId;
     private String profileImageUrl;
+    private boolean receiveNotifications;
     private List<String> eventsParticipating;
     private List<String> eventsOrganizing;
     private boolean receiveOrganizerNotifications;
     private boolean receiveAdminNotifications;
     private Blob profileImageData; // Changed from byte[] to Blob
-
+    private String facilityId;
     /**
      * Default constructor required for Firestore.
      * Initializes empty lists for events.
@@ -226,7 +227,6 @@ public class User {
      *
      * @return true if the user is an organizer, false otherwise.
      */
-    @Exclude
     public boolean isOrganizer() {
         return this.userType == UserType.ORGANIZER;
     }
@@ -236,7 +236,6 @@ public class User {
      *
      * @return true if the user is an admin, false otherwise.
      */
-    @Exclude
     public boolean isAdmin() {
         return this.userType == UserType.ADMIN;
     }
@@ -294,14 +293,16 @@ public class User {
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
+
     /**
-     * Retrieves the user's device ID, which uniquely identifies the user's device.
+     * Retrieves the user's profile image data.
      *
      * @return The profile image of the user.
      */
     public Blob getProfileImageData() {
         return profileImageData;
     }
+
     /**
      * Sets the user's profile image.
      *
@@ -309,6 +310,43 @@ public class User {
      */
     public void setProfileImageData(Blob profileImageData) {
         this.profileImageData = profileImageData;
+    }
+
+    /**
+     * Retrieves notification preference.
+     *
+     * @return boolean
+     */
+    public boolean isReceiveNotifications() {
+        return receiveNotifications;
+    }
+
+    /**
+     * Sets the user's notification settings.
+     *
+     * @param receiveNotifications The notification preferences.
+     */
+    public void setReceiveNotifications(boolean receiveNotifications) {
+        this.receiveNotifications = receiveNotifications;
+    }
+
+
+    /**
+     * Gets the facility ID associated with the user.
+     *
+     * @return The facility ID.
+     */
+    public String getFacilityId() {
+        return facilityId;
+    }
+
+    /**
+     * Sets the facility ID associated with the user.
+     *
+     * @param facilityId The facility ID to set.
+     */
+    public void setFacilityId(String facilityId) {
+        this.facilityId = facilityId;
     }
 
     /**
