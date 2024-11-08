@@ -20,7 +20,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.orange.R;
@@ -34,11 +36,21 @@ import com.example.orange.utils.SessionManager;
 import com.google.firebase.firestore.Blob;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+
+import com.google.zxing.BarcodeFormat;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 import java.util.Locale;
 
 /**
@@ -171,6 +183,7 @@ public class ViewMyEventsFragment extends Fragment {
         for (Event event : events) {
             View eventView = inflater.inflate(R.layout.item_view_organizer_event, organizerEventsContainer, false);
 
+            Button GenerateButton = eventView.findViewById(R.id.generate_QR_button);
             ImageView eventImage = eventView.findViewById(R.id.event_image);
             TextView eventTitle = eventView.findViewById(R.id.event_title);
             TextView eventDate = eventView.findViewById(R.id.event_date);
@@ -191,6 +204,8 @@ public class ViewMyEventsFragment extends Fragment {
                 eventImage.setImageResource(R.drawable.ic_image); // Placeholder if no image is available
             }
 
+
+            GenerateButton.setOnClickListener(v-> generateQR(event));
             // Display the relevant date based on event's current status
             if (event.getRegistrationDeadline() != null && currentDate.before(event.getRegistrationDeadline().toDate())) {
                 eventDate.setText("Waitlist closes: " + dateFormat.format(event.getRegistrationDeadline().toDate()));
@@ -373,7 +388,69 @@ public class ViewMyEventsFragment extends Fragment {
                     .show();
         }
     }
+    public void generateQR(Event event) {
+        try {
+            // Prepare event details for QR content
+            String qrContent = "Event ID: " + event.getId() + "\n"
+                    + "Event Name: " + event.getTitle() + "\n"
+                    + "Date: " + (event.getEventDate() != null ? event.getEventDate().toDate().toString() : "N/A") + "\n"
+                    + "Description: " + event.getDescription();
 
+            // Generate QR code bitmap
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
 
+            // Generate SHA-256 hash of the event details
+            String hash = generateHash(qrContent);
 
+            // Store the hash in Firebase Firestore
+            if (hash != null) {
+                firebaseService.storeEventHash(event.getId(), hash);
+            }
+            // Save QR bitmap to cache and get the URI
+            Uri qrUri = saveQRToCache(bitmap);
+            // Pass both qr_bitmap and eventId to DisplayQRFragment
+            Bundle args = new Bundle();
+            args.putParcelable("qr_uri", qrUri);
+            args.putString("event_id", event.getId());
+
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            navController.navigate(R.id.navigation_displayqr, args);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String generateHash(String data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(data.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    private Uri saveQRToCache(Bitmap qrBitmap) {
+        try {
+            File cachePath = new File(requireContext().getCacheDir(), "images");
+            cachePath.mkdirs(); // Ensure the directory exists
+            File file = new File(cachePath, "qr_image.png");
+            FileOutputStream stream = new FileOutputStream(file);
+            qrBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+            return FileProvider.getUriForFile(requireContext(), "com.example.orange.fileprovider", file);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

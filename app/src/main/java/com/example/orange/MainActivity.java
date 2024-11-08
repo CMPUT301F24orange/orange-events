@@ -93,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
             getMenuInflater().inflate(R.menu.toolbar_admin, binding.toolbar.getMenu());
             return true;
         }
+        else if(item.getItemId() == R.id.navigation_camera){
+            navController.navigate(R.id.navigation_camera);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 

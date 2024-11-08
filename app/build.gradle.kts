@@ -45,6 +45,8 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.recyclerview)
+    implementation(libs.fragment.testing)
+    implementation(libs.espresso.intents)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -59,5 +61,16 @@ dependencies {
     //Added from firebase tutorial
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-firestore")
+
+    //Added for QR scanning
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation ("com.google.zxing:core:3.3.3")
+    testImplementation ("org.mockito:mockito-core:4.5.1")
+    androidTestImplementation ("org.mockito:mockito-android:4.5.1")
+    androidTestImplementation ("androidx.navigation:navigation-testing:2.5.3")
+    testImplementation ("org.mockito:mockito-android:4.0.0")
+
+
+
 
 }
