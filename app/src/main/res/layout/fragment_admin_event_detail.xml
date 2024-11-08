@@ -262,7 +262,6 @@
                             android:textColor="#000000" />
                     </LinearLayout>
 
-                    <!-- Other details (Event Date, Registration Opens, etc.) follow the same format as the Event Description -->
 
                 </LinearLayout>
             </LinearLayout>
