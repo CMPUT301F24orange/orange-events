@@ -43,11 +43,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/facilityProfileFragment"
-        android:name="com.example.orange.ui.facility.FacilityProfileFragment"
-        android:label="Facility Profile" />
-
-    <fragment
         android:id="@+id/navigation_admin"
         android:name="com.example.orange.ui.admin.AdminFragment"
         android:label="Admin" />
@@ -63,9 +58,15 @@
         android:label="Admin View Events" />
 
     <fragment
-        android:id="@+id/navigation_admin_view_profiles"
+        android:id="@+id/navigation_admin_profiles"
         android:name="com.example.orange.ui.admin.AdminProfilesFragment"
-        android:label="Admin View Events"/>
+        android:label="Admin View Profiles" />
+
+
+    <fragment
+        android:id="@+id/facilityProfileFragment"
+        android:name="com.example.orange.ui.facility.FacilityProfileFragment"
+        android:label="Facility Profile" />
 
     <fragment
         android:id="@+id/view_event_waitlist"
