@@ -10,7 +10,6 @@
     import androidx.navigation.Navigation;
 
     import com.example.orange.R;
-    import com.example.orange.utils.SessionManager;
     import com.journeyapps.barcodescanner.ScanContract;
     import com.journeyapps.barcodescanner.ScanOptions;
 
@@ -23,8 +22,7 @@
      * @author Brandon Ramirez
      */
     public class CreateQRFragment extends Fragment {
-        private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
-        public final ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(
+        public ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(
                 new ScanContract(),
                 result -> {
                     if (result.getContents() != null) {
@@ -64,7 +62,7 @@
         /**
          * Creates a new scan option which activates the camera and changes it settings
          */
-        public void scanQRCode() {
+        private void scanQRCode() {
             ScanOptions options = new ScanOptions();
             options.setPrompt("Scan your QR code");
             options.setBeepEnabled(true);

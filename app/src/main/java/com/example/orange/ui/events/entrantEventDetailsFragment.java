@@ -20,11 +20,11 @@ import com.example.orange.data.model.Event;
 import com.example.orange.utils.SessionManager;
 
 public class entrantEventDetailsFragment extends Fragment {
-    Button joinEventButton;
-    Button leaveEventButton;
+    public Button joinEventButton;
+    public Button leaveEventButton;
     private String eventId;
-    private FirebaseService firebaseService;
-    private SessionManager sessionManager;
+    public FirebaseService firebaseService;
+    public SessionManager sessionManager;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -68,7 +68,7 @@ public class entrantEventDetailsFragment extends Fragment {
             }
         });
     }
-    public void joinEvent(String eventId) {
+    private void joinEvent(String eventId) {
         String userId = sessionManager.getUserSession().getUserId();
         firebaseService.addToEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
             @Override

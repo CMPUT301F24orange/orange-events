@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.recyclerview)
     implementation(libs.fragment.testing)
+    implementation(libs.espresso.intents)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -64,6 +65,9 @@ dependencies {
     //Added for QR scanning
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation ("com.google.zxing:core:3.3.3")
+    testImplementation ("org.mockito:mockito-core:4.5.1")
+    androidTestImplementation ("org.mockito:mockito-android:4.5.1")
+
 
 
 }
