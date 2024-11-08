@@ -32,6 +32,7 @@ public class Event {
     private Integer capacity;
     private Integer waitlistLimit;
     private String organizerId;
+    private Boolean geolocationEvent;
     private List<String> waitingList;
     private List<String> participants;
     private List<String> selectedParticipants;
@@ -444,6 +445,24 @@ public class Event {
         this.facilityId = facilityId;
     }
 
+    /**
+     *
+     * @author Graham Flokstra
+     * @return
+     */
+    public Boolean getGeolocationEvent() {
+        return geolocationEvent;
+    }
+
+    /**
+     * Set geolocation on or off
+     *
+     * @author Graham Flokstra
+     * @param geolocationEvent
+     */
+    public void setGeolocationEvent(Boolean geolocationEvent) {
+        this.geolocationEvent = geolocationEvent;
+    }
 
     /**
      * Function to return specific string for an object of type Event
