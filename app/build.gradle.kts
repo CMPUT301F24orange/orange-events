@@ -70,6 +70,9 @@ dependencies {
     androidTestImplementation ("androidx.navigation:navigation-testing:2.5.3")
     testImplementation ("org.mockito:mockito-android:4.0.0")
 
+    //Added for Javadocs
+    implementation(files("C:\\Users\\radhe\\AppData\\Local\\Android\\Sdk\\platforms\\android-34\\android.jar"))
+
 
 
 
