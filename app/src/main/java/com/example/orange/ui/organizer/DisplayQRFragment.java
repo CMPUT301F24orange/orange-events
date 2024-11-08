@@ -1,7 +1,6 @@
 package com.example.orange.ui.organizer;
 
-import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,7 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.example.orange.R;
-
+/**
+ * In charge of displaying the QR code that was generated in the ViewMyEventsFragment
+ *
+ * @author Brandon Ramirez.
+ */
 public class DisplayQRFragment extends Fragment {
 
     @Override
@@ -25,7 +28,7 @@ public class DisplayQRFragment extends Fragment {
         // Retrieve the URI from arguments
         Uri qrUri = getArguments().getParcelable("qr_uri");
         if (qrUri != null) {
-            qrImageView.setImageURI(qrUri);
+            qrImageView.setImageURI(qrUri); //Display the image
         } else {
             Toast.makeText(requireContext(), "Failed to load QR image", Toast.LENGTH_SHORT).show();
         }
