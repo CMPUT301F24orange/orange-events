@@ -68,11 +68,6 @@
         android:label="Admin View Events"/>
 
     <fragment
-        android:id="@+id/adminProfileFragment"
-        android:name="com.example.orange.ui.admin.AdminProfilesFragment"
-        android:label="Facility Profile" />
-
-    <fragment
         android:id="@+id/view_event_waitlist"
         android:name="com.example.orange.ui.organizer.ViewEventWaitlistFragment"
         android:label="Event Waitlist"

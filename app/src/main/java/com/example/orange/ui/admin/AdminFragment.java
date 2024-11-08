@@ -84,7 +84,6 @@ public class AdminFragment extends Fragment {
             } else if (itemId == R.id.navigation_admin_profiles) {
                 Toast.makeText(requireContext(), "Facility and related events successfully deleted.", Toast.LENGTH_SHORT).show();
                 navController.navigate(R.id.navigation_admin_view_profiles);
-
                 return true;
             }
             return false;
