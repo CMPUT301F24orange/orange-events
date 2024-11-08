@@ -5,6 +5,7 @@ import com.example.orange.data.model.Event;
 import com.example.orange.data.model.Facility;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
+import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -396,6 +397,7 @@ public class FirebaseService {
     /**
      * Retrieves all events created by a specified organizer from Firebase.
      *
+     * @author Graham Flokstra
      * @param organizerId String representing the unique ID of the organizer.
      * @param callback    FirebaseCallback<List<Event>> to handle the result, providing a list of Event objects.
      */
@@ -418,6 +420,7 @@ public class FirebaseService {
 
     /**
      * Retrieves a list of entrants on the waiting list for a specific event.
+     *
      *
      * @param eventId  The ID of the event to retrieve waitlist details.
      * @param callback Callback to handle the result of the operation.
@@ -442,6 +445,7 @@ public class FirebaseService {
     /**
      * Creates a new facility in Firestore.
      *
+     * @author Graham Flokstra
      * @param facility The Facility object to be created in Firestore.
      * @param callback A callback to handle the result of the operation.
      */
@@ -462,6 +466,7 @@ public class FirebaseService {
     /**
      * Updates an existing facility in Firestore.
      *
+     * @author Graham Flokstra
      * @param facility The Facility object with updated information.
      * @param callback A callback to handle the result of the operation.
      */
@@ -474,6 +479,7 @@ public class FirebaseService {
     /**
      * Retrieves a facility from Firestore based on its ID.
      *
+     * @author Graham Flokstra
      * @param facilityId The ID of the facility to retrieve.
      * @param callback   A callback to handle the result of the operation.
      */
@@ -522,5 +528,69 @@ public class FirebaseService {
                 .addOnFailureListener(e -> callback.onFailure(e));
     }
 
+    // Inside FirebaseService
+    public void deleteFacilityAndRelatedEvents(String facilityId, FirebaseCallback<Void> callback) {
+        // First, delete related events
+        db.collection("events")
+                .whereEqualTo("facilityId", facilityId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                        document.getReference().delete();
+                    }
+
+                    // Then, delete the facility itself
+                    db.collection("facilities").document(facilityId).delete()
+                            .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                            .addOnFailureListener(callback::onFailure);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Updates the event image in Firestore.
+     *
+     * @author Graham Flokstra
+     * @param eventId   The ID of the event to update.
+     * @param imageData Byte array representing the image data.
+     * @param callback  Callback to handle success or failure.
+     */
+    public void updateEventImage(String eventId, byte[] imageData, FirebaseCallback<Void> callback) {
+        // Convert byte array to Blob
+        Blob imageBlob = Blob.fromBytes(imageData);
+
+        // Update the event image in Firestore
+        db.collection("events").document(eventId)
+                .update("eventImageData", imageBlob)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Event image updated successfully in Firestore");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to update event image in Firestore", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Removes the event image from Firestore.
+     *
+     * @author Graham Flokstra
+     * @param eventId  The ID of the event to update.
+     * @param callback Callback to handle success or failure.
+     */
+    public void removeEventImage(String eventId, FirebaseCallback<Void> callback) {
+        // Set eventImageData to null
+        db.collection("events").document(eventId)
+                .update("eventImageData", null)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Event image removed successfully in Firestore");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to remove event image in Firestore", e);
+                    callback.onFailure(e);
+                });
+    }
 
 }

@@ -4,6 +4,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.example.orange.data.model.Event;
 import com.example.orange.data.model.Facility;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -37,7 +38,6 @@ public class AdminDeleteFacilityTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
-
     /**
      * Initializes the firebase and creates the mock facility that is to be deleted
      *
@@ -49,14 +49,21 @@ public class AdminDeleteFacilityTest {
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
         firestore.setFirestoreSettings(settings);
 
-        // Add a test event to Firestore
+        // Create a test facility in Firestore
         Facility testFacility = new Facility();
         testFacility.setName("Test Facility Delete");
-        testFacilityId = firestore.collection("facilities").document().getId(); // Generating a test ID
+        testFacilityId = firestore.collection("facilities").document().getId(); // Generate a test facility ID
         testFacility.setId(testFacilityId);
         firestore.collection("facilities").document(testFacilityId).set(testFacility);
-    }
 
+        // Create a test event related to the test facility
+        Event testEvent = new Event();
+        testEvent.setTitle("Test Event Delete");
+        String testEventId = firestore.collection("events").document().getId(); // Generate a test event ID
+        testEvent.setId(testEventId);
+        testEvent.setFacilityId(testFacilityId); // Link event to facility
+        firestore.collection("events").document(testEventId).set(testEvent);
+    }
 
     /**
      * Test Navigates to the admin facility list and deletes the test facility created
@@ -65,22 +72,28 @@ public class AdminDeleteFacilityTest {
      * @author Radhe Patel
      */
     @Test
-    public void testDeleteFacility() throws InterruptedException {
+    public void testDeleteFacilityAndRelatedEvents() throws InterruptedException {
         // Navigate to the admin view
         onView(withId(R.id.navigation_admin)).perform(click());
         sleep(2000);
 
-        // Navigate to the admin view events screen
+        // Navigate to the facilities screen
         onView(withId(R.id.admin_navigation_view_facilities)).perform(click());
         sleep(2000);
 
-        // Find the "Delete" button within the same CardView as the "Test Event Delete" text
+        // Delete the test facility
         onView(allOf(withId(R.id.facility_remove_button), hasSibling(withText("Test Facility Delete")))).perform(scrollTo(), click());
         sleep(2000);
 
-        // Verify that "Test Event Delete" no longer exists in the list
+        // Verify that the facility no longer exists in the list
         onView(withText("Test Facility Delete")).check(doesNotExist());
-    }
 
+        // Navigate to the events screen
+        onView(withId(R.id.admin_navigation_view_events)).perform(click());
+        sleep(2000);
+
+        // Verify that any events associated with the deleted facility no longer exist
+        onView(withText("Test Event Delete")).check(doesNotExist());
+    }
 
 }

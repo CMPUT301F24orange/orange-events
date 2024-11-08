@@ -107,22 +107,23 @@ public class AdminFacilityListFragment extends Fragment {
     /**
      * Deletes a facility entirely from the database with no trace left.
      *
-     * @author Radhe Patel
+     * @author Radhe Patel, Graham Flokstra
      * @param facilityId Unique ID of the event to be deleted.
      */
     public void delFacility(String facilityId) {
-        firebaseService.deleteFacility(facilityId, new FirebaseCallback<Void>() {
+        firebaseService.deleteFacilityAndRelatedEvents(facilityId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Toast.makeText(requireContext(), "Facility successfully deleted.", Toast.LENGTH_SHORT).show();
-                loadFacilities();  // Refresh the events list to reflect deletion
+                Toast.makeText(requireContext(), "Facility and related events successfully deleted.", Toast.LENGTH_SHORT).show();
+                loadFacilities();  // Refresh the facilities list to reflect deletion
             }
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to delete facility.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Failed to delete facility and related events.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
 }
+
