@@ -15,7 +15,7 @@ import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
-import com.example.orange.utils.SessionManager;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -107,19 +107,19 @@ public class AdminEventListFragment extends Fragment {
             if (event.getRegistrationDeadline() != null && currentDate.before(event.getRegistrationDeadline().toDate())) {
                 eventDate.setText("Waitlist closes: " + dateFormat.format(event.getRegistrationDeadline().toDate()));
                 lotteryStatus.setText("Registration Open");
-                deleteButton.setOnClickListener(v -> deleteEvent(event.getId()));
+                deleteButton.setOnClickListener(v -> delEvent(event.getId()));
             } else if (event.getLotteryDrawDate() != null && currentDate.before(event.getLotteryDrawDate().toDate())) {
                 eventDate.setText("Lottery draw: " + dateFormat.format(event.getLotteryDrawDate().toDate()));
                 lotteryStatus.setText("Awaiting Lottery Draw");
-                deleteButton.setOnClickListener(v -> deleteEvent(event.getId()));
+                deleteButton.setOnClickListener(v -> delEvent(event.getId()));
             } else if (event.getEventDate() != null) {
                     eventDate.setText("Event Date: " + dateFormat.format(event.getEventDate().toDate()));
-                deleteButton.setOnClickListener(v -> deleteEvent(event.getId()));
+                deleteButton.setOnClickListener(v -> delEvent(event.getId()));
             } else {
                 // Handle case where no date is available
                 eventDate.setText("No date available");
                 lotteryStatus.setText("Status Unknown");
-                deleteButton.setOnClickListener(v -> deleteEvent(event.getId()));
+                deleteButton.setOnClickListener(v -> delEvent(event.getId()));
             }
 
             // Add the event view to the container
@@ -133,7 +133,7 @@ public class AdminEventListFragment extends Fragment {
      * @author Radhe Patel
      * @param eventId Unique ID of the event to be deleted.
      */
-    public void deleteEvent(String eventId) {
+    public void delEvent(String eventId) {
         firebaseService.deleteEvent(eventId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {

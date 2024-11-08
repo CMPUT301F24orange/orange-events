@@ -497,6 +497,57 @@ public class FirebaseService {
     }
 
     /**
+     * Retrieves all facilities from Firestore.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void getAllFacilities(FirebaseCallback<List<Facility>> callback) {
+        db.collection("facilities")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Facility> facilities = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        Facility facility = document.toObject(Facility.class);
+                        if (facility != null) {
+                            facilities.add(facility);
+                        }
+                    }
+                    callback.onSuccess(facilities);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Deletes a facility from Firestore based on its ID.
+     *
+     * @param facilityId  The ID of the facility to delete.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void deleteFacility(String facilityId, FirebaseCallback<Void> callback) {
+        db.collection("facilities").document(facilityId).delete()
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(e -> callback.onFailure(e));
+    }
+
+    // Inside FirebaseService
+    public void deleteFacilityAndRelatedEvents(String facilityId, FirebaseCallback<Void> callback) {
+        // First, delete related events
+        db.collection("events")
+                .whereEqualTo("facilityId", facilityId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                        document.getReference().delete();
+                    }
+
+                    // Then, delete the facility itself
+                    db.collection("facilities").document(facilityId).delete()
+                            .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                            .addOnFailureListener(callback::onFailure);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
      * Updates the event image in Firestore.
      *
      * @author Graham Flokstra

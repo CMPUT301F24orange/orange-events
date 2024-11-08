@@ -5,6 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.Facility;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
@@ -24,22 +25,22 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static java.lang.Thread.sleep;
 
 /**
- * Intent Test for the delete event functionality in the app.
+ * Intent Test for the delete facility functionality in the app.
  *
  * @author Radhe Patel
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class AdminDeleteEventTest {
+public class AdminDeleteFacilityTest {
     private FirebaseFirestore firestore;
-    private String testEventId;
+    private String testFacilityId;
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
 
     /**
-     * Initializes the firebase and creates the mock event that is to be deleted
+     * Initializes the firebase and creates the mock facility that is to be deleted
      *
      * @author Radhe Patel
      */
@@ -49,38 +50,51 @@ public class AdminDeleteEventTest {
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
         firestore.setFirestoreSettings(settings);
 
-        // Add a test event to Firestore
+        // Create a test facility in Firestore
+        Facility testFacility = new Facility();
+        testFacility.setName("Test Facility Delete");
+        testFacilityId = firestore.collection("facilities").document().getId(); // Generate a test facility ID
+        testFacility.setId(testFacilityId);
+        firestore.collection("facilities").document(testFacilityId).set(testFacility);
+
+        // Create a test event related to the test facility
         Event testEvent = new Event();
         testEvent.setTitle("Test Event Delete");
-        testEventId = firestore.collection("events").document().getId(); // Generating a test ID
+        String testEventId = firestore.collection("events").document().getId(); // Generate a test event ID
         testEvent.setId(testEventId);
+        testEvent.setFacilityId(testFacilityId); // Link event to facility
         firestore.collection("events").document(testEventId).set(testEvent);
     }
 
-
     /**
-     * Test Navigates to the admin event list and deletes the test event created
-     * in the setup. It then checks if the event has been removed from the list.
+     * Test Navigates to the admin facility list and deletes the test facility created
+     * in the setup. It then checks if the facility has been removed from the list.
      *
      * @author Radhe Patel
      */
     @Test
-    public void testDeleteEvent() throws InterruptedException {
+    public void testDeleteFacilityAndRelatedEvents() throws InterruptedException {
         // Navigate to the admin view
         onView(withId(R.id.navigation_admin)).perform(click());
         sleep(2000);
 
-        // Navigate to the admin view events screen
+        // Navigate to the facilities screen
+        onView(withId(R.id.admin_navigation_view_facilities)).perform(click());
+        sleep(2000);
+
+        // Delete the test facility
+        onView(allOf(withId(R.id.facility_remove_button), hasSibling(withText("Test Facility Delete")))).perform(scrollTo(), click());
+        sleep(2000);
+
+        // Verify that the facility no longer exists in the list
+        onView(withText("Test Facility Delete")).check(doesNotExist());
+
+        // Navigate to the events screen
         onView(withId(R.id.admin_navigation_view_events)).perform(click());
         sleep(2000);
 
-        // Find the "Delete" button within the same CardView as the "Test Event Delete" text
-        onView(allOf(withId(R.id.delete_button), hasSibling(withText("Test Event Delete")))).perform(scrollTo(), click());
-        sleep(2000);
-
-        // Verify that "Test Event Delete" no longer exists in the list
+        // Verify that any events associated with the deleted facility no longer exist
         onView(withText("Test Event Delete")).check(doesNotExist());
     }
-
 
 }
