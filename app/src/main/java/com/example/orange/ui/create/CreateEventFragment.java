@@ -1,12 +1,14 @@
 package com.example.orange.ui.create;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -51,7 +53,7 @@ public class CreateEventFragment extends Fragment {
     private EditText titleEditText, descriptionEditText, capacityEditText, startDateEditText, endDateEditText;
     private EditText registrationOpensEditText, registrationDeadlineEditText, lotteryDayEditText, eventPriceEditText, waitlistLimitEditText;
     private CheckBox waitlistLimitCheckbox;
-    private Button createEventButton, uploadImageButton;
+    private Button createEventButton, uploadImageButton, deleteImageButton;
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
     private Uri selectedImageUri;
@@ -79,6 +81,7 @@ public class CreateEventFragment extends Fragment {
      * all necessary fields for event creation and adding a listener to the submit button.
      *
      * @author Graham Flokstra
+     * @author Dhairya Prajapati
      * @param inflater           LayoutInflater to inflate the fragment's layout.
      * @param container          Parent view the fragment's UI should be attached to.
      * @param savedInstanceState Previous state data if fragment is being re-created.
@@ -107,6 +110,7 @@ public class CreateEventFragment extends Fragment {
         waitlistLimitCheckbox = view.findViewById(R.id.waitlist_limit_checkbox);
         createEventButton = view.findViewById(R.id.createEventButton);
 
+
         // Set up click listener to handle event creation
         createEventButton.setOnClickListener(v -> createEvent());
 
@@ -114,6 +118,21 @@ public class CreateEventFragment extends Fragment {
         uploadImageButton = view.findViewById(R.id.upload_image_button);
         eventImageView = view.findViewById(R.id.add_image_button);
         uploadImageButton.setOnClickListener(v -> openImagePicker());
+
+        // Set up click listener to handle image deletion
+        deleteImageButton = view.findViewById(R.id.delete_image_button);
+        deleteImageButton.setOnClickListener(new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // Check if there is an image in the ImageView
+            if (eventImageView.getDrawable() != null) {
+                eventImageView.setImageResource(R.drawable.ic_image); // Clear the image and set as original
+                Toast.makeText(getContext(), "Image deleted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "No image to delete", Toast.LENGTH_SHORT).show();
+            }
+        }
+        });
 
         return view;
     }
