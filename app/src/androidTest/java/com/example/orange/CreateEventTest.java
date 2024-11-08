@@ -57,8 +57,6 @@ public class CreateEventTest {
         onView(withId(R.id.descriptionEditText))
                 .perform(replaceText("This is a sample description for the event."), ViewActions.closeSoftKeyboard());
 
-        // TO-DO: Add an event poster image
-
         // Fill in the start and end dates
         onView(withId(R.id.start_date_input))
                 .perform(replaceText("2024/01/01"), ViewActions.closeSoftKeyboard());

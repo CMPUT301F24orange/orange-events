@@ -50,32 +50,13 @@
             android:layout_marginTop="4dp" />
 
         <Button
-            android:id="@+id/action_button"
+            android:id="@+id/delete_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Action"
+            android:text="DELETE"
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/primary"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
-        <!-- Add this Button inside your LinearLayout in item_view_my_events.xml -->
-        <Button
-            android:id="@+id/change_image_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Change Image"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/primary"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
-        <Button
-            android:id="@+id/generate_QR_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:text="Generate QR Code"
-            android:textColor="@android:color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/organizer_event_date" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -1,5 +1,7 @@
 package com.example.orange.ui.events;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.utils.SessionManager;
+import com.google.firebase.firestore.Blob;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +28,8 @@ import java.util.Locale;
  * MyEventsFragment is responsible for displaying a list of events
  * the current user has joined. It fetches the user's events from Firebase
  * and displays relevant information for each event, including the event status
- * and date. Users can also leave the waitlist or event as appropriate.
+ * and date. Users can also leave the waitlist or event as appropriate. This is
+ * specifically the view for usertype ENTRANT
  *
  * @author Graham Flokstra
  */
@@ -103,6 +107,16 @@ public class MyEventsFragment extends Fragment {
             Button actionButton = eventView.findViewById(R.id.action_button);
 
             eventTitle.setText(event.getTitle());
+
+            // Load and display the event image if available
+            Blob eventImageData = event.getEventImageData();
+            if (eventImageData != null) {
+                byte[] imageData = eventImageData.toBytes();
+                Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+                eventImage.setImageBitmap(bitmap);
+            } else {
+                eventImage.setImageResource(R.drawable.ic_image); // Placeholder if no image is available
+            }
 
             Date currentDate = new Date();
 

@@ -1,11 +1,13 @@
 package com.example.orange.ui.join;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.orange.data.firebase.FirebaseCallback;
@@ -20,8 +22,7 @@ import java.util.List;
  * JoinEventFragment displays a list of events that the user is eligible to join.
  * Users can join the waitlist for events they are not already participating in.
  *
- * @author Graham Flokstra
- * @author George
+ * @author Graham Flokstra, George
  */
 public class JoinEventFragment extends Fragment {
     private FragmentJoinEventBinding binding;
@@ -31,13 +32,14 @@ public class JoinEventFragment extends Fragment {
     private List<Event> eventList;
 
     /**
-     * Called to initialize the fragment's view, including setting up the RecyclerView
-     * to display events the user can join and loading available events.
+     * Creates and returns the view hierarchy associated with the fragment.
+     * Initializes Firebase service, session manager, and sets up the RecyclerView
+     * to display available events.
      *
-     * @param inflater           LayoutInflater to inflate the fragment's layout.
-     * @param container          Parent view the fragment's UI should be attached to.
-     * @param savedInstanceState Previous state data if fragment is being re-created.
-     * @return The created view.
+     * @param inflater The LayoutInflater object that can be used to inflate views
+     * @param container If non-null, this is the parent view that the fragment's UI should be attached to
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state
+     * @return The View for the fragment's UI
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -60,7 +62,7 @@ public class JoinEventFragment extends Fragment {
     }
 
     /**
-     * Cleans up resources by nullifying the binding when the view is destroyed.
+     * Clean up any references to the binding when the view is destroyed.
      */
     @Override
     public void onDestroyView() {
@@ -69,8 +71,9 @@ public class JoinEventFragment extends Fragment {
     }
 
     /**
-     * Loads a list of all events from Firebase and filters out events where the user is already
-     * a participant or on the waitlist. Updates the displayed list with events the user can join.
+     * Loads all events from Firebase that the user is eligible to join.
+     * Filters out events where the user is already a participant or on the waiting list.
+     * Updates the RecyclerView with the filtered list of events.
      */
     private void loadEvents() {
         String userId = sessionManager.getUserSession().getUserId();
@@ -98,12 +101,37 @@ public class JoinEventFragment extends Fragment {
     }
 
     /**
-     * Adds the current user to the waitlist of a specified event in Firebase.
-     * Displays a success or failure message based on the result.
+     * Handles the action of joining an event.
+     * Checks if geolocation is required and prompts the user accordingly.
      *
      * @param event Event object the user wants to join the waitlist for.
      */
     public void joinEvent(Event event) {
+        if (event.getGeolocationEvent() != null && event.getGeolocationEvent()) {
+            // Show dialog to inform user that geolocation is required
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Geolocation Required")
+                    .setMessage("This event requires geolocation. Do you want to join the waitlist?")
+                    .setPositiveButton("Join Waitlist", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // User confirmed to join waitlist
+                            addEntrantToWaitlist(event);
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        } else {
+            // Proceed to join the waitlist directly
+            addEntrantToWaitlist(event);
+        }
+    }
+
+    /**
+     * Adds the current user to the waitlist of a specified event in Firebase.
+     *
+     * @param event Event object the user wants to join the waitlist for.
+     */
+    private void addEntrantToWaitlist(Event event) {
         String userId = sessionManager.getUserSession().getUserId();
         firebaseService.addToEventWaitlist(event.getId(), userId, new FirebaseCallback<Void>() {
             @Override
@@ -119,10 +147,10 @@ public class JoinEventFragment extends Fragment {
     }
 
     /**
-     * Removes the current user from the waitlist of a specified event in Firebase.
-     * If successful, the event list is reloaded to reflect changes.
+     * Removes the current user from the waitlist of a specified event.
+     * Reloads the events list after successful removal to update the UI.
      *
-     * @param event Event object the user wants to leave the waitlist for.
+     * @param event Event object from which to remove the user from the waitlist
      */
     public void leaveWaitlist(Event event) {
         String userId = sessionManager.getUserSession().getUserId();
@@ -142,9 +170,9 @@ public class JoinEventFragment extends Fragment {
     }
 
     /**
-     * Provides access to the current SessionManager instance for other classes.
+     * Returns the SessionManager instance associated with this fragment.
      *
-     * @return The session manager associated with the current user.
+     * @return The SessionManager instance
      */
     public SessionManager getSessionManager() {
         return sessionManager;

@@ -1,14 +1,14 @@
 package com.example.orange.ui.create;
 
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,75 +29,104 @@ import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.User;
+import com.example.orange.data.model.UserSession;
 import com.example.orange.data.model.UserType;
 import com.example.orange.utils.SessionManager;
 import com.google.firebase.Timestamp;
-//import com.google.firebase.storage.FirebaseStorage;
-//import com.google.firebase.storage.StorageReference;
+import com.google.firebase.firestore.Blob;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 /**
- * CreateEventFragment allows organizers to create new events by filling out
- * details such as title, description, dates, and capacity. Upon submission,
- * the event is stored in Firebase, and the user is redirected to view their created events.
+ * Fragment responsible for creating new events within the Orange application.
+ * This fragment provides a comprehensive form interface allowing organizers to input
+ * all necessary event details including title, description, dates, capacity,
+ * registration details, and an optional event image.
  *
- * @author Graham Flokstra
- * @author George
- * @author Dhairya Prajapati
+ * @author Graham Flokstra, George, Dhairya
  */
 public class CreateEventFragment extends Fragment {
+
     private static final String TAG = "CreateEventFragment";
-    private EditText titleEditText, descriptionEditText, capacityEditText, startDateEditText, endDateEditText;
-    private EditText registrationOpensEditText, registrationDeadlineEditText, lotteryDayEditText, eventPriceEditText, waitlistLimitEditText;
+
+    private EditText titleEditText;
+    private EditText descriptionEditText;
+    private EditText capacityEditText;
+    private EditText startDateEditText;
+    private EditText endDateEditText;
+    private EditText registrationOpensEditText;
+    private EditText registrationDeadlineEditText;
+    private EditText lotteryDayEditText;
+    private EditText eventPriceEditText;
+    private EditText waitlistLimitEditText;
+
     private CheckBox waitlistLimitCheckbox;
-    private Button createEventButton, uploadImageButton, deleteImageButton;
+    private CheckBox geolocation_checkbox;
+    private Button createEventButton;
+    private Button uploadImageButton;
+    private Button deleteImageButton;
+
+    private ImageView eventImage;
+    private Uri selectedImageUri;
+
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
-    private Uri selectedImageUri;
-    private ImageView eventImageView;
 
     /**
-     * Activity launcher for selecting an image from the device's gallery
-     * @author Dhairya Prajapati
+     * Activity result launcher for handling image selection from device storage.
+     * Launches the system's media picker and handles the selected image.
      */
-    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
-                    selectedImageUri = result.getData().getData();
-                    if (selectedImageUri != null) {
-                        // Display the selected image in the ImageView
-                        eventImageView.setImageURI(selectedImageUri);
-                    }
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia = registerForActivityResult(
+            new ActivityResultContracts.PickVisualMedia(),
+            uri -> {
+                if (uri != null) {
+                    eventImage.setImageURI(uri);
+                    selectedImageUri = uri;
                 }
             }
     );
 
     /**
-     * Called to create and initialize the fragment's UI, including setting up
-     * all necessary fields for event creation and adding a listener to the submit button.
+     * Creates and initializes the fragment's view hierarchy.
      *
-     * @author Graham Flokstra
-     * @author Dhairya Prajapati
-     * @param inflater           LayoutInflater to inflate the fragment's layout.
-     * @param container          Parent view the fragment's UI should be attached to.
-     * @param savedInstanceState Previous state data if fragment is being re-created.
-     * @return The created view.
+     * @param inflater LayoutInflater object to inflate views
+     * @param container If non-null, parent view that the fragment's UI should be attached to
+     * @param savedInstanceState If non-null, fragment is being re-constructed from previous saved state
+     * @return The View for the fragment's UI
      */
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_create_event, container, false);
 
-        // Initialize Firebase and session manager services
+        initializeServices();
+        initializeViews(view);
+        setupClickListeners();
+
+        return view;
+    }
+
+    /**
+     * Initializes Firebase and session management services.
+     */
+    private void initializeServices() {
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(requireContext());
+    }
 
-        // Initialize view elements for user input
+    /**
+     * Initializes all view components of the fragment.
+     *
+     * @param view The root view of the fragment
+     */
+    private void initializeViews(View view) {
         titleEditText = view.findViewById(R.id.titleEditText);
         descriptionEditText = view.findViewById(R.id.descriptionEditText);
         capacityEditText = view.findViewById(R.id.capacityEditText);
@@ -108,45 +138,82 @@ public class CreateEventFragment extends Fragment {
         eventPriceEditText = view.findViewById(R.id.event_price_edit_text);
         waitlistLimitEditText = view.findViewById(R.id.waitlist_limit_edit_text);
         waitlistLimitCheckbox = view.findViewById(R.id.waitlist_limit_checkbox);
+        geolocation_checkbox = view.findViewById(R.id.geolocation_checkbox);
         createEventButton = view.findViewById(R.id.createEventButton);
-
-
-        // Set up click listener to handle event creation
-        createEventButton.setOnClickListener(v -> createEvent());
-
-        // Set up views and click listener to handle image uploading
+        eventImage = view.findViewById(R.id.add_image_button);
         uploadImageButton = view.findViewById(R.id.upload_image_button);
-        eventImageView = view.findViewById(R.id.add_image_button);
-        uploadImageButton.setOnClickListener(v -> openImagePicker());
-
-        // Set up click listener to handle image deletion
         deleteImageButton = view.findViewById(R.id.delete_image_button);
-        deleteImageButton.setOnClickListener(new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            // Check if there is an image in the ImageView
-            if (eventImageView.getDrawable() != null) {
-                eventImageView.setImageResource(R.drawable.ic_image); // Clear the image and set as original
-                Toast.makeText(getContext(), "Image deleted", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "No image to delete", Toast.LENGTH_SHORT).show();
-            }
-        }
-        });
 
-        return view;
     }
 
     /**
-     * Gathers input data from the form, validates it, and creates an Event object.
-     * If the event is successfully created in Firebase, the user is redirected
-     * to the view-my-events page. Displays a toast message upon success or failure.
-     *
-     * @author Graham Flokstra
-     * @author George
-     * @author Dhairya Prajapati
+     * Sets up click listeners for all interactive elements in the fragment.
+     */
+    private void setupClickListeners() {
+        createEventButton.setOnClickListener(v -> createEvent());
+        uploadImageButton.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build()));
+        deleteImageButton.setOnClickListener(v -> {
+            eventImage.setImageResource(R.drawable.ic_image);
+            selectedImageUri = null;
+        });
+    }
+
+    /**
+     * Handles the event creation process. Validates all input fields, processes the selected image
+     * if any, and creates a new event in Firebase. Upon successful creation, navigates to the
+     * view-my-events screen.
      */
     private void createEvent() {
+        Event event = buildEventFromInputs();
+        if (event == null) return;
+
+        UserSession userSession = sessionManager.getUserSession();
+        if (userSession == null) {
+            Toast.makeText(requireContext(), "Error: No user session found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String deviceId = userSession.getdeviceId();
+        UserType userType = userSession.getUserType();
+
+        firebaseService.getUserByDeviceIdAndType(deviceId, userType, new FirebaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user != null && user.getFacilityId() != null) {
+                    String organizerId = user.getId();
+                    event.setOrganizerId(organizerId);
+                    event.setFacilityId(user.getFacilityId());
+
+                    if (selectedImageUri != null) {
+                        processEventImage(event);
+                    }
+
+                    saveEventToFirebase(event);
+                } else {
+                    Toast.makeText(requireContext(),
+                            "Organizer's facility not found. Please update your facility profile.",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(),
+                        "Error retrieving organizer data: " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    /**
+     * Builds an Event object from user input fields.
+     *
+     * @return Event object containing all input data, or null if validation fails
+     */
+    private Event buildEventFromInputs() {
         String title = titleEditText.getText().toString().trim();
         String description = descriptionEditText.getText().toString().trim();
         Integer capacity = parseIntegerField(capacityEditText.getText().toString().trim());
@@ -156,17 +223,10 @@ public class CreateEventFragment extends Fragment {
         Timestamp registrationOpens = parseDate(registrationOpensEditText.getText().toString());
         Timestamp registrationDeadline = parseDate(registrationDeadlineEditText.getText().toString());
         Timestamp lotteryDay = parseDate(lotteryDayEditText.getText().toString());
-        Integer waitlistLimit = waitlistLimitCheckbox.isChecked() ? parseIntegerField(waitlistLimitEditText.getText().toString().trim()) : null;
+        Integer waitlistLimit = waitlistLimitCheckbox.isChecked() ?
+                parseIntegerField(waitlistLimitEditText.getText().toString().trim()) : null;
+        Boolean geolocation = geolocation_checkbox.isChecked();
 
-        // Retrieve the organizer ID from the session
-        String organizerId = sessionManager.getUserSession().getUserId();
-
-        if (organizerId == null) {
-            Toast.makeText(requireContext(), "Error: No organizer ID found", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Construct the Event object with validated fields and organizer ID
         Event event = new Event();
         event.setTitle(title);
         event.setDescription(description);
@@ -178,114 +238,145 @@ public class CreateEventFragment extends Fragment {
         event.setRegistrationDeadline(registrationDeadline);
         event.setLotteryDrawDate(lotteryDay);
         event.setWaitlistLimit(waitlistLimit);
-        event.setOrganizerId(organizerId);  // Set the organizer ID
+        event.setGeolocationEvent(geolocation);
 
-        // Attempt to store the event in Firebase
+        return event;
+    }
+
+    /**
+     * Processes the user data and creates the event in Firebase.
+     *
+     * @param organizerId ID of the event organizer
+     * @param event Event object to be created
+     */
+    private void processUserAndCreateEvent(String organizerId, Event event) {
+        firebaseService.getUserById(organizerId, new FirebaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user != null && user.getFacilityId() != null) {
+                    event.setOrganizerId(organizerId);
+                    event.setFacilityId(user.getFacilityId());
+
+                    if (selectedImageUri != null) {
+                        processEventImage(event);
+                    }
+
+                    saveEventToFirebase(event);
+                } else {
+                    Toast.makeText(requireContext(),
+                            "Organizer's facility not found. Please update your facility profile.",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(),
+                        "Error retrieving organizer data: " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Processes and compresses the selected event image.
+     *
+     * @param event Event object to attach the processed image to
+     */
+    private void processEventImage(Event event) {
+        try {
+            InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            // Resize image
+            int maxSize = 500;
+            float scale = Math.min(((float) maxSize / bitmap.getWidth()),
+                    ((float) maxSize / bitmap.getHeight()));
+            Matrix matrix = new Matrix();
+            matrix.postScale(scale, scale);
+            Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
+                    bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+            // Compress image
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+            byte[] imageData = baos.toByteArray();
+
+            if (imageData.length > 1048576) {
+                Toast.makeText(getContext(), "Image is too large to upload",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            event.setEventImageData(Blob.fromBytes(imageData));
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Error reading image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Saves the event to Firebase and handles the response.
+     *
+     * @param event The event to be saved
+     */
+    private void saveEventToFirebase(Event event) {
         firebaseService.createEvent(event, new FirebaseCallback<String>() {
             @Override
             public void onSuccess(String eventId) {
-//                if (selectedImageUri != null){
-//                    uploadImageToFirestore(eventId, selectedImageUri);
-//                }
-//                else{
-//                Toast.makeText(requireContext(), "Event created successfully", Toast.LENGTH_SHORT).show();
-//                Navigation.findNavController(requireView()).navigate(R.id.navigation_view_my_events);
-//                }
-                Toast.makeText(requireContext(), "Event created successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Event created successfully",
+                        Toast.LENGTH_SHORT).show();
                 Navigation.findNavController(requireView()).navigate(R.id.navigation_view_my_events);
             }
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to create event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(),
+                        "Failed to create event: " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
-
     /**
-     * Parses a String to an Integer, returning null if the string is empty or not a number.
+     * Parses a string into an Integer, returning null if parsing fails.
      *
-     * @author Graham Flokstra
-     * @param value String value to parse into an Integer.
-     * @return Parsed Integer or null if parsing fails.
+     * @param value String value to parse
+     * @return Parsed Integer or null if parsing fails
      */
     private Integer parseIntegerField(String value) {
-        try { return TextUtils.isEmpty(value) ? null : Integer.parseInt(value); }
-        catch (NumberFormatException e) { return null; }
+        try {
+            return TextUtils.isEmpty(value) ? null : Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**
-     * Parses a String to a Double, returning null if the string is empty or not a number.
+     * Parses a string into a Double, returning null if parsing fails.
      *
-     * @author Graham Flokstra
-     * @param value String value to parse into a Double.
-     * @return Parsed Double or null if parsing fails.
+     * @param value String value to parse
+     * @return Parsed Double or null if parsing fails
      */
     private Double parseDoubleField(String value) {
-        try { return TextUtils.isEmpty(value) ? null : Double.parseDouble(value); }
-        catch (NumberFormatException e) { return null; }
+        try {
+            return TextUtils.isEmpty(value) ? null : Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**
-     * Converts a date string in "yyyy/MM/dd" format to a Firebase Timestamp.
-     * If parsing fails, returns null.
+     * Parses a date string into a Timestamp object.
      *
-     * @author Graham Flokstra
-     * @param dateString Date in String format to parse into Timestamp.
-     * @return Parsed Timestamp or null if parsing fails.
+     * @param dateString Date string in format "yyyy/MM/dd"
+     * @return Timestamp object or null if parsing fails
      */
     private Timestamp parseDate(String dateString) {
-        try { return new Timestamp(new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).parse(dateString)); }
-        catch (ParseException e) { return null; }
+        try {
+            return new Timestamp(new SimpleDateFormat("yyyy/MM/dd",
+                    Locale.getDefault()).parse(dateString));
+        } catch (ParseException e) {
+            return null;
+        }
     }
-
-    /**
-     * Opens the device's gallery for the user to pick a poster image for the event.
-     * @author Dhairya Prajapati
-     */
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        imagePickerLauncher.launch(intent);
-    }
-
-    /**
-     * Handles image upload to Firebase storage
-     * @author Dhairya Prajapati
-     * @param eventId The Id of the event being created by the user.
-     * @param imageUri The URI of the image selected by the user.
-     */
-//    private void uploadImageToFirestore(String eventId, Uri imageUri) {
-//        FirebaseStorage storage = FirebaseStorage.getInstance();
-//        StorageReference storageRef = storage.getReference();
-//
-//        // Create a reference to 'event_images/eventId.jpg'
-//        String imagePath = "event_images/" + eventId + ".jpg";
-//        StorageReference imageRef = storageRef.child(imagePath);
-//
-//        imageRef.putFile(imageUri)
-//                .addOnSuccessListener(taskSnapshot -> {
-//                    // Get the download URL
-//                    imageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-//                        // Update the event document with the image URL
-//                        firebaseService.updateEventImageUrl(eventId, downloadUri.toString(), new FirebaseCallback<Void>() {
-//                            @Override
-//                            public void onSuccess(Void result) {
-//                                showSuccessAndNavigate();
-//                            }
-//
-//                            @Override
-//                            public void onFailure(Exception e) {
-//                                Toast.makeText(requireContext(), "Failed to update event image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                            }
-//                        });
-//                    });
-//                })
-//                .addOnFailureListener(e -> {
-//                    Toast.makeText(requireContext(), "Failed to upload image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                });
-//    }
 }
