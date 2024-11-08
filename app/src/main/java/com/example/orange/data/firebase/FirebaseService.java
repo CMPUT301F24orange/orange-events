@@ -604,5 +604,44 @@ public class FirebaseService {
                     callback.onFailure(e);
                 });
     }
+    public void deleteUserAndRelatedFacilities(String userId, FirebaseCallback<Void> callback) {
+        // First, retrieve the user to find the associated facility ID
+        getUserById(userId, new FirebaseCallback<User>() {
+            @Override
+            public void onSuccess(User user) {
+                if (user != null && user.getFacilityId() != null) {
+                    String facilityId = user.getFacilityId();
+
+                    // Delete the facility first
+                    deleteFacility(facilityId, new FirebaseCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            // Now delete the user
+                            db.collection("users").document(userId).delete()
+                                    .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                                    .addOnFailureListener(callback::onFailure);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            callback.onFailure(e);
+                        }
+                    });
+                } else {
+                    // No facility to delete, so just delete the user
+                    db.collection("users").document(userId).delete()
+                            .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                            .addOnFailureListener(callback::onFailure);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+
 
 }
