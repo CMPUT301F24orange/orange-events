@@ -57,7 +57,7 @@ import java.util.Locale;
  * ViewMyEventsFragment displays all events created by the current organizer.
  * Organizers can view each event and check its waitlist.
  *
- * @author Graham Flokstra, George
+ * @author Graham Flokstra, George, Brandon Ramirez
  */
 public class ViewMyEventsFragment extends Fragment {
     private static final String TAG = "ViewMyEventsFragment";
@@ -388,6 +388,12 @@ public class ViewMyEventsFragment extends Fragment {
                     .show();
         }
     }
+    /**
+     * Generates the QR code for each event that an organizer has.
+     *
+     * @author Brandon Ramirez
+     * @param event current event being passed
+     */
     public void generateQR(Event event) {
         try {
             // Prepare event details for QR content
@@ -400,10 +406,8 @@ public class ViewMyEventsFragment extends Fragment {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.encodeBitmap(qrContent, BarcodeFormat.QR_CODE, 400, 400);
 
-            // Generate SHA-256 hash of the event details
             String hash = generateHash(qrContent);
 
-            // Store the hash in Firebase Firestore
             if (hash != null) {
                 firebaseService.storeEventHash(event.getId(), hash);
             }
@@ -422,7 +426,12 @@ public class ViewMyEventsFragment extends Fragment {
             Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT).show();
         }
     }
-
+    /**
+     * Generates the hash data for each qr code then places into firebase
+     *
+     * @author Brandon Ramirez
+     * @param data qr info
+     */
     private String generateHash(String data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -439,6 +448,12 @@ public class ViewMyEventsFragment extends Fragment {
             return null;
         }
     }
+    /**
+     * Turns the qr code generated into a png file to save space and not have to transfer a large file
+     *
+     * @author Brandon Ramirez
+     * @param qrBitmap the bitmap of the qr code
+     */
     private Uri saveQRToCache(Bitmap qrBitmap) {
         try {
             File cachePath = new File(requireContext().getCacheDir(), "images");
