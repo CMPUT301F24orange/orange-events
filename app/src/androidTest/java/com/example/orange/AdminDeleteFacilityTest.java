@@ -38,6 +38,7 @@ public class AdminDeleteFacilityTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
+
     /**
      * Initializes the firebase and creates the mock facility that is to be deleted
      *
