@@ -33,7 +33,7 @@ public class AdminFragment extends Fragment {
 
     /**
      * Initializes the NavController and the bottom navigation bar.
-     * And then it updates the bottom navigation bar to the admin view by
+     * then it updates the bottom navigation bar to the admin view by
      * calling the updateBottomNavForAdmin method.
      *
      * @author Radhe Patel
@@ -52,10 +52,9 @@ public class AdminFragment extends Fragment {
     }
 
     /**
-     * Sets both the icons and text for the bottom navigation bar for the admin view.
-     * Also sends the uer back to the MainActivity (app launch view) if the home button
+     * Sets both the icons and text for the navigation bar on the bottom for the admin view.
+     * Also sends the user back to the MainActivity (app launch view) if the home button
      * is pressed.
-     *
      * @author Radhe Patel
      */
     private void updateBottomNavForAdmin() {
