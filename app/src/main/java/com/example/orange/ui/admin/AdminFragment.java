@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -81,7 +82,9 @@ public class AdminFragment extends Fragment {
                 navController.navigate(R.id.navigation_admin_view_facilities);
                 return true;
             } else if (itemId == R.id.navigation_admin_profiles) {
+                Toast.makeText(requireContext(), "Facility and related events successfully deleted.", Toast.LENGTH_SHORT).show();
                 navController.navigate(R.id.navigation_admin_view_profiles);
+
                 return true;
             }
             return false;

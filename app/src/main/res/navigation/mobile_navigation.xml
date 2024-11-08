@@ -67,11 +67,7 @@
     <fragment
         android:id="@+id/navigation_admin_view_profiles"
         android:name="com.example.orange.ui.admin.AdminProfilesFragment"
-        android:label="Admin View Events">
-        <action
-            android:id="@+id/action_navigation_admin_view_profiles_to_adminProfileFragment"
-            app:destination="@id/adminProfileFragment" />
-    </fragment>
+        android:label="Admin View Events"/>
 
     <fragment
         android:id="@+id/adminProfileFragment"
