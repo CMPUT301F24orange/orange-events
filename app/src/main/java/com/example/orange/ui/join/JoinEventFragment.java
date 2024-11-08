@@ -31,6 +31,15 @@ public class JoinEventFragment extends Fragment {
     private EventAdapter eventAdapter;
     private List<Event> eventList;
 
+
+    // Setter methods for dependency injection
+    public void setFirebaseService(FirebaseService firebaseService) {
+        this.firebaseService = firebaseService;
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
     /**
      * Creates and returns the view hierarchy associated with the fragment.
      * Initializes Firebase service, session manager, and sets up the RecyclerView
@@ -176,5 +185,8 @@ public class JoinEventFragment extends Fragment {
      */
     public SessionManager getSessionManager() {
         return sessionManager;
+    }
+    public List<Event> getEventList() {
+        return eventList;
     }
 }
