@@ -4,12 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_home">
-
     <fragment
         android:id="@+id/navigation_join_event"
         android:name="com.example.orange.ui.join.JoinEventFragment"
         android:label="Join Event" />
-
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.example.orange.ui.home.HomeFragment"
@@ -69,5 +67,16 @@
         android:name="com.example.orange.ui.organizer.ViewEventWaitlistFragment"
         android:label="Event Waitlist"
         tools:layout="@layout/fragment_view_event_waitlist" />
-
+    <fragment
+        android:id="@+id/navigation_camera"
+        android:name="com.example.orange.ui.entrant.CreateQRFragment"
+        android:label="Camera" />
+    <fragment
+        android:id="@+id/navigation_displayqr"
+        android:name="com.example.orange.ui.organizer.DisplayQRFragment"
+        android:label="DisplayQR" />
+    <fragment
+        android:id="@+id/navigation_eventDetails"
+        android:name="com.example.orange.ui.events.entrantEventDetailsFragment"
+        android:label="EventDetails" />
 </navigation>
