@@ -32,7 +32,7 @@ public class AdminFragment extends Fragment {
 
     /**
      * Initializes the NavController and the bottom navigation bar.
-     * And then it updates the bottom navigaiton bar to the admin view by
+     * And then it updates the bottom navigation bar to the admin view by
      * calling the updateBottomNavForAdmin method.
      *
      * @author Radhe Patel
@@ -79,6 +79,9 @@ public class AdminFragment extends Fragment {
                 return true;
             } else if (itemId == R.id.admin_navigation_view_facilities) {
                 navController.navigate(R.id.navigation_admin_view_facilities);
+                return true;
+            } else if (itemId == R.id.navigation_admin_profiles) {
+                navController.navigate(R.id.navigation_admin_view_profiles);
                 return true;
             }
             return false;
