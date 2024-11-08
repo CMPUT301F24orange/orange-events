@@ -1,5 +1,7 @@
 package com.example.orange.ui.events;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +21,7 @@ import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.utils.SessionManager;
+import com.google.firebase.firestore.Blob;
 
 public class entrantEventDetailsFragment extends Fragment {
     public Button joinEventButton;
@@ -49,11 +53,21 @@ public class entrantEventDetailsFragment extends Fragment {
             @Override
             public void onSuccess(Event result) {
                 if (result != null) {
+                    ImageView eventImage = view.findViewById(R.id.eventImage);
+                    Blob eventImageData = result.getEventImageData();
+                    if (eventImageData != null) {
+                        byte[] imageData = eventImageData.toBytes();
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+                        eventImage.setImageBitmap(bitmap);
+                    } else {
+                        eventImage.setImageResource(R.drawable.ic_image); // Placeholder if no image is available
+                    }
                     ((TextView) view.findViewById(R.id.eventName)).setText(result.getTitle());
                     ((TextView) view.findViewById(R.id.eventDescriptionText)).setText(result.getDescription());
-                    ((TextView) view.findViewById(R.id.eventDateText)).setText(result.getEventDate() != null ? result.getEventDate().toDate().toString() : "N/A");
+                    ((TextView) view.findViewById(R.id.eventDateText)).setText(result.getStartDate() != null ? result.getStartDate().toDate().toString() : "N/A");
                     ((TextView) view.findViewById(R.id.registrationOpensText)).setText(result.getRegistrationOpens() != null ? result.getRegistrationOpens().toDate().toString() : "N/A");
                     ((TextView) view.findViewById(R.id.registrationDeadlineText)).setText(result.getRegistrationDeadline() != null ? result.getRegistrationDeadline().toDate().toString() : "N/A");
+                    ((TextView) view.findViewById(R.id.eventLimitText)).setText(String.valueOf(result.getCapacity()));
                     ((TextView) view.findViewById(R.id.waitlistLimitText)).setText(String.valueOf(result.getWaitlistLimit()));
                     ((TextView) view.findViewById(R.id.lotteryDayText)).setText(result.getLotteryDrawDate() != null ? result.getLotteryDrawDate().toDate().toString() : "N/A");
                     ((TextView) view.findViewById(R.id.eventPriceText)).setText(result.getPrice() != null ? result.getPrice().toString() : "N/A");
