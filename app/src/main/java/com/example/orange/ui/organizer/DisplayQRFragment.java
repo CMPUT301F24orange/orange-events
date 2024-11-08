@@ -2,6 +2,7 @@ package com.example.orange.ui.organizer;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,18 +20,19 @@ public class DisplayQRFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_displayqr, container, false);
-
         ImageView qrImageView = view.findViewById(R.id.qrImageView);
-        Bitmap qrBitmap = getArguments() != null ? getArguments().getParcelable("qr_bitmap") : null;
 
-        if (qrBitmap != null) {
-            qrImageView.setImageBitmap(qrBitmap);
+        // Retrieve the URI from arguments
+        Uri qrUri = getArguments().getParcelable("qr_uri");
+        if (qrUri != null) {
+            qrImageView.setImageURI(qrUri);
         } else {
-            Toast.makeText(requireContext(), "Failed to load QR code", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Failed to load QR image", Toast.LENGTH_SHORT).show();
         }
 
         return view;
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

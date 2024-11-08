@@ -20,6 +20,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -35,6 +36,8 @@ import com.example.orange.utils.SessionManager;
 import com.google.firebase.firestore.Blob;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -180,7 +183,6 @@ public class ViewMyEventsFragment extends Fragment {
         for (Event event : events) {
             View eventView = inflater.inflate(R.layout.item_view_organizer_event, organizerEventsContainer, false);
 
-            Button viewWaitlistButton = eventView.findViewById(R.id.view_waitlist_button);
             Button GenerateButton = eventView.findViewById(R.id.generate_QR_button);
             ImageView eventImage = eventView.findViewById(R.id.event_image);
             TextView eventTitle = eventView.findViewById(R.id.event_title);
@@ -405,10 +407,11 @@ public class ViewMyEventsFragment extends Fragment {
             if (hash != null) {
                 firebaseService.storeEventHash(event.getId(), hash);
             }
-
+            // Save QR bitmap to cache and get the URI
+            Uri qrUri = saveQRToCache(bitmap);
             // Pass both qr_bitmap and eventId to DisplayQRFragment
             Bundle args = new Bundle();
-            args.putParcelable("qr_bitmap", bitmap);
+            args.putParcelable("qr_uri", qrUri);
             args.putString("event_id", event.getId());
 
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
@@ -436,5 +439,18 @@ public class ViewMyEventsFragment extends Fragment {
             return null;
         }
     }
-
+    private Uri saveQRToCache(Bitmap qrBitmap) {
+        try {
+            File cachePath = new File(requireContext().getCacheDir(), "images");
+            cachePath.mkdirs(); // Ensure the directory exists
+            File file = new File(cachePath, "qr_image.png");
+            FileOutputStream stream = new FileOutputStream(file);
+            qrBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+            return FileProvider.getUriForFile(requireContext(), "com.example.orange.fileprovider", file);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

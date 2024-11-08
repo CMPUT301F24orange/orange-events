@@ -32,6 +32,15 @@
         <activity android:name=".ui.entrant.CaptureAct"
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme"/>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.orange.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

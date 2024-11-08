@@ -44,7 +44,7 @@ public class entrantEventDetailsFragment extends Fragment {
         return view;
     }
 
-    private void loadEventDetails(String eventId, View view) {
+    public void loadEventDetails(String eventId, View view) {
         firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
             @Override
             public void onSuccess(Event result) {
@@ -68,7 +68,7 @@ public class entrantEventDetailsFragment extends Fragment {
             }
         });
     }
-    private void joinEvent(String eventId) {
+    public void joinEvent(String eventId) {
         String userId = sessionManager.getUserSession().getUserId();
         firebaseService.addToEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
             @Override
@@ -82,7 +82,7 @@ public class entrantEventDetailsFragment extends Fragment {
         });
     }
 
-    private void leaveEvent(String eventId){
+    public void leaveEvent(String eventId){
         String userId = sessionManager.getUserSession().getUserId();
         firebaseService.removeFromEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
             @Override

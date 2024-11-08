@@ -67,6 +67,9 @@ dependencies {
     implementation ("com.google.zxing:core:3.3.3")
     testImplementation ("org.mockito:mockito-core:4.5.1")
     androidTestImplementation ("org.mockito:mockito-android:4.5.1")
+    androidTestImplementation ("androidx.navigation:navigation-testing:2.5.3")
+    testImplementation ("org.mockito:mockito-android:4.0.0")
+
 
 
 
