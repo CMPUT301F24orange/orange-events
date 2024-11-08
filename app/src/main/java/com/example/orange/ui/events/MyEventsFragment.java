@@ -28,7 +28,8 @@ import java.util.Locale;
  * MyEventsFragment is responsible for displaying a list of events
  * the current user has joined. It fetches the user's events from Firebase
  * and displays relevant information for each event, including the event status
- * and date. Users can also leave the waitlist or event as appropriate.
+ * and date. Users can also leave the waitlist or event as appropriate. This is
+ * specifically the view for usertype ENTRANT
  *
  * @author Graham Flokstra
  */
