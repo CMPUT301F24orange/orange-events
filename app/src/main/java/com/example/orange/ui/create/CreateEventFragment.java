@@ -15,6 +15,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+import com.example.orange.BuildConfig;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -49,7 +50,7 @@ import java.util.Locale;
  * all necessary event details including title, description, dates, capacity,
  * registration details, and an optional event image.
  *
- * @author Graham Flokstra, George
+ * @author Graham Flokstra, George, Dhairya
  */
 public class CreateEventFragment extends Fragment {
 
@@ -119,6 +120,11 @@ public class CreateEventFragment extends Fragment {
     private void initializeServices() {
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(requireContext());
+
+        // Use the test device ID if running in test mode
+        if (BuildConfig.IS_TESTING) {
+            sessionManager.createLoginSession("testDeviceId", UserType.ORGANIZER, "testDeviceId");
+        }
     }
 
     /**

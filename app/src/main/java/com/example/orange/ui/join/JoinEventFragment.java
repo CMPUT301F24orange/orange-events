@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog; // Import AlertDialog
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.orange.data.firebase.FirebaseCallback;
@@ -22,7 +22,7 @@ import java.util.List;
  * JoinEventFragment displays a list of events that the user is eligible to join.
  * Users can join the waitlist for events they are not already participating in.
  *
- * @author ...
+ * @author Graham Flokstra, George
  */
 public class JoinEventFragment extends Fragment {
     private FragmentJoinEventBinding binding;
@@ -31,6 +31,25 @@ public class JoinEventFragment extends Fragment {
     private EventAdapter eventAdapter;
     private List<Event> eventList;
 
+
+    // Setter methods for dependency injection
+    public void setFirebaseService(FirebaseService firebaseService) {
+        this.firebaseService = firebaseService;
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+    /**
+     * Creates and returns the view hierarchy associated with the fragment.
+     * Initializes Firebase service, session manager, and sets up the RecyclerView
+     * to display available events.
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate views
+     * @param container If non-null, this is the parent view that the fragment's UI should be attached to
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state
+     * @return The View for the fragment's UI
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentJoinEventBinding.inflate(inflater, container, false);
@@ -51,12 +70,20 @@ public class JoinEventFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Clean up any references to the binding when the view is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
 
+    /**
+     * Loads all events from Firebase that the user is eligible to join.
+     * Filters out events where the user is already a participant or on the waiting list.
+     * Updates the RecyclerView with the filtered list of events.
+     */
     private void loadEvents() {
         String userId = sessionManager.getUserSession().getUserId();
 
@@ -128,6 +155,12 @@ public class JoinEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Removes the current user from the waitlist of a specified event.
+     * Reloads the events list after successful removal to update the UI.
+     *
+     * @param event Event object from which to remove the user from the waitlist
+     */
     public void leaveWaitlist(Event event) {
         String userId = sessionManager.getUserSession().getUserId();
 
@@ -145,7 +178,15 @@ public class JoinEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Returns the SessionManager instance associated with this fragment.
+     *
+     * @return The SessionManager instance
+     */
     public SessionManager getSessionManager() {
         return sessionManager;
+    }
+    public List<Event> getEventList() {
+        return eventList;
     }
 }
