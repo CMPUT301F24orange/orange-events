@@ -233,11 +233,17 @@ public class ProfileFragment extends Fragment {
             byte[] imageData = user.getProfileImageData().toBytes();
             Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
             profileImage.setImageBitmap(bitmap);
-        } else {
+        } else if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
             Bitmap initialsBitmap = createInitialsBitmap(user.getUsername());
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            initialsBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
             profileImage.setImageBitmap(initialsBitmap);
+
+            // Store the initials bitmap data as the profile image data in the user object
+            currentUser.setProfileImageData(Blob.fromBytes(baos.toByteArray()));
         }
     }
+
 
     /**
      * Configures UI elements specific to user type (Entrant or Organizer).
