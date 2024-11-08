@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- @author Viral Bhavsar -->
+<!-- Updated layout to replace RecyclerView with ScrollView -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -42,13 +42,19 @@
             android:entries="@array/profile_filter_options" />
     </LinearLayout>
 
-    <!-- RecyclerView for Profiles -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/profileRecyclerView"
+    <!-- ScrollView for Profiles -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp" />
+        android:padding="8dp">
 
+        <LinearLayout
+            android:id="@+id/admin_profiles_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
 
 </LinearLayout>
