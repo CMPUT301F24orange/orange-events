@@ -605,6 +605,8 @@ public class FirebaseService {
                     callback.onFailure(e);
                 });
     }
+
+
     public void deleteUserAndRelatedFacilities(String userId, FirebaseCallback<Void> callback) {
         // First, retrieve the user to find the associated facility ID
         getUserById(userId, new FirebaseCallback<User>() {
@@ -613,23 +615,32 @@ public class FirebaseService {
                 if (user != null && user.getFacilityId() != null) {
                     String facilityId = user.getFacilityId();
 
-                    // Delete the facility first
-                    deleteFacility(facilityId, new FirebaseCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void result) {
-                            // Now delete the user
-                            db.collection("users").document(userId).delete()
-                                    .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                                    .addOnFailureListener(callback::onFailure);
-                        }
+                    // Step 1: Delete all events associated with this facility
+                    db.collection("events").whereEqualTo("facilityId", facilityId).get()
+                            .addOnSuccessListener(querySnapshot -> {
+                                for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                    document.getReference().delete(); // Delete each event
+                                }
 
-                        @Override
-                        public void onFailure(Exception e) {
-                            callback.onFailure(e);
-                        }
-                    });
+                                // Step 2: Delete the facility itself
+                                deleteFacility(facilityId, new FirebaseCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        // Step 3: Delete the user
+                                        db.collection("users").document(userId).delete()
+                                                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                                                .addOnFailureListener(callback::onFailure);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        callback.onFailure(e);
+                                    }
+                                });
+                            })
+                            .addOnFailureListener(callback::onFailure);
                 } else {
-                    // No facility to delete, so just delete the user
+                    // If no facility ID, just delete the user
                     db.collection("users").document(userId).delete()
                             .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                             .addOnFailureListener(callback::onFailure);
