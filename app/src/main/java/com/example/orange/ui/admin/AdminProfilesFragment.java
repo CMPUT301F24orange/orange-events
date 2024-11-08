@@ -25,8 +25,9 @@ import java.util.List;
 
 /**
  * AdminProfilesFragment is responsible for displaying all the users
- * that are currently stored in the database.
- * Each user also contains a delete button to delete the user from the database entirely.
+ * that are currently stored in the database. Each user also contains a
+ * delete button to delete the user from the database entirely.
+ *
  * @author Radhe Patel
  */
 public class AdminProfilesFragment extends Fragment {
@@ -59,6 +60,7 @@ public class AdminProfilesFragment extends Fragment {
 
     /**
      * Loads all users from Firebase and calls displayUsers to render them.
+     *
      * @author Radhe Patel
      */
     private void loadUsers() {
@@ -76,9 +78,11 @@ public class AdminProfilesFragment extends Fragment {
     }
 
     /**
-     * Displays a list of all users, rendering the picture, name, email, and phone number
-     * for each user to allow the admin to delete the user if necessary.
-     * @author Radhe Patel
+     * Displays a list of all users , rendering the picture, name, email,
+     * and phone number for each user and allowing the
+     * admin to delete the user if necessary.
+     *
+     * @author Radhe Patel, Viral Bhavsar
      * @param users List of user objects representing all users in the database
      */
     private void displayUsers(List<User> users) {
@@ -112,7 +116,8 @@ public class AdminProfilesFragment extends Fragment {
 
     /**
      * Deletes a user entirely from the database with no trace left.
-     * @author Radhe Patel
+     *
+     * @author Radhe Patel, Viral Bhavsar
      * @param userId Unique ID of the user to be deleted.
      */
     public void delUser(String userId) {
@@ -134,7 +139,7 @@ public class AdminProfilesFragment extends Fragment {
      * Converts the image data that of type Blob to a bitmap
      * that is usable and can be projected onto an ImageView
      *
-     * @author Radhe Patel
+     * @author Radhe Patel, Viral Bhavsar
      * @param blob profile picture data of the user
      */
     public Bitmap convertBlobToBitmap(Blob blob) {
