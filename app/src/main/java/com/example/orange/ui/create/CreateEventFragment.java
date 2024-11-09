@@ -50,7 +50,7 @@ import java.util.Locale;
  * all necessary event details including title, description, dates, capacity,
  * registration details, and an optional event image.
  *
- * @author Graham Flokstra, George
+ * @author Graham Flokstra, George, Dhairya
  */
 public class CreateEventFragment extends Fragment {
 

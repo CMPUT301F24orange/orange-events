@@ -531,6 +531,7 @@ public class FirebaseService {
     /**
      * Deletes a facility from Firestore based on its ID.
      *
+     * @author Radhe Patel
      * @param facilityId  The ID of the facility to delete.
      * @param callback A callback to handle the result of the operation.
      */
@@ -606,51 +607,71 @@ public class FirebaseService {
     }
 
 
+
+
+    /**
+     * Retrieves all users from Firestore.
+     * @author Viral Bhavsar
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void getAllUsers(FirebaseCallback<List<User>> callback) {
+        db.collection("users")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<User> users = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        User user = document.toObject(User.class);
+                        if (user != null) {
+                            users.add(user);
+                        }
+                    }
+                    callback.onSuccess(users);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Removes the User from the database, if it has a facility and events associated with it,
+     * it also deletes those.
+     *
+     * @author Viral Bhavsar
+     * @param userId  The ID of the user to delete.
+     * @param callback Callback to handle success or failure.
+     */
     public void deleteUserAndRelatedFacilities(String userId, FirebaseCallback<Void> callback) {
-        // First, retrieve the user to find the associated facility ID
-        getUserById(userId, new FirebaseCallback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                if (user != null && user.getFacilityId() != null) {
-                    String facilityId = user.getFacilityId();
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(userSnapshot -> {
+                    if (userSnapshot.exists()) {
+                        String facilityId = userSnapshot.getString("facilityId");
 
-                    // Step 1: Delete all events associated with this facility
-                    db.collection("events").whereEqualTo("facilityId", facilityId).get()
-                            .addOnSuccessListener(querySnapshot -> {
-                                for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                                    document.getReference().delete(); // Delete each event
-                                }
+                        if (facilityId != null) {
+                            db.collection("events").whereEqualTo("facilityId", facilityId).get()
+                                    .addOnSuccessListener(querySnapshot -> {
+                                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                            document.getReference().delete();
+                                        }
 
-                                // Step 2: Delete the facility itself
-                                deleteFacility(facilityId, new FirebaseCallback<Void>() {
-                                    @Override
-                                    public void onSuccess(Void result) {
-                                        // Step 3: Delete the user
-                                        db.collection("users").document(userId).delete()
-                                                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                                        db.collection("facilities").document(facilityId).delete()
+                                                .addOnSuccessListener(aVoid -> {
+
+                                                    db.collection("users").document(userId).delete()
+                                                            .addOnSuccessListener(aVoid2 -> callback.onSuccess(null))
+                                                            .addOnFailureListener(callback::onFailure);
+                                                })
                                                 .addOnFailureListener(callback::onFailure);
-                                    }
+                                    })
+                                    .addOnFailureListener(callback::onFailure);
 
-                                    @Override
-                                    public void onFailure(Exception e) {
-                                        callback.onFailure(e);
-                                    }
-                                });
-                            })
-                            .addOnFailureListener(callback::onFailure);
-                } else {
-                    // If no facility ID, just delete the user
-                    db.collection("users").document(userId).delete()
-                            .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                            .addOnFailureListener(callback::onFailure);
-                }
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
-            }
-        });
+                        } else {
+                            db.collection("users").document(userId).delete()
+                                    .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                                    .addOnFailureListener(callback::onFailure);
+                        }
+                    } else {
+                        callback.onFailure(new Exception("User document does not exist"));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 
 
