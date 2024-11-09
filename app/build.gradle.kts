@@ -1,3 +1,5 @@
+import org.gradle.external.javadoc.JavadocMemberLevel
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -24,10 +26,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField ("boolean", "IS_TESTING", "false")
+            buildConfigField("boolean", "IS_TESTING", "false")
         }
         debug {
-            buildConfigField( "boolean", "IS_TESTING", "true")
+            buildConfigField("boolean", "IS_TESTING", "true")
         }
     }
     compileOptions {
@@ -39,9 +41,8 @@ android {
         buildConfig = true
     }
 }
-/**
-dependencies {
 
+dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -55,15 +56,15 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation( "androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation ("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:rules:1.5.0")
 
     // Added to allow for Image picker
-    implementation( "androidx.activity:activity:1.7.2" )
-    implementation ("androidx.activity:activity-ktx:1.7.2")
+    implementation("androidx.activity:activity:1.7.2")
+    implementation("androidx.activity:activity-ktx:1.7.2")
 
-    //Added from firebase tutorial
+    // Added from firebase tutorial
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-firestore")
     //
@@ -71,8 +72,9 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-analytics")
 
-    //Added for QR scanning
+    // Added for QR scanning
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
     implementation ("com.google.zxing:core:3.3.3")
     testImplementation ("org.mockito:mockito-core:4.5.1")
 
