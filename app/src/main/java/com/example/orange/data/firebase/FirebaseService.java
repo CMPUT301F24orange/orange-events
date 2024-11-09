@@ -606,6 +606,9 @@ public class FirebaseService {
                 });
     }
 
+
+
+
     /**
      * Retrieves all users from Firestore.
      * @author Viral Bhavsar
