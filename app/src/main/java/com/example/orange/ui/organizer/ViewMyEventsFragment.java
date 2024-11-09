@@ -190,6 +190,7 @@ public class ViewMyEventsFragment extends Fragment {
             TextView lotteryStatus = eventView.findViewById(R.id.lottery_status);
             Button actionButton = eventView.findViewById(R.id.action_button);
             Button changeImageButton = eventView.findViewById(R.id.change_image_button);
+            Button drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
 
             // Set the data
             eventTitle.setText(event.getTitle());
@@ -232,6 +233,21 @@ public class ViewMyEventsFragment extends Fragment {
             changeImageButton.setOnClickListener(v -> {
                 selectedEvent = event; // Keep track of which event we're updating
                 showImageOptions();
+            });
+
+            drawParticipantsButton.setOnClickListener(v -> {
+                firebaseService.drawFromWaitlist(event.getId(), new FirebaseCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        Toast.makeText(requireContext(), "Participants drawn successfully", Toast.LENGTH_SHORT).show();
+                        loadOrganizerEvents(); // Refresh the events list
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Toast.makeText(requireContext(), "Failed to draw participants: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             });
 
             organizerEventsContainer.addView(eventView);
