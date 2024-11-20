@@ -26,8 +26,8 @@ import java.util.List;
  */
 public class JoinEventFragment extends Fragment {
     private FragmentJoinEventBinding binding;
-    private FirebaseService firebaseService;
-    private SessionManager sessionManager;
+    public FirebaseService firebaseService;
+    public SessionManager sessionManager;
     private EventAdapter eventAdapter;
     private List<Event> eventList;
 
@@ -75,7 +75,7 @@ public class JoinEventFragment extends Fragment {
      * Filters out events where the user is already a participant or on the waiting list.
      * Updates the RecyclerView with the filtered list of events.
      */
-    private void loadEvents() {
+    public void loadEvents() {
         String userId = sessionManager.getUserSession().getUserId();
 
         firebaseService.getAllEvents(new FirebaseCallback<List<Event>>() {
