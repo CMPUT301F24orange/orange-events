@@ -122,9 +122,9 @@ public class CreateEventFragment extends Fragment {
         sessionManager = new SessionManager(requireContext());
 
         // Use the test device ID if running in test mode
-        if (BuildConfig.IS_TESTING) {
-            sessionManager.createLoginSession("testDeviceId", UserType.ORGANIZER, "testDeviceId");
-        }
+        // if (BuildConfig.IS_TESTING) {
+        //     sessionManager.createLoginSession("testDeviceId", UserType.ORGANIZER, "testDeviceId");
+        // }
     }
 
     /**
