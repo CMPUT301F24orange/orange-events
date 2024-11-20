@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+// Other imports...
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,13 +21,16 @@ import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.ImageData;
 import com.example.orange.utils.SessionManager;
-import com.google.firebase.firestore.Blob;
+// Removed Blob import since it's no longer used
+// import com.google.firebase.firestore.Blob;
 
 /**
  * This fragment displays details of an event and allows a user to join or leave the event's waitlist.
- * This class is called only after the qr code has been scanned being linked by the eventId.
- * @author Brandon Ramirez
+ * This class is called only after the QR code has been scanned, being linked by the eventId.
+ *
+ * @author
  */
 public class entrantEventDetailsFragment extends Fragment {
 
@@ -42,6 +46,7 @@ public class entrantEventDetailsFragment extends Fragment {
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_entrant_event_details, container, false);
 
         firebaseService = new FirebaseService();
@@ -57,15 +62,17 @@ public class entrantEventDetailsFragment extends Fragment {
 
         joinEventButton = view.findViewById(R.id.joinWaitlistButton);
         leaveEventButton = view.findViewById(R.id.leaveWaitlistButton);
-        joinEventButton.setOnClickListener(v-> joinEvent(eventId));
-        leaveEventButton.setOnClickListener(v-> leaveEvent(eventId));
+        joinEventButton.setOnClickListener(v -> joinEvent(eventId));
+        leaveEventButton.setOnClickListener(v -> leaveEvent(eventId));
 
         return view;
     }
 
     /**
      * Loads event details from Firebase and updates the UI.
-     * @param eventId, view
+     *
+     * @param eventId The ID of the event to load
+     * @param view    The view to update with event details
      */
     public void loadEventDetails(String eventId, View view) {
         firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
@@ -74,11 +81,25 @@ public class entrantEventDetailsFragment extends Fragment {
                 if (result != null) {
                     // Display event image
                     ImageView eventImage = view.findViewById(R.id.eventImage);
-                    Blob eventImageData = result.getEventImageData();
-                    if (eventImageData != null) {
-                        byte[] imageData = eventImageData.toBytes();
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-                        eventImage.setImageBitmap(bitmap);
+                    String eventImageId = result.getEventImageId();
+                    if (eventImageId != null) {
+                        firebaseService.getImageById(eventImageId, new FirebaseCallback<ImageData>() {
+                            @Override
+                            public void onSuccess(ImageData imageData) {
+                                if (imageData != null && imageData.getImageData() != null) {
+                                    byte[] imageBytes = imageData.getImageData().toBytes();
+                                    Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                                    eventImage.setImageBitmap(bitmap);
+                                } else {
+                                    eventImage.setImageResource(R.drawable.ic_image); // Placeholder if image data is null
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                eventImage.setImageResource(R.drawable.ic_image); // Placeholder if failed to load image
+                            }
+                        });
                     } else {
                         eventImage.setImageResource(R.drawable.ic_image); // Placeholder if no image is available
                     }
@@ -89,13 +110,14 @@ public class entrantEventDetailsFragment extends Fragment {
                     ((TextView) view.findViewById(R.id.registrationOpensText)).setText(result.getRegistrationOpens() != null ? result.getRegistrationOpens().toDate().toString() : "N/A");
                     ((TextView) view.findViewById(R.id.registrationDeadlineText)).setText(result.getRegistrationDeadline() != null ? result.getRegistrationDeadline().toDate().toString() : "N/A");
                     ((TextView) view.findViewById(R.id.eventLimitText)).setText(String.valueOf(result.getCapacity()));
-                    ((TextView) view.findViewById(R.id.waitlistLimitText)).setText(String.valueOf(result.getWaitlistLimit()));
+                    ((TextView) view.findViewById(R.id.waitlistLimitText)).setText(result.getWaitlistLimit() != null ? String.valueOf(result.getWaitlistLimit()) : "N/A");
                     ((TextView) view.findViewById(R.id.lotteryDayText)).setText(result.getLotteryDrawDate() != null ? result.getLotteryDrawDate().toDate().toString() : "N/A");
                     ((TextView) view.findViewById(R.id.eventPriceText)).setText(result.getPrice() != null ? result.getPrice().toString() : "N/A");
                 } else {
                     Toast.makeText(requireContext(), "Event not found", Toast.LENGTH_SHORT).show(); // Show error if event not found
                 }
             }
+
             @Override
             public void onFailure(Exception e) {
                 Log.e("FirebaseError", "Error fetching event details", e); // Log error if event details fail to load
@@ -106,7 +128,8 @@ public class entrantEventDetailsFragment extends Fragment {
 
     /**
      * Adds the user to the event waitlist.
-     * @param eventId
+     *
+     * @param eventId The ID of the event to join
      */
     public void joinEvent(String eventId) {
         String userId = sessionManager.getUserSession().getUserId();
@@ -115,6 +138,7 @@ public class entrantEventDetailsFragment extends Fragment {
             public void onSuccess(Void result) {
                 Toast.makeText(requireContext(), "Added to waitlist", Toast.LENGTH_SHORT).show();
             }
+
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Failed to add to waitlist", Toast.LENGTH_SHORT).show();
@@ -124,15 +148,17 @@ public class entrantEventDetailsFragment extends Fragment {
 
     /**
      * Removes the user from the event waitlist.
-     * @param eventId
+     *
+     * @param eventId The ID of the event to leave
      */
-    public void leaveEvent(String eventId){
+    public void leaveEvent(String eventId) {
         String userId = sessionManager.getUserSession().getUserId();
         firebaseService.removeFromEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
                 Toast.makeText(requireContext(), "Removed from waitlist", Toast.LENGTH_SHORT).show();
             }
+
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Failed to remove from waitlist", Toast.LENGTH_SHORT).show();

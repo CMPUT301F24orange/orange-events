@@ -15,7 +15,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-import com.example.orange.BuildConfig;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -41,7 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -50,7 +48,7 @@ import java.util.Locale;
  * all necessary event details including title, description, dates, capacity,
  * registration details, and an optional event image.
  *
- * @author Graham Flokstra, George, Dhairya
+ * @author
  */
 public class CreateEventFragment extends Fragment {
 
@@ -120,11 +118,6 @@ public class CreateEventFragment extends Fragment {
     private void initializeServices() {
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(requireContext());
-
-        // Use the test device ID if running in test mode
-        // if (BuildConfig.IS_TESTING) {
-        //     sessionManager.createLoginSession("testDeviceId", UserType.ORGANIZER, "testDeviceId");
-        // }
     }
 
     /**
@@ -149,7 +142,6 @@ public class CreateEventFragment extends Fragment {
         eventImage = view.findViewById(R.id.add_image_button);
         uploadImageButton = view.findViewById(R.id.upload_image_button);
         deleteImageButton = view.findViewById(R.id.delete_image_button);
-
     }
 
     /**
@@ -193,10 +185,12 @@ public class CreateEventFragment extends Fragment {
                     event.setFacilityId(user.getFacilityId());
 
                     if (selectedImageUri != null) {
-                        processEventImage(event);
+                        // Process and upload the image
+                        processAndUploadEventImage(event);
+                    } else {
+                        // No image selected, proceed to save event
+                        saveEventToFirebase(event);
                     }
-
-                    saveEventToFirebase(event);
                 } else {
                     Toast.makeText(requireContext(),
                             "Organizer's facility not found. Please update your facility profile.",
@@ -213,6 +207,57 @@ public class CreateEventFragment extends Fragment {
         });
     }
 
+    /**
+     * Processes and uploads the event image.
+     *
+     * @param event The event object to attach the image ID.
+     */
+    private void processAndUploadEventImage(Event event) {
+        try {
+            InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            // Resize image
+            int maxSize = 500;
+            float scale = Math.min(((float) maxSize / bitmap.getWidth()),
+                    ((float) maxSize / bitmap.getHeight()));
+            Matrix matrix = new Matrix();
+            matrix.postScale(scale, scale);
+            Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
+                    bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+            // Compress image
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+            byte[] imageData = baos.toByteArray();
+
+            if (imageData.length > 1048576) {
+                Toast.makeText(getContext(), "Image is too large to upload", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Blob imageBlob = Blob.fromBytes(imageData);
+
+            // Upload image to Firebase
+            firebaseService.createImage(imageBlob, new FirebaseCallback<String>() {
+                @Override
+                public void onSuccess(String imageId) {
+                    // Set the image ID in the event
+                    event.setEventImageId(imageId);
+                    // Now save the event
+                    saveEventToFirebase(event);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Failed to upload image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Error reading image", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     /**
      * Builds an Event object from user input fields.
@@ -233,6 +278,9 @@ public class CreateEventFragment extends Fragment {
                 parseIntegerField(waitlistLimitEditText.getText().toString().trim()) : null;
         Boolean geolocation = geolocation_checkbox.isChecked();
 
+        // Perform validation here if necessary
+        // ...
+
         Event event = new Event();
         event.setTitle(title);
         event.setDescription(description);
@@ -250,77 +298,6 @@ public class CreateEventFragment extends Fragment {
     }
 
     /**
-     * Processes the user data and creates the event in Firebase.
-     *
-     * @param organizerId ID of the event organizer
-     * @param event Event object to be created
-     */
-    private void processUserAndCreateEvent(String organizerId, Event event) {
-        firebaseService.getUserById(organizerId, new FirebaseCallback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                if (user != null && user.getFacilityId() != null) {
-                    event.setOrganizerId(organizerId);
-                    event.setFacilityId(user.getFacilityId());
-
-                    if (selectedImageUri != null) {
-                        processEventImage(event);
-                    }
-
-                    saveEventToFirebase(event);
-                } else {
-                    Toast.makeText(requireContext(),
-                            "Organizer's facility not found. Please update your facility profile.",
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(requireContext(),
-                        "Error retrieving organizer data: " + e.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    /**
-     * Processes and compresses the selected event image.
-     *
-     * @param event Event object to attach the processed image to
-     */
-    private void processEventImage(Event event) {
-        try {
-            InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-            // Resize image
-            int maxSize = 500;
-            float scale = Math.min(((float) maxSize / bitmap.getWidth()),
-                    ((float) maxSize / bitmap.getHeight()));
-            Matrix matrix = new Matrix();
-            matrix.postScale(scale, scale);
-            Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
-                    bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-
-            // Compress image
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-            byte[] imageData = baos.toByteArray();
-
-            if (imageData.length > 1048576) {
-                Toast.makeText(getContext(), "Image is too large to upload",
-                        Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            event.setEventImageData(Blob.fromBytes(imageData));
-        } catch (IOException e) {
-            Toast.makeText(getContext(), "Error reading image", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
      * Saves the event to Firebase and handles the response.
      *
      * @param event The event to be saved
@@ -329,8 +306,7 @@ public class CreateEventFragment extends Fragment {
         firebaseService.createEvent(event, new FirebaseCallback<String>() {
             @Override
             public void onSuccess(String eventId) {
-                Toast.makeText(requireContext(), "Event created successfully",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Event created successfully", Toast.LENGTH_SHORT).show();
                 Navigation.findNavController(requireView()).navigate(R.id.navigation_view_my_events);
             }
 

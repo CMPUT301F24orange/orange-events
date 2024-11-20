@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+// other imports...
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,8 +18,11 @@ import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.ImageData;
 import com.example.orange.utils.SessionManager;
-import com.google.firebase.firestore.Blob;
+// Remove Blob import since it's no longer used
+// import com.google.firebase.firestore.Blob;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -28,10 +32,8 @@ import java.util.Locale;
  * MyEventsFragment is responsible for displaying a list of events
  * the current user has joined. It fetches the user's events from Firebase
  * and displays relevant information for each event, including the event status
- * and date. Users can also leave the waitlist or event as appropriate. This is
- * specifically the view for usertype ENTRANT
+ * and date. Users can also leave the waitlist or event as appropriate.
  *
- * @author Graham Flokstra
  */
 public class MyEventsFragment extends Fragment {
     private FirebaseService firebaseService;
@@ -43,7 +45,7 @@ public class MyEventsFragment extends Fragment {
      * Called to initialize the fragment's view.
      *
      * @param inflater           LayoutInflater to inflate the fragment's layout.
-     * @param container          Parent view the fragment's UI should be attached to.
+     * @param container          Parent view that the fragment's UI should be attached to.
      * @param savedInstanceState Previous state data if fragment is being re-created.
      * @return The created view.
      */
@@ -66,8 +68,6 @@ public class MyEventsFragment extends Fragment {
 
     /**
      * Loads the current user's events from Firebase and calls displayEvents to render them.
-     *
-     * @author Graham Flokstra
      */
     private void loadUserEvents() {
         String userId = sessionManager.getUserSession().getUserId();
@@ -90,7 +90,6 @@ public class MyEventsFragment extends Fragment {
      * information about each event's status and allowing the user to leave
      * the event or queue if applicable.
      *
-     * @author Graham Flokstra
      * @param events List of Event objects representing the user's events.
      * @param userId The unique ID of the current user.
      */
@@ -109,11 +108,25 @@ public class MyEventsFragment extends Fragment {
             eventTitle.setText(event.getTitle());
 
             // Load and display the event image if available
-            Blob eventImageData = event.getEventImageData();
-            if (eventImageData != null) {
-                byte[] imageData = eventImageData.toBytes();
-                Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-                eventImage.setImageBitmap(bitmap);
+            String eventImageId = event.getEventImageId();
+            if (eventImageId != null) {
+                firebaseService.getImageById(eventImageId, new FirebaseCallback<ImageData>() {
+                    @Override
+                    public void onSuccess(ImageData imageData) {
+                        if (imageData != null && imageData.getImageData() != null) {
+                            byte[] imageBytes = imageData.getImageData().toBytes();
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                            eventImage.setImageBitmap(bitmap);
+                        } else {
+                            eventImage.setImageResource(R.drawable.ic_image); // Placeholder if image data is null
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        eventImage.setImageResource(R.drawable.ic_image); // Placeholder if failed to load image
+                    }
+                });
             } else {
                 eventImage.setImageResource(R.drawable.ic_image); // Placeholder if no image is available
             }
@@ -157,7 +170,6 @@ public class MyEventsFragment extends Fragment {
     /**
      * Removes the current user from an event's waitlist.
      *
-     * @author Graham Flokstra
      * @param eventId Unique ID of the event.
      * @param userId  Unique ID of the user.
      */
@@ -179,7 +191,6 @@ public class MyEventsFragment extends Fragment {
     /**
      * Removes the current user from the list of participants for an event.
      *
-     * @author Graham Flokstra
      * @param eventId Unique ID of the event.
      * @param userId  Unique ID of the user.
      */

@@ -36,7 +36,7 @@ public class Event {
     private List<String> waitingList;
     private List<String> participants;
     private List<String> selectedParticipants;
-    private Blob eventImageData; // Changed from byte[] to Blob
+    private String eventImageId; // Changed from Blob to String ID
     private String facilityId;
 
     /**
@@ -409,22 +409,23 @@ public class Event {
 
 
 
+
     /**
-     * Retrieves the user's device ID, which uniquely identifies the user's device.
+     * Retrieves the event's image ID.
      *
-     * @return The profile image of the user.
+     * @return The image ID of the event.
      */
-    public Blob getEventImageData() {
-        return eventImageData;
+    public String getEventImageId() {
+        return eventImageId;
     }
 
     /**
-     * Sets the user's profile image.
+     * Sets the event's image ID.
      *
-     * @param eventImageData The new device image to set for the user.
+     * @param eventImageId The new image ID to set for the event.
      */
-    public void setEventImageData(Blob eventImageData) {
-        this.eventImageData = eventImageData;
+    public void setEventImageId(String eventImageId) {
+        this.eventImageId = eventImageId;
     }
 
     /**
