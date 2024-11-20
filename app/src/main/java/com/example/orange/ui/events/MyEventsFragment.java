@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-// other imports...
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,8 +19,7 @@ import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.ImageData;
 import com.example.orange.utils.SessionManager;
-// Remove Blob import since it's no longer used
-// import com.google.firebase.firestore.Blob;
+
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

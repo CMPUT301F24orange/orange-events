@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-// Other imports...
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,8 +18,6 @@ import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
-// Removed Blob import since it's no longer used
-// import com.google.firebase.firestore.Blob;
 
 import java.util.List;
 
@@ -29,7 +26,7 @@ import java.util.List;
  * that are currently stored in the database. Each user also contains a
  * delete button to delete the user from the database entirely.
  *
- * @author
+ * @author Radhe Patel
  */
 public class AdminProfilesFragment extends Fragment {
 

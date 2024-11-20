@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-// Other imports...
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,8 +22,7 @@ import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.ImageData;
 import com.example.orange.utils.SessionManager;
-// Removed Blob import since it's no longer used
-// import com.google.firebase.firestore.Blob;
+
 
 /**
  * This fragment displays details of an event and allows a user to join or leave the event's waitlist.
