@@ -27,8 +27,9 @@ public class User {
     private List<String> eventsOrganizing;
     private boolean receiveOrganizerNotifications;
     private boolean receiveAdminNotifications;
-    private Blob profileImageData; // Changed from byte[] to Blob
     private String facilityId;
+    private String profileImageId; 
+
     /**
      * Default constructor required for Firestore.
      * Initializes empty lists for events.
@@ -295,21 +296,21 @@ public class User {
     }
 
     /**
-     * Retrieves the user's profile image data.
+     * Retrieves the user's profile image ID.
      *
-     * @return The profile image of the user.
+     * @return The profile image ID of the user.
      */
-    public Blob getProfileImageData() {
-        return profileImageData;
+    public String getProfileImageId() {
+        return profileImageId;
     }
 
     /**
-     * Sets the user's profile image.
+     * Sets the user's profile image ID.
      *
-     * @param profileImageData The new device image to set for the user.
+     * @param profileImageId The new profile image ID to set for the user.
      */
-    public void setProfileImageData(Blob profileImageData) {
-        this.profileImageData = profileImageData;
+    public void setProfileImageId(String profileImageId) {
+        this.profileImageId = profileImageId;
     }
 
     /**

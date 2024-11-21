@@ -10,16 +10,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
+import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
-import com.google.firebase.firestore.Blob;
-
 
 import java.util.List;
 
@@ -38,7 +36,6 @@ public class AdminProfilesFragment extends Fragment {
     /**
      * Called to initialize the fragment's view.
      *
-     * @author Radhe Patel
      * @param inflater           LayoutInflater to inflate the fragment's layout.
      * @param container          Parent view the fragment's UI should be attached to.
      * @param savedInstanceState Previous state data if fragment is being re-created.
@@ -60,8 +57,6 @@ public class AdminProfilesFragment extends Fragment {
 
     /**
      * Loads all users from Firebase and calls displayUsers to render them.
-     *
-     * @author Radhe Patel
      */
     private void loadUsers() {
         firebaseService.getAllUsers(new FirebaseCallback<List<User>>() {
@@ -78,11 +73,10 @@ public class AdminProfilesFragment extends Fragment {
     }
 
     /**
-     * Displays a list of all users , rendering the picture, name, email,
+     * Displays a list of all users, rendering the picture, name, email,
      * and phone number for each user and allowing the
      * admin to delete the user if necessary.
      *
-     * @author Radhe Patel, Viral Bhavsar
      * @param users List of user objects representing all users in the database
      */
     private void displayUsers(List<User> users) {
@@ -96,12 +90,30 @@ public class AdminProfilesFragment extends Fragment {
             TextView userPhone = userView.findViewById(R.id.profile_phone);
             Button deleteButton = userView.findViewById(R.id.profile_delete_button);
 
-            Blob profilePictureData = user.getProfileImageData();
-            if (profilePictureData != null) {
-                Bitmap profileBitmap = convertBlobToBitmap(profilePictureData);
-                if (profileBitmap != null) {
-                    userProfilePicture.setImageBitmap(profileBitmap);
-                }
+            String profileImageId = user.getProfileImageId();
+            if (profileImageId != null) {
+                firebaseService.getImageById(profileImageId, new FirebaseCallback<ImageData>() {
+                    @Override
+                    public void onSuccess(ImageData imageData) {
+                        if (imageData != null && imageData.getImageData() != null) {
+                            byte[] imageBytes = imageData.getImageData().toBytes();
+                            Bitmap profileBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                            userProfilePicture.setImageBitmap(profileBitmap);
+                        } else {
+                            // Handle case where image data is null
+                            userProfilePicture.setImageResource(R.drawable.ic_profile);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        // Handle failure
+                        userProfilePicture.setImageResource(R.drawable.ic_profile);
+                    }
+                });
+            } else {
+                // No profile image, set placeholder or generate initials
+                userProfilePicture.setImageResource(R.drawable.ic_profile);
             }
 
             userName.setText(user.getUsername());
@@ -109,7 +121,7 @@ public class AdminProfilesFragment extends Fragment {
             userPhone.setText(user.getPhone());
             deleteButton.setOnClickListener(v -> delUser(user.getId()));
 
-            // Add the event view to the container
+            // Add the user view to the container
             profilesListContainer.addView(userView);
         }
     }
@@ -117,7 +129,6 @@ public class AdminProfilesFragment extends Fragment {
     /**
      * Deletes a user entirely from the database with no trace left.
      *
-     * @author Radhe Patel, Viral Bhavsar
      * @param userId Unique ID of the user to be deleted.
      */
     public void delUser(String userId) {
@@ -134,21 +145,4 @@ public class AdminProfilesFragment extends Fragment {
             }
         });
     }
-
-    /**
-     * Converts the image data that of type Blob to a bitmap
-     * that is usable and can be projected onto an ImageView
-     *
-     * @author Radhe Patel, Viral Bhavsar
-     * @param blob profile picture data of the user
-     */
-    public Bitmap convertBlobToBitmap(Blob blob) {
-        if (blob != null) {
-            byte[] blobBytes = blob.toBytes();
-            return BitmapFactory.decodeByteArray(blobBytes, 0, blobBytes.length);
-        }
-        return null;
-    }
-
 }
-
