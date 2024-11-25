@@ -1,5 +1,7 @@
 package com.example.orange.ui.admin;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,7 @@ import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.ImageData;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -93,11 +96,38 @@ public class AdminEventListFragment extends Fragment {
         for (Event event : events) {
             View eventView = getLayoutInflater().inflate(R.layout.item_admin_event_list, eventsContainer, false);
 
-            ImageView eventImage = eventView.findViewById(R.id.event_image);
+            ImageView eventPoster = eventView.findViewById(R.id.event_image);
             TextView eventTitle = eventView.findViewById(R.id.event_title);
             TextView eventDate = eventView.findViewById(R.id.event_date);
             TextView lotteryStatus = eventView.findViewById(R.id.lottery_status);
             Button deleteButton = eventView.findViewById(R.id.delete_button);
+            Button deletePosterButton = eventView.findViewById(R.id.poster_delete_button);
+
+            String posterImageId = event.getEventImageId();
+            if (posterImageId != null) {
+                firebaseService.getImageById(posterImageId, new FirebaseCallback<ImageData>() {
+                    @Override
+                    public void onSuccess(ImageData imageData) {
+                        if (imageData != null && imageData.getImageData() != null) {
+                            byte[] imageBytes = imageData.getImageData().toBytes();
+                            Bitmap profileBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                            eventPoster.setImageBitmap(profileBitmap);
+                        } else {
+                            // Handle case where image data is null
+                            eventPoster.setImageResource(R.drawable.ic_image);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        // Handle failure
+                        eventPoster.setImageResource(R.drawable.ic_image);
+                    }
+                });
+            } else {
+                // No poster image, set placeholder
+                eventPoster.setImageResource(R.drawable.ic_image);
+            }
 
             eventTitle.setText(event.getTitle());
 
@@ -120,6 +150,7 @@ public class AdminEventListFragment extends Fragment {
                 eventDate.setText("No date available");
                 lotteryStatus.setText("Status Unknown");
                 deleteButton.setOnClickListener(v -> delEvent(event.getId()));
+                deletePosterButton.setOnClickListener(v -> deletePosterAdmin(event.getId(), eventPoster));
             }
 
             // Add the event view to the container
@@ -144,6 +175,29 @@ public class AdminEventListFragment extends Fragment {
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Failed to delete event.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Deletes an event poster from the database and updates the UI
+     *
+     * @author Radhe Patel
+     * @param eventId Unique ID of the event poster to be deleted.
+     * @param posterImageView The ImageView to reset the placeholder image.
+     */
+    private void deletePosterAdmin(String eventId, ImageView posterImageView){
+
+        firebaseService.deletePosterAdmin(eventId, new FirebaseCallback<Void>(){
+            @Override
+            public void onSuccess(Void result) {
+                Toast.makeText(requireContext(), "Poster successfully deleted.", Toast.LENGTH_SHORT).show();
+                posterImageView.setImageResource(R.drawable.ic_image); //Reset to the original poster picture
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to delete profile picture.", Toast.LENGTH_SHORT).show();
             }
         });
     }
