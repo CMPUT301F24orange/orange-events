@@ -51,7 +51,7 @@
 
         <Button
             android:id="@+id/delete_button"
-            android:layout_width="wrap_content"
+            android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:text="Delete Event"
             android:layout_marginTop="8dp"
@@ -61,11 +61,23 @@
 
         <Button
             android:id="@+id/poster_delete_button"
-            android:layout_width="wrap_content"
+            android:layout_width="160dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
             android:text="Delete Poster"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/primary"
             android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/qr_delete_button"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:text="Delete QR"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/primary"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

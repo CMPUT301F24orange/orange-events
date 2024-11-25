@@ -102,6 +102,7 @@ public class AdminEventListFragment extends Fragment {
             TextView lotteryStatus = eventView.findViewById(R.id.lottery_status);
             Button deleteButton = eventView.findViewById(R.id.delete_button);
             Button deletePosterButton = eventView.findViewById(R.id.poster_delete_button);
+            Button deleteQRButton = eventView.findViewById(R.id.qr_delete_button);
 
             String posterImageId = event.getEventImageId();
             if (posterImageId != null) {
@@ -137,21 +138,22 @@ public class AdminEventListFragment extends Fragment {
             if (event.getRegistrationDeadline() != null && currentDate.before(event.getRegistrationDeadline().toDate())) {
                 eventDate.setText("Waitlist closes: " + dateFormat.format(event.getRegistrationDeadline().toDate()));
                 lotteryStatus.setText("Registration Open");
-                deleteButton.setOnClickListener(v -> delEvent(event.getId()));
             } else if (event.getLotteryDrawDate() != null && currentDate.before(event.getLotteryDrawDate().toDate())) {
                 eventDate.setText("Lottery draw: " + dateFormat.format(event.getLotteryDrawDate().toDate()));
                 lotteryStatus.setText("Awaiting Lottery Draw");
-                deleteButton.setOnClickListener(v -> delEvent(event.getId()));
             } else if (event.getEventDate() != null) {
                     eventDate.setText("Event Date: " + dateFormat.format(event.getEventDate().toDate()));
-                deleteButton.setOnClickListener(v -> delEvent(event.getId()));
             } else {
                 // Handle case where no date is available
                 eventDate.setText("No date available");
                 lotteryStatus.setText("Status Unknown");
-                deleteButton.setOnClickListener(v -> delEvent(event.getId()));
-                deletePosterButton.setOnClickListener(v -> deletePosterAdmin(event.getId(), eventPoster));
+
             }
+
+            // set the delete buttons listeners
+            deleteButton.setOnClickListener(v -> delEvent(event.getId()));
+            deletePosterButton.setOnClickListener(v -> deletePosterAdmin(event.getId(), eventPoster));
+            deleteQRButton.setOnClickListener(v -> deleteQR(event.getId()));
 
             // Add the event view to the container
             eventsContainer.addView(eventView);
@@ -188,7 +190,7 @@ public class AdminEventListFragment extends Fragment {
      */
     private void deletePosterAdmin(String eventId, ImageView posterImageView){
 
-        firebaseService.deletePosterAdmin(eventId, new FirebaseCallback<Void>(){
+        firebaseService.deletePosterAdmin(eventId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
                 Toast.makeText(requireContext(), "Poster successfully deleted.", Toast.LENGTH_SHORT).show();
@@ -198,6 +200,21 @@ public class AdminEventListFragment extends Fragment {
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Failed to delete profile picture.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void deleteQR(String eventId) {
+
+        firebaseService.deleteQR(eventId, new FirebaseCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Toast.makeText(requireContext(), "Hashed QR code data successfully deleted.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to delete hashed QR code data.", Toast.LENGTH_SHORT).show();
             }
         });
     }
