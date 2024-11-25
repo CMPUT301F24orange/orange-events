@@ -33,7 +33,7 @@ import static java.lang.Thread.sleep;
 /**
  * Intent Test for the delete profile functionality in the app.
  *
- * @author Dhairya Prajapati
+ * @author Dhairya Prajapati, Radhe Patel
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -50,7 +50,7 @@ public class AdminDeleteProfileTest {
      * Initializes the firebase and creates the mock user, along with
      * the mock facility and event and connects it to the user.
      *
-     * @author Dhairya Prajapati
+     * @author Dhairya Prajapati, Radhe Patel
      */
     @Before
     public void setUp() throws InterruptedException {

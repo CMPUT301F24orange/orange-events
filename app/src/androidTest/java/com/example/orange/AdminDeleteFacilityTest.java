@@ -27,6 +27,7 @@ import static java.lang.Thread.sleep;
 
 /**
  * Intent Test for the delete facility functionality in the app.
+ *
  * @author Radhe Patel
  */
 @RunWith(AndroidJUnit4.class)
@@ -41,6 +42,7 @@ public class AdminDeleteFacilityTest {
 
     /**
      * Initializes the firebase and creates the mock facility that is to be deleted
+     *
      * @author Radhe Patel
      */
     @Before
