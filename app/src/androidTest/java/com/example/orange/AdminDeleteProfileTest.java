@@ -128,14 +128,14 @@ public class AdminDeleteProfileTest {
     }
 
     /**
-     * Tests db functionality. Creates a test event with an eventImageId set. It then checks
-     * that the delete poster button in fact deletes the eventImageId from the db, i.e
+     * Tests db functionality. Creates a test user with a profileImageId set. It then checks
+     * that the delete profile picture button in fact deletes the profileImageId from the db, i.e
      * sets it to null.
      *
      * @author Radhe Patel
      */
     @Test
-    public void testDeleteEventImage() throws InterruptedException {
+    public void testDeleteProfilePicture() throws InterruptedException {
         // Navigate to the admin view
         onView(withId(R.id.navigation_admin)).perform(click());
         sleep(2000);
