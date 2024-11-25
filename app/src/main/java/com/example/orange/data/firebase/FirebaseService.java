@@ -816,6 +816,7 @@ public class FirebaseService {
      * Deletes an event poster from the database based on the event ID
      *
      * @author Radhe Patel
+     *
      * @param eventId The unique event Id
      * @param callback A callback to handle the result of the operation.
      */
@@ -872,6 +873,7 @@ public class FirebaseService {
      * Deletes an event QR hashed data from the database based on the event ID
      *
      * @author Radhe Patel
+     *
      * @param eventId The unique event Id
      * @param callback A callback to handle the result of the operation.
      */
