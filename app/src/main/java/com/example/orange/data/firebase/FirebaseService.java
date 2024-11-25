@@ -780,7 +780,26 @@ public class FirebaseService {
 
                         if (profileImageId != null && !profileImageId.isEmpty()){
                             // If the user has a profile image ID, delete it
-                            deleteImage(profileImageId, callback);
+                            deleteImage(profileImageId, new FirebaseCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void result) {
+                                    db.collection("users").document(userId)
+                                            .update("profileImageId", null)
+                                            .addOnSuccessListener(aVoid -> {
+                                                // Successfully updated the user's profileImageId field
+                                                callback.onSuccess(null);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                // Handle the failure to update the user's document
+                                                callback.onFailure(new Exception("Failed to update user profileImageId", e));
+                                            });
+                                }
+                                @Override
+                                public void onFailure(Exception e) {
+                                    // Handle failure to delete the image
+                                    callback.onFailure(new Exception("Failed to delete profile image", e));
+                                }
+                            });
                         } else {
                             // if no profile image exists, return success
                             callback.onSuccess(null);
