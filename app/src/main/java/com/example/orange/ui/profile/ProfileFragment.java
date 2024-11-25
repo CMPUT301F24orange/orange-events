@@ -28,6 +28,7 @@ import androidx.navigation.Navigation;
 import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
+import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.example.orange.data.model.UserSession;
@@ -37,7 +38,7 @@ import com.google.firebase.firestore.Blob;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import com.example.orange.MainActivity;
+
 /**
  * ProfileFragment manages user profile functionality within the Orange application.
  * This fragment handles the display and editing of user information, including profile
@@ -73,15 +74,31 @@ public class ProfileFragment extends Fragment {
     private Uri selectedImageUri;
 
     /**
+     * Activity result launcher for handling image selection from the device's media store.
+     * When an image is selected, it updates the profile image view and stores the URI
+     * for later processing.
+     */
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia = registerForActivityResult(
+            new ActivityResultContracts.PickVisualMedia(),
+            uri -> {
+                if (uri != null) {
+                    profileImage.setImageURI(uri);
+                    selectedImageUri = uri;
+                }
+            }
+    );
+
+    /**
      * Creates and returns the view hierarchy associated with the fragment.
      *
-     * @param inflater LayoutInflater object to inflate views
-     * @param container If non-null, parent view that the fragment's UI should be attached to
+     * @param inflater           LayoutInflater object to inflate views
+     * @param container          If non-null, parent view that the fragment's UI should be attached to
      * @param savedInstanceState If non-null, fragment is being re-constructed from previous saved state
      * @return The View for the fragment's UI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         initializeServices();
@@ -229,21 +246,31 @@ public class ProfileFragment extends Fragment {
         editTextEmail.setText(user.getEmail());
         editTextPhone.setText(user.getPhone());
 
-        if (user.getProfileImageData() != null) {
-            byte[] imageData = user.getProfileImageData().toBytes();
-            Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-            profileImage.setImageBitmap(bitmap);
-        } else if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
-            Bitmap initialsBitmap = createInitialsBitmap(user.getUsername());
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            initialsBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            profileImage.setImageBitmap(initialsBitmap);
+        if (user.getProfileImageId() != null) {
+            // Fetch the image data using the image ID
+            firebaseService.getImageById(user.getProfileImageId(), new FirebaseCallback<ImageData>() {
+                @Override
+                public void onSuccess(ImageData imageData) {
+                    if (imageData != null && imageData.getImageData() != null) {
+                        byte[] imageBytes = imageData.getImageData().toBytes();
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                        profileImage.setImageBitmap(bitmap);
+                    } else {
+                        // Handle case where image data is null
+                        profileImage.setImageBitmap(createInitialsBitmap(user.getUsername()));
+                    }
+                }
 
-            // Store the initials bitmap data as the profile image data in the user object
-            currentUser.setProfileImageData(Blob.fromBytes(baos.toByteArray()));
+                @Override
+                public void onFailure(Exception e) {
+                    // Handle failure
+                    profileImage.setImageBitmap(createInitialsBitmap(user.getUsername()));
+                }
+            });
+        } else if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
+            profileImage.setImageBitmap(createInitialsBitmap(user.getUsername()));
         }
     }
-
 
     /**
      * Configures UI elements specific to user type (Entrant or Organizer).
@@ -287,8 +314,14 @@ public class ProfileFragment extends Fragment {
         }
 
         updateUserFields();
-        handleProfileImage(imageUri);
-        updateUserProfile();
+
+        if (imageUri != null) {
+            // Process and upload the new profile image
+            processAndUploadProfileImage(imageUri);
+        } else {
+            // No new image, update the user profile
+            updateUserProfile();
+        }
     }
 
     /**
@@ -307,25 +340,11 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Handles profile image processing and updates.
-     *
-     * @param imageUri URI of the new image to process
-     */
-    private void handleProfileImage(Uri imageUri) {
-        if (imageUri != null) {
-            processNewProfileImage(imageUri);
-        } else if (currentUser.getProfileImageData() == null &&
-                (currentUser.getUsername() != null && !currentUser.getUsername().trim().isEmpty())) {
-            setDefaultProfileImage();
-        }
-    }
-
-    /**
-     * Processes and compresses a new profile image.
+     * Processes and uploads the profile image.
      *
      * @param imageUri URI of the image to process
      */
-    private void processNewProfileImage(Uri imageUri) {
+    private void processAndUploadProfileImage(Uri imageUri) {
         try {
             InputStream inputStream = getContext().getContentResolver().openInputStream(imageUri);
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
@@ -347,20 +366,27 @@ public class ProfileFragment extends Fragment {
                 return;
             }
 
-            currentUser.setProfileImageData(Blob.fromBytes(imageData));
+            Blob imageBlob = Blob.fromBytes(imageData);
+
+            // Upload image to Firebase
+            firebaseService.createImage(imageBlob, new FirebaseCallback<String>() {
+                @Override
+                public void onSuccess(String imageId) {
+                    // Set the image ID in the user
+                    currentUser.setProfileImageId(imageId);
+                    // Now update the user profile
+                    updateUserProfile();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Failed to upload image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
         } catch (IOException e) {
             Toast.makeText(getContext(), "Error reading image", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    /**
-     * Sets a default profile image using user's initials.
-     */
-    private void setDefaultProfileImage() {
-        Bitmap initialsBitmap = createInitialsBitmap(currentUser.getUsername());
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        initialsBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        currentUser.setProfileImageData(Blob.fromBytes(baos.toByteArray()));
     }
 
     /**
@@ -393,16 +419,42 @@ public class ProfileFragment extends Fragment {
      */
     private void deleteProfileImage() {
         if (currentUser != null && userSession != null) {
-            currentUser.setProfileImageData(null);
+            String imageIdToDelete = currentUser.getProfileImageId();
+            currentUser.setProfileImageId(null);
+
             firebaseService.updateUser(currentUser, new FirebaseCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
-                    if (getActivity() == null) return;
+                    if (imageIdToDelete != null) {
+                        // Delete the image from Firebase
+                        firebaseService.deleteImage(imageIdToDelete, new FirebaseCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                if (getActivity() == null) return;
 
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Profile image deleted", Toast.LENGTH_SHORT).show();
-                        profileImage.setImageBitmap(createInitialsBitmap(currentUser.getUsername()));
-                    });
+                                getActivity().runOnUiThread(() -> {
+                                    Toast.makeText(getContext(), "Profile image deleted", Toast.LENGTH_SHORT).show();
+                                    profileImage.setImageBitmap(createInitialsBitmap(currentUser.getUsername()));
+                                });
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                if (getActivity() == null) return;
+
+                                getActivity().runOnUiThread(() ->
+                                        Toast.makeText(getContext(), "Failed to delete image from Firebase", Toast.LENGTH_SHORT).show()
+                                );
+                            }
+                        });
+                    } else {
+                        if (getActivity() == null) return;
+
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Profile image deleted", Toast.LENGTH_SHORT).show();
+                            profileImage.setImageBitmap(createInitialsBitmap(currentUser.getUsername()));
+                        });
+                    }
                 }
 
                 @Override
@@ -410,7 +462,7 @@ public class ProfileFragment extends Fragment {
                     if (getActivity() == null) return;
 
                     getActivity().runOnUiThread(() ->
-                            Toast.makeText(getContext(), "Failed to delete image", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(getContext(), "Failed to delete image reference", Toast.LENGTH_SHORT).show()
                     );
                 }
             });
@@ -418,19 +470,13 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Handles user logout by delegating to MainActivity's logout handler
+     * Handles user logout by navigating to the home screen and clearing the session.
      */
     private void handleLogout() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity mainActivity = (MainActivity) getActivity();
-            mainActivity.handleLogout();  // Let MainActivity handle everything
-        } else {
-            // Fallback if fragment is not attached to MainActivity
-            firebaseService.logOut();
-            sessionManager.logoutUser();
-            if (getActivity() != null) {
-                Navigation.findNavController(requireView()).navigate(R.id.navigation_home);
-            }
+        firebaseService.logOut();
+        sessionManager.logoutUser();
+        if (getActivity() != null) {
+            Navigation.findNavController(requireView()).navigate(R.id.navigation_home);
         }
     }
 
@@ -481,19 +527,4 @@ public class ProfileFragment extends Fragment {
         }
         return initials.length() > 2 ? initials.substring(0, 2) : initials.toString();
     }
-
-    /**
-     * Activity result launcher for handling image selection from the device's media store.
-     * When an image is selected, it updates the profile image view and stores the URI
-     * for later processing.
-     */
-    ActivityResultLauncher<PickVisualMediaRequest> pickMedia = registerForActivityResult(
-            new ActivityResultContracts.PickVisualMedia(),
-            uri -> {
-                if (uri != null) {
-                    profileImage.setImageURI(uri);
-                    selectedImageUri = uri;
-                }
-            }
-    );
 }
