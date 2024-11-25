@@ -29,11 +29,11 @@ import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserSession;
 import com.example.orange.data.model.UserType;
 import com.example.orange.utils.SessionManager;
-import com.google.firebase.firestore.Blob;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,9 +46,8 @@ import java.util.Date;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 
+import com.google.firebase.firestore.Blob;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 import java.util.Locale;
@@ -57,7 +56,6 @@ import java.util.Locale;
  * ViewMyEventsFragment displays all events created by the current organizer.
  * Organizers can view each event and check its waitlist.
  *
- * @author Graham Flokstra, George, Brandon Ramirez
  */
 public class ViewMyEventsFragment extends Fragment {
     private static final String TAG = "ViewMyEventsFragment";
@@ -67,6 +65,7 @@ public class ViewMyEventsFragment extends Fragment {
 
     private Event selectedEvent; // To keep track of which event is being updated
     private Uri selectedImageUri;
+
     /**
      * Initializes the fragment's view and loads the events created by the organizer.
      *
@@ -87,11 +86,11 @@ public class ViewMyEventsFragment extends Fragment {
 
         return view;
     }
+
     /**
      * Activity result launcher for handling image selection from device storage.
      * Launches the system's media picker and handles the selected image.
      *
-     * @author Graham Flokstra
      */
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia = registerForActivityResult(
             new ActivityResultContracts.PickVisualMedia(),
@@ -142,7 +141,6 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Retrieves and displays events for a specific organizer from Firebase.
      *
-     * @author Graham Flokstra
      * @param organizerId The unique identifier of the organizer whose events should be loaded
      */
     private void loadEventsForOrganizer(String organizerId) {
@@ -169,7 +167,6 @@ public class ViewMyEventsFragment extends Fragment {
      * - Waitlist count
      * - Action buttons for viewing waitlist and managing event image
      *
-     * @author Graham Flokstra
      * @param events List of Event objects created by the organizer.
      */
     private void displayEvents(List<Event> events) {
@@ -196,17 +193,31 @@ public class ViewMyEventsFragment extends Fragment {
             eventTitle.setText(event.getTitle());
 
             // Load event image if available
-            Blob eventImageData = event.getEventImageData();
-            if (eventImageData != null) {
-                byte[] imageData = eventImageData.toBytes();
-                Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-                eventImage.setImageBitmap(bitmap);
+            String eventImageId = event.getEventImageId();
+            if (eventImageId != null) {
+                firebaseService.getImageById(eventImageId, new FirebaseCallback<ImageData>() {
+                    @Override
+                    public void onSuccess(ImageData imageData) {
+                        if (imageData != null && imageData.getImageData() != null) {
+                            byte[] imageBytes = imageData.getImageData().toBytes();
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                            eventImage.setImageBitmap(bitmap);
+                        } else {
+                            eventImage.setImageResource(R.drawable.ic_image); // Placeholder if image data is null
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        eventImage.setImageResource(R.drawable.ic_image); // Placeholder if failed to load image
+                    }
+                });
             } else {
                 eventImage.setImageResource(R.drawable.ic_image); // Placeholder if no image is available
             }
 
-
             GenerateButton.setOnClickListener(v-> generateQR(event));
+
             // Display the relevant date based on event's current status
             if (event.getRegistrationDeadline() != null && currentDate.before(event.getRegistrationDeadline().toDate())) {
                 eventDate.setText("Waitlist closes: " + dateFormat.format(event.getRegistrationDeadline().toDate()));
@@ -260,8 +271,6 @@ public class ViewMyEventsFragment extends Fragment {
      * - Change Image: Opens image picker
      * - Remove Image: Removes current event image
      * - Cancel: Dismisses the dialog
-     *
-     * @author Graham Flokstra
      */
     private void showImageOptions() {
         String[] options = {"Change Image", "Remove Image", "Cancel"};
@@ -300,7 +309,6 @@ public class ViewMyEventsFragment extends Fragment {
      * - Checks if the resulting file size is within the 1MB limit
      * - Updates the event image in Firebase if all checks pass
      *
-     * @author Graham Flokstra
      * @param event The event whose image should be updated
      */
     private void processEventImage(Event event) {
@@ -325,8 +333,37 @@ public class ViewMyEventsFragment extends Fragment {
                 return;
             }
 
-            // Update event image in Firebase
-            updateEventImage(event.getId(), imageData);
+            Blob imageBlob = Blob.fromBytes(imageData);
+
+            // Upload image to Firebase
+            firebaseService.createImage(imageBlob, new FirebaseCallback<String>() {
+                @Override
+                public void onSuccess(String imageId) {
+                    // Update the event's eventImageId
+                    event.setEventImageId(imageId);
+
+                    // Update the event in Firebase
+                    firebaseService.updateEvent(event, new FirebaseCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            Toast.makeText(requireContext(), "Event image updated", Toast.LENGTH_SHORT).show();
+                            loadOrganizerEvents(); // Refresh the events list
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(requireContext(), "Failed to update event", Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "Failed to update event", e);
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Failed to upload image", e);
+                }
+            });
 
         } catch (IOException e) {
             Toast.makeText(getContext(), "Error reading image", Toast.LENGTH_SHORT).show();
@@ -334,48 +371,42 @@ public class ViewMyEventsFragment extends Fragment {
         }
     }
 
-
-    /**
-     * Updates the event image in Firebase with the provided image data.
-     *
-     * @author Graham Flokstra
-     * @param eventId The unique identifier of the event to update
-     * @param imageData The processed image data as a byte array
-     */
-    private void updateEventImage(String eventId, byte[] imageData) {
-        firebaseService.updateEventImage(eventId, imageData, new FirebaseCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                Toast.makeText(requireContext(), "Event image updated", Toast.LENGTH_SHORT).show();
-                loadOrganizerEvents(); // Refresh the events list
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to update event image", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Failed to update event image", e);
-            }
-        });
-    }
-
     /**
      * Removes the current image from the selected event.
      * Updates Firebase and refreshes the event list upon successful removal.
-     *
-     * @author Graham Flokstra
      */
     private void removeEventImage() {
-        firebaseService.removeEventImage(selectedEvent.getId(), new FirebaseCallback<Void>() {
+        String imageIdToDelete = selectedEvent.getEventImageId();
+        selectedEvent.setEventImageId(null);
+
+        firebaseService.updateEvent(selectedEvent, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Toast.makeText(requireContext(), "Event image removed", Toast.LENGTH_SHORT).show();
-                loadOrganizerEvents(); // Refresh the events list
+                if (imageIdToDelete != null) {
+                    // Delete the image from Firebase
+                    firebaseService.deleteImage(imageIdToDelete, new FirebaseCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            Toast.makeText(requireContext(), "Event image removed", Toast.LENGTH_SHORT).show();
+                            loadOrganizerEvents(); // Refresh the events list
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(requireContext(), "Failed to delete image from Firebase", Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "Failed to delete image from Firebase", e);
+                        }
+                    });
+                } else {
+                    Toast.makeText(requireContext(), "Event image removed", Toast.LENGTH_SHORT).show();
+                    loadOrganizerEvents(); // Refresh the events list
+                }
             }
 
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Failed to remove event image", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Failed to remove event image", e);
+                Log.e(TAG, "Failed to update event", e);
             }
         });
     }
@@ -383,7 +414,6 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Displays the waitlist for a specified event in an AlertDialog.
      *
-     * @author George
      * @param event Event object whose waitlist should be displayed.
      */
     private void showWaitlist(Event event) {
@@ -404,10 +434,10 @@ public class ViewMyEventsFragment extends Fragment {
                     .show();
         }
     }
+
     /**
      * Generates the QR code for each event that an organizer has.
      *
-     * @author Brandon Ramirez
      * @param event current event being passed
      */
     public void generateQR(Event event) {
@@ -442,10 +472,10 @@ public class ViewMyEventsFragment extends Fragment {
             Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT).show();
         }
     }
+
     /**
      * Generates the hash data for each qr code then places into firebase
      *
-     * @author Brandon Ramirez
      * @param data qr info
      */
     private String generateHash(String data) {
@@ -464,10 +494,10 @@ public class ViewMyEventsFragment extends Fragment {
             return null;
         }
     }
+
     /**
      * Turns the qr code generated into a png file to save space and not have to transfer a large file
      *
-     * @author Brandon Ramirez
      * @param qrBitmap the bitmap of the qr code
      */
     private Uri saveQRToCache(Bitmap qrBitmap) {
