@@ -7,6 +7,7 @@ import androidx.test.filters.LargeTest;
 import com.example.orange.data.model.Event;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,10 +53,24 @@ public class AdminDeleteEventTest {
      * @author Radhe Patel
      */
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
         firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
         firestore.setFirestoreSettings(settings);
+
+        // Delete all existing events
+        firestore.collection("events").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    firestore.collection("events").document(document.getId()).delete()
+                            .addOnFailureListener(e -> System.err.println("Failed to delete document: " + e.getMessage()));
+                }
+            } else {
+                System.err.println("Failed to fetch events: " + task.getException());
+            }
+        });
+
+        sleep(3000);
 
         // Add a test event to Firestore
         Event testEvent = new Event();
@@ -67,6 +82,8 @@ public class AdminDeleteEventTest {
         assertNotNull("eventImageId should not be null before deletion", testEvent.getEventImageId());
         assertNotNull("qr_hash should not be null before deletion", testEvent.getQr_hash());
         firestore.collection("events").document(testEventId).set(testEvent);
+
+        sleep(3000);
     }
 
     @After

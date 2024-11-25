@@ -10,6 +10,7 @@ import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,12 +53,52 @@ public class AdminDeleteProfileTest {
      * @author Dhairya Prajapati
      */
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
         firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
         firestore.setFirestoreSettings(settings);
 
+        // Delete all existing users
+        firestore.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    firestore.collection("users").document(document.getId()).delete()
+                            .addOnFailureListener(e -> System.err.println("Failed to delete document: " + e.getMessage()));
+                }
+            } else {
+                System.err.println("Failed to fetch users: " + task.getException());
+            }
+        });
 
+        sleep(3000);
+
+        // Delete all existing facilities
+        firestore.collection("facilities").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    firestore.collection("facilities").document(document.getId()).delete()
+                            .addOnFailureListener(e -> System.err.println("Failed to delete document: " + e.getMessage()));
+                }
+            } else {
+                System.err.println("Failed to fetch facilities: " + task.getException());
+            }
+        });
+
+        sleep(3000);
+
+        // Delete all existing events
+        firestore.collection("events").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    firestore.collection("events").document(document.getId()).delete()
+                            .addOnFailureListener(e -> System.err.println("Failed to delete document: " + e.getMessage()));
+                }
+            } else {
+                System.err.println("Failed to fetch events: " + task.getException());
+            }
+        });
+
+        sleep(3000);
 
         // Create a test facility in Firestore
         Facility testFacility = new Facility();
@@ -65,6 +106,8 @@ public class AdminDeleteProfileTest {
         testFacilityId = firestore.collection("facilities").document().getId(); // Generate a test facility ID
         testFacility.setId(testFacilityId);
         firestore.collection("facilities").document(testFacilityId).set(testFacility);
+
+        sleep(3000);
 
         // Create a test organizer profile
         User testUser = new User();
@@ -79,6 +122,8 @@ public class AdminDeleteProfileTest {
         assertNotNull("profileImageId should not be null before deletion", testUser.getProfileImageId());
         firestore.collection("users").document(testUserId).set(testUser);
 
+        sleep(3000);
+
         // Create a test event related to the test facility
         Event testEvent = new Event();
         testEvent.setTitle("Test Event Delete");
@@ -86,6 +131,8 @@ public class AdminDeleteProfileTest {
         testEvent.setId(testEventId);
         testEvent.setFacilityId(testFacilityId); // Link event to facility
         firestore.collection("events").document(testEventId).set(testEvent);
+
+        sleep(3000);
     }
 
     /**
