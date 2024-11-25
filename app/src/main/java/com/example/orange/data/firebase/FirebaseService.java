@@ -617,12 +617,6 @@ public class FirebaseService {
                 .addOnFailureListener(callback::onFailure);
     }
 
-
-
-
-
-
-
     /**
      * Retrieves all users from Firestore.
      * @author Viral Bhavsar
@@ -760,6 +754,62 @@ public class FirebaseService {
         db.collection("images").document(imageId).delete()
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Deletes a users profile picture from the database based on the user ID
+     *
+     * @author Viral Bhavsar
+     * @param userId The unique user Id
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void deleteUserProfilePicture(String userId, FirebaseCallback<Void> callback){
+        if (userId == null || userId.isEmpty()){
+            //Handling the case where the userID is invalid
+            callback.onFailure(new Exception("User ID is null or empty"));
+            return;
+        }
+
+        // Getting the user's document from firestore
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        //Retrieve the profile image ID from the user's document
+                        String profileImageId = documentSnapshot.getString("profileImageId");
+
+                        if (profileImageId != null && !profileImageId.isEmpty()){
+                            // If the user has a profile image ID, delete it
+                            deleteImage(profileImageId, new FirebaseCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void result) {
+                                    db.collection("users").document(userId)
+                                            .update("profileImageId", null)
+                                            .addOnSuccessListener(aVoid -> {
+                                                // Successfully updated the user's profileImageId field
+                                                callback.onSuccess(null);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                // Handle the failure to update the user's document
+                                                callback.onFailure(new Exception("Failed to update user profileImageId", e));
+                                            });
+                                }
+                                @Override
+                                public void onFailure(Exception e) {
+                                    // Handle failure to delete the image
+                                    callback.onFailure(new Exception("Failed to delete profile image", e));
+                                }
+                            });
+                        } else {
+                            // if no profile image exists, return success
+                            callback.onSuccess(null);
+                        }
+                    } else {
+                        // Handle case where the user document doesn't exist
+                        callback.onFailure(new Exception("User not found"));
+                    }
+                })
+                .addOnFailureListener( e -> callback.onFailure(new Exception("Failed to retrieve user document.", e)));
     }
 
 }

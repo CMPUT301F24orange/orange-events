@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+import androidx.test.espresso.remote.EspressoRemoteMessage;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,6 +79,7 @@ public class AdminProfilesFragment extends Fragment {
      * and phone number for each user and allowing the
      * admin to delete the user if necessary.
      *
+     * @authors: Radhe Patel, Viral Bhavsar
      * @param users List of user objects representing all users in the database
      */
     private void displayUsers(List<User> users) {
@@ -89,6 +92,7 @@ public class AdminProfilesFragment extends Fragment {
             TextView userEmail = userView.findViewById(R.id.profile_email);
             TextView userPhone = userView.findViewById(R.id.profile_phone);
             Button deleteButton = userView.findViewById(R.id.profile_delete_button);
+            Button deletePicButton = userView.findViewById(R.id.profile_pic_delete_button);
 
             String profileImageId = user.getProfileImageId();
             if (profileImageId != null) {
@@ -120,6 +124,7 @@ public class AdminProfilesFragment extends Fragment {
             userEmail.setText(user.getEmail());
             userPhone.setText(user.getPhone());
             deleteButton.setOnClickListener(v -> delUser(user.getId()));
+            deletePicButton.setOnClickListener(v -> deleteUserProfilePicture(user.getId(), userProfilePicture));
 
             // Add the user view to the container
             profilesListContainer.addView(userView);
@@ -145,4 +150,28 @@ public class AdminProfilesFragment extends Fragment {
             }
         });
     }
+
+    /**
+     * Deletes a user's profile picture from the database and updates the UI
+     *
+     * @author Viral Bhavsar
+     * @param userId Unique ID of the user to be deleted.
+     * @param profileImageView The ImageView to reset the placeholder image.
+     */
+    private void deleteUserProfilePicture(String userId, ImageView profileImageView){
+
+        firebaseService.deleteUserProfilePicture(userId, new FirebaseCallback<Void>(){
+            @Override
+            public void onSuccess(Void result) {
+                Toast.makeText(requireContext(), "Profile picture successfully deleted.", Toast.LENGTH_SHORT).show();
+                profileImageView.setImageResource(R.drawable.ic_profile); //Reset to the original profile pic
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to delete profile picture.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
