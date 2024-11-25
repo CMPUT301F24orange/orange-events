@@ -24,6 +24,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static java.lang.Thread.sleep;
 
 /**
@@ -72,6 +75,8 @@ public class AdminDeleteProfileTest {
         testUserId = firestore.collection("users").document().getId(); // Generate a test user ID
         testUser.setId(testUserId);
         testUser.setFacilityId(testFacilityId); // Link user to facility
+        testUser.setProfileImageId("123");
+        assertNotNull("profileImageId should not be null before deletion", testUser.getProfileImageId());
         firestore.collection("users").document(testUserId).set(testUser);
 
         // Create a test event related to the test facility
@@ -120,5 +125,48 @@ public class AdminDeleteProfileTest {
 
         // Verify that the event associated with the deleted organizer no longer exists
         onView(withText("Test Event Delete")).check(doesNotExist());
+    }
+
+    /**
+     * Tests db functionality. Creates a test event with an eventImageId set. It then checks
+     * that the delete poster button in fact deletes the eventImageId from the db, i.e
+     * sets it to null.
+     *
+     * @author Radhe Patel
+     */
+    @Test
+    public void testDeleteEventImage() throws InterruptedException {
+        // Navigate to the admin view
+        onView(withId(R.id.navigation_admin)).perform(click());
+        sleep(2000);
+
+        // Navigate to the profiles screen
+        onView(withId(R.id.navigation_admin_profiles)).perform(click());
+        sleep(2000);
+
+        // Delete the test profile image
+        onView(allOf(withId(R.id.profile_pic_delete_button), hasSibling(withText("Test Organizer Delete")))).perform(scrollTo(), click());
+        sleep(2000);
+
+        // Verify that the profileImageId is null in the db
+        firestore.collection("users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                if (documentSnapshot.contains("profileImageId")) {
+                    String profileImageId = documentSnapshot.getString("profileImageId");
+                    assertNull("profileImageId should be null after deletion", profileImageId);
+                } else {
+                    fail("The document exists but does not contain the 'profileImageId' field.");
+                }
+            } else {
+                fail("The document does not exist in Firestore.");
+            }
+        }).addOnFailureListener(e -> {
+            fail("Failed to retrieve the document from Firestore: " + e.getMessage());
+        });
+        sleep(2000);
+
+        // Delete the test organizer profile
+        onView(allOf(withId(R.id.profile_delete_button), hasSibling(withText("Test Organizer Delete")))).perform(scrollTo(), click());
+        sleep(2000);
     }
 }
