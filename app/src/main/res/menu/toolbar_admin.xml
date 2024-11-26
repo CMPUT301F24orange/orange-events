@@ -7,4 +7,5 @@
         android:title="Profile"
         app:showAsAction="always"
         android:visible="true"/>
+
 </menu>

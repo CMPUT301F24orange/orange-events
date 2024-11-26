@@ -1,0 +1,14 @@
+com.example.orange
+com.example.orange.data.firebase
+com.example.orange.data.model
+com.example.orange.databinding
+com.example.orange.ui.admin
+com.example.orange.ui.create
+com.example.orange.ui.entrant
+com.example.orange.ui.events
+com.example.orange.ui.facility
+com.example.orange.ui.home
+com.example.orange.ui.join
+com.example.orange.ui.organizer
+com.example.orange.ui.profile
+com.example.orange.utils

@@ -3,6 +3,7 @@ package com.example.orange.data.firebase;
 import android.util.Log;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.Facility;
+import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.google.firebase.firestore.Blob;
@@ -189,6 +190,7 @@ public class FirebaseService {
                 });
     }
 
+
     /**
      * Retrieves an event from Firestore based on its ID.
      *
@@ -223,10 +225,45 @@ public class FirebaseService {
      * @param callback A callback to handle the result of the operation.
      */
     public void deleteEvent(String eventId, FirebaseCallback<Void> callback) {
-        db.collection("events").document(eventId).delete()
-                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                .addOnFailureListener(e -> callback.onFailure(e));
+        // First, retrieve the event to get the eventImageId
+        getEventById(eventId, new FirebaseCallback<Event>() {
+            @Override
+            public void onSuccess(Event event) {
+                if (event != null) {
+                    String imageId = event.getEventImageId();
+                    // Proceed to delete the event
+                    db.collection("events").document(eventId).delete()
+                            .addOnSuccessListener(aVoid -> {
+                                // If there's an associated image, delete it
+                                if (imageId != null) {
+                                    deleteImage(imageId, new FirebaseCallback<Void>() {
+                                        @Override
+                                        public void onSuccess(Void result) {
+                                            callback.onSuccess(null);
+                                        }
+
+                                        @Override
+                                        public void onFailure(Exception e) {
+                                            callback.onFailure(e);
+                                        }
+                                    });
+                                } else {
+                                    callback.onSuccess(null);
+                                }
+                            })
+                            .addOnFailureListener(callback::onFailure);
+                } else {
+                    callback.onFailure(new Exception("Event not found"));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
     }
+
 
     /**
      * Adds a user to the waitlist of an event.
@@ -549,7 +586,27 @@ public class FirebaseService {
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                        Event event = document.toObject(Event.class);
+                        String eventId = document.getId();
+                        String imageId = event != null ? event.getEventImageId() : null;
+
+                        // Delete the event document
                         document.getReference().delete();
+
+                        // Delete the associated image if it exists
+                        if (imageId != null) {
+                            deleteImage(imageId, new FirebaseCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void result) {
+                                    // Image deleted
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    // Handle failure
+                                }
+                            });
+                        }
                     }
 
                     // Then, delete the facility itself
@@ -559,102 +616,6 @@ public class FirebaseService {
                 })
                 .addOnFailureListener(callback::onFailure);
     }
-
-    /**
-     * Updates the event image in Firestore.
-     *
-     * @author Graham Flokstra
-     * @param eventId   The ID of the event to update.
-     * @param imageData Byte array representing the image data.
-     * @param callback  Callback to handle success or failure.
-     */
-    public void updateEventImage(String eventId, byte[] imageData, FirebaseCallback<Void> callback) {
-        // Convert byte array to Blob
-        Blob imageBlob = Blob.fromBytes(imageData);
-
-        // Update the event image in Firestore
-        db.collection("events").document(eventId)
-                .update("eventImageData", imageBlob)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Event image updated successfully in Firestore");
-                    callback.onSuccess(null);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to update event image in Firestore", e);
-                    callback.onFailure(e);
-                });
-    }
-
-    /**
-     * Removes the event image from Firestore.
-     *
-     * @author Graham Flokstra
-     * @param eventId  The ID of the event to update.
-     * @param callback Callback to handle success or failure.
-     */
-    public void removeEventImage(String eventId, FirebaseCallback<Void> callback) {
-        // Set eventImageData to null
-        db.collection("events").document(eventId)
-                .update("eventImageData", null)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Event image removed successfully in Firestore");
-                    callback.onSuccess(null);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to remove event image in Firestore", e);
-                    callback.onFailure(e);
-                });
-    }
-
-
-    public void deleteUserAndRelatedFacilities(String userId, FirebaseCallback<Void> callback) {
-        // First, retrieve the user to find the associated facility ID
-        getUserById(userId, new FirebaseCallback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                if (user != null && user.getFacilityId() != null) {
-                    String facilityId = user.getFacilityId();
-
-                    // Step 1: Delete all events associated with this facility
-                    db.collection("events").whereEqualTo("facilityId", facilityId).get()
-                            .addOnSuccessListener(querySnapshot -> {
-                                for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                                    document.getReference().delete(); // Delete each event
-                                }
-
-                                // Step 2: Delete the facility itself
-                                deleteFacility(facilityId, new FirebaseCallback<Void>() {
-                                    @Override
-                                    public void onSuccess(Void result) {
-                                        // Step 3: Delete the user
-                                        db.collection("users").document(userId).delete()
-                                                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                                                .addOnFailureListener(callback::onFailure);
-                                    }
-
-                                    @Override
-                                    public void onFailure(Exception e) {
-                                        callback.onFailure(e);
-                                    }
-                                });
-                            })
-                            .addOnFailureListener(callback::onFailure);
-                } else {
-                    // If no facility ID, just delete the user
-                    db.collection("users").document(userId).delete()
-                            .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                            .addOnFailureListener(callback::onFailure);
-                }
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
-            }
-        });
-    }
-
-
 
     /**
      * Retrieves all users from Firestore.
@@ -686,33 +647,30 @@ public class FirebaseService {
      * @param callback Callback to handle success or failure.
      */
     public void deleteUserAndRelatedFacilities(String userId, FirebaseCallback<Void> callback) {
+        // Retrieve the user document
         db.collection("users").document(userId).get()
                 .addOnSuccessListener(userSnapshot -> {
                     if (userSnapshot.exists()) {
                         String facilityId = userSnapshot.getString("facilityId");
+                        String profileImageId = userSnapshot.getString("profileImageId");
 
+                        // If the user has a facility ID, delete related facilities and events
                         if (facilityId != null) {
-                            db.collection("events").whereEqualTo("facilityId", facilityId).get()
-                                    .addOnSuccessListener(querySnapshot -> {
-                                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                                            document.getReference().delete();
-                                        }
+                            deleteFacilityAndRelatedEvents(facilityId, new FirebaseCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void result) {
+                                    // After deleting facilities and events, delete the user and profile image
+                                    deleteUserAndProfileImage(userId, profileImageId, callback);
+                                }
 
-                                        db.collection("facilities").document(facilityId).delete()
-                                                .addOnSuccessListener(aVoid -> {
-
-                                                    db.collection("users").document(userId).delete()
-                                                            .addOnSuccessListener(aVoid2 -> callback.onSuccess(null))
-                                                            .addOnFailureListener(callback::onFailure);
-                                                })
-                                                .addOnFailureListener(callback::onFailure);
-                                    })
-                                    .addOnFailureListener(callback::onFailure);
-
+                                @Override
+                                public void onFailure(Exception e) {
+                                    callback.onFailure(e);
+                                }
+                            });
                         } else {
-                            db.collection("users").document(userId).delete()
-                                    .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                                    .addOnFailureListener(callback::onFailure);
+                            // If no facility, delete the user and profile image directly
+                            deleteUserAndProfileImage(userId, profileImageId, callback);
                         }
                     } else {
                         callback.onFailure(new Exception("User document does not exist"));
@@ -721,6 +679,257 @@ public class FirebaseService {
                 .addOnFailureListener(callback::onFailure);
     }
 
+    /**
+     * Deletes the user document and their associated profile image from Firestore.
+     *
+     * @param userId         The ID of the user to delete.
+     * @param profileImageId The ID of the profile image to delete (if any).
+     * @param callback       Callback to handle success or failure of the operation.
+     */
+    private void deleteUserAndProfileImage(String userId, String profileImageId, FirebaseCallback<Void> callback) {
+        // Delete the user document
+        db.collection("users").document(userId).delete()
+                .addOnSuccessListener(aVoid -> {
+                    if (profileImageId != null) {
+                        // If the user has a profile image, delete it from the images collection
+                        deleteImage(profileImageId, new FirebaseCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                callback.onSuccess(null); // User and image successfully deleted
+                            }
 
+                            @Override
+                            public void onFailure(Exception e) {
+                                callback.onFailure(new Exception("User deleted, but failed to delete profile image", e));
+                            }
+                        });
+                    } else {
+                        callback.onSuccess(null); // User deleted, no profile image to delete
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+
+    /**
+     * Creates a new image in Firestore.
+     *
+     * @param imageData The image data as a Blob.
+     * @param callback  A callback to handle the result of the operation.
+     */
+    public void createImage(Blob imageData, FirebaseCallback<String> callback) {
+        DocumentReference newImageRef = db.collection("images").document();
+        ImageData image = new ImageData(newImageRef.getId(), imageData);
+        newImageRef.set(image)
+                .addOnSuccessListener(aVoid -> callback.onSuccess(image.getId()))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Retrieves an image by its ID from Firestore.
+     *
+     * @param imageId  The ID of the image to retrieve.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void getImageById(String imageId, FirebaseCallback<ImageData> callback) {
+        db.collection("images").document(imageId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        ImageData image = documentSnapshot.toObject(ImageData.class);
+                        callback.onSuccess(image);
+                    } else {
+                        callback.onSuccess(null);
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Deletes an image from Firestore based on its ID.
+     *
+     * @param imageId  The ID of the image to delete.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void deleteImage(String imageId, FirebaseCallback<Void> callback) {
+        db.collection("images").document(imageId).delete()
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /**
+     * Deletes a users profile picture from the database based on the user ID
+     *
+     * @author Viral Bhavsar
+     * @param userId The unique user Id
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void deleteUserProfilePicture(String userId, FirebaseCallback<Void> callback){
+        if (userId == null || userId.isEmpty()){
+            //Handling the case where the userID is invalid
+            callback.onFailure(new Exception("User ID is null or empty"));
+            return;
+        }
+
+        // Getting the user's document from firestore
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        //Retrieve the profile image ID from the user's document
+                        String profileImageId = documentSnapshot.getString("profileImageId");
+
+                        if (profileImageId != null && !profileImageId.isEmpty()){
+                            // If the user has a profile image ID, delete it
+                            deleteImage(profileImageId, new FirebaseCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void result) {
+                                    db.collection("users").document(userId)
+                                            .update("profileImageId", null)
+                                            .addOnSuccessListener(aVoid -> {
+                                                // Successfully updated the user's profileImageId field
+                                                callback.onSuccess(null);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                // Handle the failure to update the user's document
+                                                callback.onFailure(new Exception("Failed to update user profileImageId", e));
+                                            });
+                                }
+                                @Override
+                                public void onFailure(Exception e) {
+                                    // Handle failure to delete the image
+                                    callback.onFailure(new Exception("Failed to delete profile image", e));
+                                }
+                            });
+                        } else {
+                            // if no profile image exists, return success
+                            callback.onSuccess(null);
+                        }
+                    } else {
+                        // Handle case where the user document doesn't exist
+                        callback.onFailure(new Exception("User not found"));
+                    }
+                })
+                .addOnFailureListener( e -> callback.onFailure(new Exception("Failed to retrieve user document.", e)));
+    }
+
+    /**
+     * Deletes an event poster from the database based on the event ID
+     *
+     * @author Radhe Patel
+     *
+     * @param eventId The unique event Id
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void deletePosterAdmin(String eventId, FirebaseCallback<Void> callback){
+        if (eventId == null || eventId.isEmpty()){
+            //Handling the case where the eventId is invalid
+            callback.onFailure(new Exception("Event ID is null or empty"));
+            return;
+        }
+
+        // Getting the event's document from firestore
+        db.collection("events").document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        //Retrieve the event image ID from the event's document
+                        String eventImageId = documentSnapshot.getString("eventImageId");
+
+                        if (eventImageId != null && !eventImageId.isEmpty()){
+                            // If the event has a event image ID, delete it
+                            deleteImage(eventImageId, new FirebaseCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void result) {
+                                    db.collection("events").document(eventId)
+                                            .update("eventImageId", null)
+                                            .addOnSuccessListener(aVoid -> {
+                                                // Successfully updated the events eventImageId field
+                                                callback.onSuccess(null);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                // Handle the failure to update the event's document
+                                                callback.onFailure(new Exception("Failed to update event eventImageId", e));
+                                            });
+                                }
+                                @Override
+                                public void onFailure(Exception e) {
+                                    // Handle failure to delete the image
+                                    callback.onFailure(new Exception("Failed to delete event image", e));
+                                }
+                            });
+                        } else {
+                            // if no event image exists, return success
+                            callback.onSuccess(null);
+                        }
+                    } else {
+                        // Handle case where the event document doesn't exist
+                        callback.onFailure(new Exception("Event not found"));
+                    }
+                })
+                .addOnFailureListener( e -> callback.onFailure(new Exception("Failed to retrieve event document.", e)));
+    }
+
+    /**
+     * Deletes an event QR hashed data from the database based on the event ID
+     *
+     * @author Radhe Patel
+     *
+     * @param eventId The unique event Id
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void deleteQR(String eventId, FirebaseCallback<Void> callback){
+        if (eventId == null || eventId.isEmpty()){
+            // Handling the case where the eventId is invalid
+            callback.onFailure(new Exception("Event ID is null or empty"));
+            return;
+        }
+
+        // Getting the event's document from firestore
+        db.collection("events").document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        // Retrieve the event hashed data from the event's document if the field exists
+                        if (documentSnapshot.contains("qr_hash")) {
+
+                            String eventQR = documentSnapshot.getString("qr_hash");
+
+                            if (eventQR != null && !eventQR.isEmpty()){
+                                // If the event has hashed qr code data, delete it
+                                deleteImage(eventQR, new FirebaseCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        db.collection("events").document(eventId)
+                                                .update("qr_hash", null)
+                                                .addOnSuccessListener(aVoid -> {
+                                                    // Successfully updated the events qr_hash field
+                                                    callback.onSuccess(null);
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    // Handle the failure to update the event's document
+                                                    callback.onFailure(new Exception("Failed to update event qr_hash", e));
+                                                });
+                                    }
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        // Handle failure to delete hashed QR code data
+                                        callback.onFailure(new Exception("Failed to delete event hashed QR code data", e));
+                                    }
+                                });
+                            } else {
+                                // if no hashed QR code data exists, return success
+                                callback.onSuccess(null);
+                            }
+                        } else {
+                            // Handle case where the event document has not created a qr code yet (no field qr_hash)
+                            callback.onSuccess(null);
+                        }
+                    } else {
+                        // Handle case where the event document doesn't exist
+                        callback.onFailure(new Exception("Event not found"));
+                    }
+                })
+                .addOnFailureListener( e -> callback.onFailure(new Exception("Failed to retrieve event document.", e)));
+    }
 
 }
