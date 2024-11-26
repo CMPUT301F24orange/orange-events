@@ -32,11 +32,12 @@ public class Event {
     private Integer capacity;
     private Integer waitlistLimit;
     private String organizerId;
+    private String qr_hash; // Add this field
     private Boolean geolocationEvent;
     private List<String> waitingList;
     private List<String> participants;
     private List<String> selectedParticipants;
-    private Blob eventImageData; // Changed from byte[] to Blob
+    private String eventImageId; // Changed from Blob to String ID
     private String facilityId;
 
     /**
@@ -176,6 +177,24 @@ public class Event {
      */
     public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
+    }
+
+    /**
+     * Qr_hash getter
+     *
+     * @return String: qr_hash
+     */
+    public String getQr_hash() {
+        return qr_hash;
+    }
+
+    /**
+     * Qr_hash setter
+     *
+     * @param qr_hash
+     */
+    public void setQr_hash(String qr_hash) {
+        this.qr_hash = qr_hash;
     }
 
     /**
@@ -409,22 +428,23 @@ public class Event {
 
 
 
+
     /**
-     * Retrieves the user's device ID, which uniquely identifies the user's device.
+     * Retrieves the event's image ID.
      *
-     * @return The profile image of the user.
+     * @return The image ID of the event.
      */
-    public Blob getEventImageData() {
-        return eventImageData;
+    public String getEventImageId() {
+        return eventImageId;
     }
 
     /**
-     * Sets the user's profile image.
+     * Sets the event's image ID.
      *
-     * @param eventImageData The new device image to set for the user.
+     * @param eventImageId The new image ID to set for the event.
      */
-    public void setEventImageData(Blob eventImageData) {
-        this.eventImageData = eventImageData;
+    public void setEventImageId(String eventImageId) {
+        this.eventImageId = eventImageId;
     }
 
     /**
