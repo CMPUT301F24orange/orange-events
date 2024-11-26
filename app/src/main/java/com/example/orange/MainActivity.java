@@ -1,5 +1,6 @@
 package com.example.orange;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -30,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
             setupInitialNavigation();
         }
     }
-
     /**
      * Creates the option menu at the top of the page.
      *

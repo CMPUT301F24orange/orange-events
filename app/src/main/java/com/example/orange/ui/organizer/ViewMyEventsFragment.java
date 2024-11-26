@@ -187,6 +187,7 @@ public class ViewMyEventsFragment extends Fragment {
             TextView lotteryStatus = eventView.findViewById(R.id.lottery_status);
             Button actionButton = eventView.findViewById(R.id.action_button);
             Button changeImageButton = eventView.findViewById(R.id.change_image_button);
+            Button drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
 
             // Set the data
             eventTitle.setText(event.getTitle());
@@ -244,7 +245,6 @@ public class ViewMyEventsFragment extends Fragment {
                 selectedEvent = event; // Keep track of which event we're updating
                 showImageOptions();
             });
-
             organizerEventsContainer.addView(eventView);
         }
     }
