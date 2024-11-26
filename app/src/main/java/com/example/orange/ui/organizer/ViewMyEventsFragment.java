@@ -6,11 +6,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -235,20 +237,41 @@ public class ViewMyEventsFragment extends Fragment {
                 showImageOptions();
             });
 
+// Set click listener for the "Draw Participants" button
             drawParticipantsButton.setOnClickListener(v -> {
-                firebaseService.drawFromWaitlist(event.getId(), new FirebaseCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void result) {
-                        Toast.makeText(requireContext(), "Participants drawn successfully", Toast.LENGTH_SHORT).show();
-                        loadOrganizerEvents(); // Refresh the events list
-                    }
+                // Show a dialog for the organizer to specify the number of attendees
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("Specify Number of Attendees");
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        Toast.makeText(requireContext(), "Failed to draw participants: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                // Input field for the number
+                final EditText input = new EditText(requireContext());
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                builder.setView(input);
+
+                // Set up dialog buttons
+                builder.setPositiveButton("OK", (dialog, which) -> {
+                    String inputText = input.getText().toString();
+                    int numToSelect = inputText.isEmpty() ? -1 : Integer.parseInt(inputText);
+
+                    // Call the backend with the specified number
+                    firebaseService.drawFromWaitlist(event.getId(), numToSelect > 0 ? numToSelect : null, new FirebaseCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            Toast.makeText(requireContext(), "Participants drawn successfully", Toast.LENGTH_SHORT).show();
+                            loadOrganizerEvents(); // Refresh events list
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(requireContext(), "Failed to draw participants: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 });
+
+                builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+                builder.show();
             });
+
 
             organizerEventsContainer.addView(eventView);
         }

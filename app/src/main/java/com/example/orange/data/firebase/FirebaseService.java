@@ -672,29 +672,35 @@ public class FirebaseService {
     }
 
     /**
-     * Draws entrants from the event's waitlist and adds them to the selected participants list.
-     * If the event has a capacity limit, the number of selected entrants should not exceed that limit.
+     * Draws a specified number of entrants from the event's waitlist and adds them to the participants list.
+     * If the number is not specified, defaults to the event's capacity or the entire waitlist.
      *
-     * @param eventId The ID of the event.
-     * @param callback Callback for success or failure.
+     * @param eventId      The ID of the event.
+     * @param numToSelect  The number of attendees to draw. If null, uses the event capacity or entire waitlist.
+     * @param callback     Callback for success or failure.
      */
-    public void drawFromWaitlist(String eventId, FirebaseCallback<Void> callback) {
+    public void drawFromWaitlist(String eventId, Integer numToSelect, FirebaseCallback<Void> callback) {
         getEventById(eventId, new FirebaseCallback<Event>() {
             @Override
             public void onSuccess(Event event) {
                 if (event != null && event.getWaitingList() != null && !event.getWaitingList().isEmpty()) {
                     int eventLimit = (event.getCapacity() != null) ? event.getCapacity() : Integer.MAX_VALUE;
-                    List<String> waitlist = new ArrayList<>(event.getWaitingList());
-                    Collections.shuffle(waitlist);
+                    int remainingCapacity = eventLimit - event.getParticipants().size();
 
-                    int numToSelect = Math.min(eventLimit - event.getParticipants().size(), waitlist.size());
+                    // Determine the number of attendees to draw
+                    int finalNumToSelect = (numToSelect != null)
+                            ? Math.min(numToSelect, remainingCapacity)
+                            : Math.min(remainingCapacity, event.getWaitingList().size());
 
-                    if (numToSelect > 0) {
-                        List<String> selectedParticipants = waitlist.subList(0, numToSelect);
+                    if (finalNumToSelect > 0) {
+                        List<String> waitlist = new ArrayList<>(event.getWaitingList());
+                        Collections.shuffle(waitlist);
+
+                        List<String> selectedParticipants = waitlist.subList(0, finalNumToSelect);
 
                         for (String userId : selectedParticipants) {
                             event.removeFromWaitingList(userId);
-                            event.addParticipant(userId);
+                            event.addSelectedParticipant(userId);
                         }
 
                         updateEvent(event, callback);
@@ -712,6 +718,7 @@ public class FirebaseService {
             }
         });
     }
+
 
 
 }
