@@ -13,10 +13,7 @@ import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
-import com.google.firebase.Timestamp;
-
 import java.util.List;
-import java.util.Objects;
 
 public class ViewEventWaitlistFragment extends Fragment {
     private FirebaseService firebaseService;
