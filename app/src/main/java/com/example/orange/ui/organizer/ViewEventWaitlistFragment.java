@@ -38,7 +38,6 @@ public class ViewEventWaitlistFragment extends Fragment {
                 @Override
                 public void onSuccess(List<String> waitlist) {
                     TextView waitlistTextView = view.findViewById(R.id.waitlist_text);
-                    Button drawParticipantsButton = view.findViewById(R.id.draw_participants_button);
 
                     if (waitlist.isEmpty()) {
                         waitlistTextView.setText("No users on the waitlist");
