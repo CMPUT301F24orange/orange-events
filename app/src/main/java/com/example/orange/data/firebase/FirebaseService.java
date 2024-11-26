@@ -680,6 +680,47 @@ public class FirebaseService {
     }
 
     /**
+     * Draws entrants from the event's waitlist and adds them to the selected participants list.
+     * If the event has a capacity limit, the number of selected entrants should not exceed that limit.
+     *
+     * @param eventId The ID of the event.
+     * @param callback Callback for success or failure.
+     */
+    public void drawFromWaitlist(String eventId, FirebaseCallback<Void> callback) {
+        getEventById(eventId, new FirebaseCallback<Event>() {
+            @Override
+            public void onSuccess(Event event) {
+                if (event != null && event.getWaitingList() != null && !event.getWaitingList().isEmpty()) {
+                    int eventLimit = (event.getCapacity() != null) ? event.getCapacity() : Integer.MAX_VALUE;
+                    List<String> waitlist = new ArrayList<>(event.getWaitingList());
+                    Collections.shuffle(waitlist);
+
+                    int numToSelect = Math.min(eventLimit - event.getParticipants().size(), waitlist.size());
+
+                    if (numToSelect > 0) {
+                        List<String> selectedParticipants = waitlist.subList(0, numToSelect);
+
+                        for (String userId : selectedParticipants) {
+                            event.removeFromWaitingList(userId);
+                            event.addParticipant(userId);
+                        }
+
+                        updateEvent(event, callback);
+                    } else {
+                        callback.onFailure(new Exception("Event is already full or no participants to draw"));
+                    }
+                } else {
+                    callback.onFailure(new Exception("No users in the waitlist or event is not found"));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+      
+    /**
      * Deletes the user document and their associated profile image from Firestore.
      *
      * @param userId         The ID of the user to delete.
