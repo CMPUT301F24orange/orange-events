@@ -83,6 +83,9 @@ public class AdminFragment extends Fragment {
             } else if (itemId == R.id.navigation_admin_profiles) {
                 navController.navigate(R.id.navigation_admin_profiles);
                 return true;
+            } else if (itemId == R.id.navigation_admin_profiles) {
+                navController.navigate(R.id.navigation_admin_profiles);
+                return true;
             }
             return false;
         });

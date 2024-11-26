@@ -32,6 +32,7 @@ public class Event {
     private Integer capacity;
     private Integer waitlistLimit;
     private String organizerId;
+    private String qr_hash; // Add this field
     private Boolean geolocationEvent;
     private List<String> waitingList;
     private List<String> participants;
@@ -176,6 +177,24 @@ public class Event {
      */
     public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
+    }
+
+    /**
+     * Qr_hash getter
+     *
+     * @return String: qr_hash
+     */
+    public String getQr_hash() {
+        return qr_hash;
+    }
+
+    /**
+     * Qr_hash setter
+     *
+     * @param qr_hash
+     */
+    public void setQr_hash(String qr_hash) {
+        this.qr_hash = qr_hash;
     }
 
     /**

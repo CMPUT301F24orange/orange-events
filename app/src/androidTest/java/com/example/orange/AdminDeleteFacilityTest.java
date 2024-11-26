@@ -8,6 +8,7 @@ import com.example.orange.data.model.Event;
 import com.example.orange.data.model.Facility;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,6 +27,7 @@ import static java.lang.Thread.sleep;
 
 /**
  * Intent Test for the delete facility functionality in the app.
+ *
  * @author Radhe Patel
  */
 @RunWith(AndroidJUnit4.class)
@@ -40,13 +42,42 @@ public class AdminDeleteFacilityTest {
 
     /**
      * Initializes the firebase and creates the mock facility that is to be deleted
+     *
      * @author Radhe Patel
      */
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
         firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
         firestore.setFirestoreSettings(settings);
+
+        // Delete all existing facilities
+        firestore.collection("facilities").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    firestore.collection("facilities").document(document.getId()).delete()
+                            .addOnFailureListener(e -> System.err.println("Failed to delete document: " + e.getMessage()));
+                }
+            } else {
+                System.err.println("Failed to fetch facilities: " + task.getException());
+            }
+        });
+
+        sleep(3000);
+
+        // Delete all existing events
+        firestore.collection("events").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    firestore.collection("events").document(document.getId()).delete()
+                            .addOnFailureListener(e -> System.err.println("Failed to delete document: " + e.getMessage()));
+                }
+            } else {
+                System.err.println("Failed to fetch events: " + task.getException());
+            }
+        });
+
+        sleep(3000);
 
         // Create a test facility in Firestore
         Facility testFacility = new Facility();
@@ -55,6 +86,8 @@ public class AdminDeleteFacilityTest {
         testFacility.setId(testFacilityId);
         firestore.collection("facilities").document(testFacilityId).set(testFacility);
 
+        sleep(3000);
+
         // Create a test event related to the test facility
         Event testEvent = new Event();
         testEvent.setTitle("Test Event Delete");
@@ -62,6 +95,8 @@ public class AdminDeleteFacilityTest {
         testEvent.setId(testEventId);
         testEvent.setFacilityId(testFacilityId); // Link event to facility
         firestore.collection("events").document(testEventId).set(testEvent);
+
+        sleep(3000);
     }
 
     /**

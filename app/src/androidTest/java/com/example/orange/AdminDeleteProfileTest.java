@@ -10,6 +10,7 @@ import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,12 +25,15 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static java.lang.Thread.sleep;
 
 /**
  * Intent Test for the delete profile functionality in the app.
  *
- * @author Dhairya Prajapati
+ * @author Dhairya Prajapati, Radhe Patel
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -46,15 +50,55 @@ public class AdminDeleteProfileTest {
      * Initializes the firebase and creates the mock user, along with
      * the mock facility and event and connects it to the user.
      *
-     * @author Dhairya Prajapati
+     * @author Dhairya Prajapati, Radhe Patel
      */
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
         firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
         firestore.setFirestoreSettings(settings);
 
+        // Delete all existing users
+        firestore.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    firestore.collection("users").document(document.getId()).delete()
+                            .addOnFailureListener(e -> System.err.println("Failed to delete document: " + e.getMessage()));
+                }
+            } else {
+                System.err.println("Failed to fetch users: " + task.getException());
+            }
+        });
 
+        sleep(3000);
+
+        // Delete all existing facilities
+        firestore.collection("facilities").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    firestore.collection("facilities").document(document.getId()).delete()
+                            .addOnFailureListener(e -> System.err.println("Failed to delete document: " + e.getMessage()));
+                }
+            } else {
+                System.err.println("Failed to fetch facilities: " + task.getException());
+            }
+        });
+
+        sleep(3000);
+
+        // Delete all existing events
+        firestore.collection("events").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    firestore.collection("events").document(document.getId()).delete()
+                            .addOnFailureListener(e -> System.err.println("Failed to delete document: " + e.getMessage()));
+                }
+            } else {
+                System.err.println("Failed to fetch events: " + task.getException());
+            }
+        });
+
+        sleep(3000);
 
         // Create a test facility in Firestore
         Facility testFacility = new Facility();
@@ -62,6 +106,8 @@ public class AdminDeleteProfileTest {
         testFacilityId = firestore.collection("facilities").document().getId(); // Generate a test facility ID
         testFacility.setId(testFacilityId);
         firestore.collection("facilities").document(testFacilityId).set(testFacility);
+
+        sleep(3000);
 
         // Create a test organizer profile
         User testUser = new User();
@@ -72,7 +118,11 @@ public class AdminDeleteProfileTest {
         testUserId = firestore.collection("users").document().getId(); // Generate a test user ID
         testUser.setId(testUserId);
         testUser.setFacilityId(testFacilityId); // Link user to facility
+        testUser.setProfileImageId("123");
+        assertNotNull("profileImageId should not be null before deletion", testUser.getProfileImageId());
         firestore.collection("users").document(testUserId).set(testUser);
+
+        sleep(3000);
 
         // Create a test event related to the test facility
         Event testEvent = new Event();
@@ -81,6 +131,8 @@ public class AdminDeleteProfileTest {
         testEvent.setId(testEventId);
         testEvent.setFacilityId(testFacilityId); // Link event to facility
         firestore.collection("events").document(testEventId).set(testEvent);
+
+        sleep(3000);
     }
 
     /**
@@ -120,5 +172,48 @@ public class AdminDeleteProfileTest {
 
         // Verify that the event associated with the deleted organizer no longer exists
         onView(withText("Test Event Delete")).check(doesNotExist());
+    }
+
+    /**
+     * Tests db functionality. Creates a test user with a profileImageId set. It then checks
+     * that the delete profile picture button in fact deletes the profileImageId from the db, i.e
+     * sets it to null.
+     *
+     * @author Radhe Patel
+     */
+    @Test
+    public void testDeleteProfilePicture() throws InterruptedException {
+        // Navigate to the admin view
+        onView(withId(R.id.navigation_admin)).perform(click());
+        sleep(2000);
+
+        // Navigate to the profiles screen
+        onView(withId(R.id.navigation_admin_profiles)).perform(click());
+        sleep(2000);
+
+        // Delete the test profile image
+        onView(allOf(withId(R.id.profile_pic_delete_button), hasSibling(withText("Test Organizer Delete")))).perform(scrollTo(), click());
+        sleep(2000);
+
+        // Verify that the profileImageId is null in the db
+        firestore.collection("users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                if (documentSnapshot.contains("profileImageId")) {
+                    String profileImageId = documentSnapshot.getString("profileImageId");
+                    assertNull("profileImageId should be null after deletion", profileImageId);
+                } else {
+                    fail("The document exists but does not contain the 'profileImageId' field.");
+                }
+            } else {
+                fail("The document does not exist in Firestore.");
+            }
+        }).addOnFailureListener(e -> {
+            fail("Failed to retrieve the document from Firestore: " + e.getMessage());
+        });
+        sleep(2000);
+
+        // Delete the test organizer profile
+        onView(allOf(withId(R.id.profile_delete_button), hasSibling(withText("Test Organizer Delete")))).perform(scrollTo(), click());
+        sleep(2000);
     }
 }

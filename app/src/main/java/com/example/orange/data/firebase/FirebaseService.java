@@ -812,4 +812,124 @@ public class FirebaseService {
                 .addOnFailureListener( e -> callback.onFailure(new Exception("Failed to retrieve user document.", e)));
     }
 
+    /**
+     * Deletes an event poster from the database based on the event ID
+     *
+     * @author Radhe Patel
+     *
+     * @param eventId The unique event Id
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void deletePosterAdmin(String eventId, FirebaseCallback<Void> callback){
+        if (eventId == null || eventId.isEmpty()){
+            //Handling the case where the eventId is invalid
+            callback.onFailure(new Exception("Event ID is null or empty"));
+            return;
+        }
+
+        // Getting the event's document from firestore
+        db.collection("events").document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        //Retrieve the event image ID from the event's document
+                        String eventImageId = documentSnapshot.getString("eventImageId");
+
+                        if (eventImageId != null && !eventImageId.isEmpty()){
+                            // If the event has a event image ID, delete it
+                            deleteImage(eventImageId, new FirebaseCallback<Void>() {
+                                @Override
+                                public void onSuccess(Void result) {
+                                    db.collection("events").document(eventId)
+                                            .update("eventImageId", null)
+                                            .addOnSuccessListener(aVoid -> {
+                                                // Successfully updated the events eventImageId field
+                                                callback.onSuccess(null);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                // Handle the failure to update the event's document
+                                                callback.onFailure(new Exception("Failed to update event eventImageId", e));
+                                            });
+                                }
+                                @Override
+                                public void onFailure(Exception e) {
+                                    // Handle failure to delete the image
+                                    callback.onFailure(new Exception("Failed to delete event image", e));
+                                }
+                            });
+                        } else {
+                            // if no event image exists, return success
+                            callback.onSuccess(null);
+                        }
+                    } else {
+                        // Handle case where the event document doesn't exist
+                        callback.onFailure(new Exception("Event not found"));
+                    }
+                })
+                .addOnFailureListener( e -> callback.onFailure(new Exception("Failed to retrieve event document.", e)));
+    }
+
+    /**
+     * Deletes an event QR hashed data from the database based on the event ID
+     *
+     * @author Radhe Patel
+     *
+     * @param eventId The unique event Id
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void deleteQR(String eventId, FirebaseCallback<Void> callback){
+        if (eventId == null || eventId.isEmpty()){
+            // Handling the case where the eventId is invalid
+            callback.onFailure(new Exception("Event ID is null or empty"));
+            return;
+        }
+
+        // Getting the event's document from firestore
+        db.collection("events").document(eventId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()){
+                        // Retrieve the event hashed data from the event's document if the field exists
+                        if (documentSnapshot.contains("qr_hash")) {
+
+                            String eventQR = documentSnapshot.getString("qr_hash");
+
+                            if (eventQR != null && !eventQR.isEmpty()){
+                                // If the event has hashed qr code data, delete it
+                                deleteImage(eventQR, new FirebaseCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        db.collection("events").document(eventId)
+                                                .update("qr_hash", null)
+                                                .addOnSuccessListener(aVoid -> {
+                                                    // Successfully updated the events qr_hash field
+                                                    callback.onSuccess(null);
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    // Handle the failure to update the event's document
+                                                    callback.onFailure(new Exception("Failed to update event qr_hash", e));
+                                                });
+                                    }
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        // Handle failure to delete hashed QR code data
+                                        callback.onFailure(new Exception("Failed to delete event hashed QR code data", e));
+                                    }
+                                });
+                            } else {
+                                // if no hashed QR code data exists, return success
+                                callback.onSuccess(null);
+                            }
+                        } else {
+                            // Handle case where the event document has not created a qr code yet (no field qr_hash)
+                            callback.onSuccess(null);
+                        }
+                    } else {
+                        // Handle case where the event document doesn't exist
+                        callback.onFailure(new Exception("Event not found"));
+                    }
+                })
+                .addOnFailureListener( e -> callback.onFailure(new Exception("Failed to retrieve event document.", e)));
+    }
+
 }
