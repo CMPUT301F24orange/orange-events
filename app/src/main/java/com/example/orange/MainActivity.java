@@ -1,15 +1,23 @@
 package com.example.orange;
 
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.Manifest;
+import android.widget.Toast;
+
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.model.UserType;
+import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
@@ -22,6 +30,7 @@ import com.google.firebase.FirebaseApp;
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private static final int RC_NOTIFICATION  = 99 ;
     private ActivityMainBinding binding;
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
@@ -33,6 +42,13 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        //Setup Notifications
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, RC_NOTIFICATION);
+        }
+        EntrantNotifications.createChannel(this);
+        EntrantNotifications.sendNotification(this, "Hello Android Noti", "This is a test NOTI");
 
         // Setup Toolbar
         Toolbar toolbar = binding.toolbar;
@@ -53,6 +69,18 @@ public class MainActivity extends AppCompatActivity {
             updateMenuVisibility(userType);
         } else {
             setupInitialNavigation();
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == RC_NOTIFICATION){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "ALLOWED", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this, "DENIED", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

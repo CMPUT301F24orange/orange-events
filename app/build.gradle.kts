@@ -56,6 +56,7 @@ android {
 
 
 // Create Javadoc tasks for each variant
+
 android.applicationVariants.all {
     val variant = this
     tasks.register("generate${variant.name.capitalize()}Javadoc", Javadoc::class) {
@@ -73,6 +74,7 @@ android.applicationVariants.all {
         }
     }
 }
+
 // Create Javadoc tasks for each variant
 
 dependencies {
