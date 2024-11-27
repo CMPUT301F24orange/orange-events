@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -37,6 +38,8 @@ public class ViewEventWaitlistFragment extends Fragment {
                 @Override
                 public void onSuccess(List<String> waitlist) {
                     TextView waitlistTextView = view.findViewById(R.id.waitlist_text);
+                    Button drawParticipantsButton = view.findViewById(R.id.draw_participants_button);
+
                     if (waitlist.isEmpty()) {
                         waitlistTextView.setText("No users on the waitlist");
                     } else {
@@ -55,4 +58,5 @@ public class ViewEventWaitlistFragment extends Fragment {
             });
         }
     }
+
 }
