@@ -719,8 +719,7 @@ public class FirebaseService {
                 callback.onFailure(e);
             }
         });
-    }
-
+      }
     /**
      * Deletes the user document and their associated profile image from Firestore.
      *
