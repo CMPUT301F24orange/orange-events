@@ -246,6 +246,11 @@ public class ViewMyEventsFragment extends Fragment {
                 selectedEvent = event; // Keep track of which event we're updating
                 showImageOptions();
             });
+
+            checkLocationButton.setOnClickListener(view -> {
+
+            });
+
             organizerEventsContainer.addView(eventView);
         }
     }
