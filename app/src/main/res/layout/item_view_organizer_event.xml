@@ -58,6 +58,17 @@
             android:backgroundTint="@color/primary"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/check_location_button"
+            android:layout_width="204dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/primary"
+            android:text="Check Locations"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
         <Button
             android:id="@+id/change_image_button"
             android:layout_width="wrap_content"
@@ -67,6 +78,7 @@
             android:backgroundTint="@color/primary"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
+
         <Button
             android:id="@+id/generate_QR_button"
             android:layout_width="wrap_content"

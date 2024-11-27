@@ -1,6 +1,7 @@
 package com.example.orange.ui.organizer;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -187,6 +188,7 @@ public class ViewMyEventsFragment extends Fragment {
             TextView lotteryStatus = eventView.findViewById(R.id.lottery_status);
             Button actionButton = eventView.findViewById(R.id.action_button);
             Button changeImageButton = eventView.findViewById(R.id.change_image_button);
+            Button checkLocationButton = eventView.findViewById(R.id.check_location_button);
 
             // Set the data
             eventTitle.setText(event.getTitle());
@@ -244,7 +246,6 @@ public class ViewMyEventsFragment extends Fragment {
                 selectedEvent = event; // Keep track of which event we're updating
                 showImageOptions();
             });
-
             organizerEventsContainer.addView(eventView);
         }
     }

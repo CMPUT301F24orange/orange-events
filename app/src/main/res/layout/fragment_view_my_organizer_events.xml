@@ -18,17 +18,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/fragment_view_my_organizer_events"
-    android:padding="16dp">
+    <ScrollView
+        android:id="@+id/fragment_view_my_organizer_events"
+        android:layout_width="385dp"
+        android:layout_height="669dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="4dp"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/organizer_events_title">
 
-    <LinearLayout
-        android:id="@+id/organizer_events_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" />
+        <LinearLayout
+            android:id="@+id/organizer_events_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
 
-</ScrollView>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
