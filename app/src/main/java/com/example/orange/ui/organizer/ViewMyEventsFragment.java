@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -180,14 +181,14 @@ public class ViewMyEventsFragment extends Fragment {
         for (Event event : events) {
             View eventView = inflater.inflate(R.layout.item_view_organizer_event, organizerEventsContainer, false);
 
-            Button GenerateButton = eventView.findViewById(R.id.generate_QR_button);
+            ImageButton GenerateButton = eventView.findViewById(R.id.generate_QR_button);
             ImageView eventImage = eventView.findViewById(R.id.event_image);
             TextView eventTitle = eventView.findViewById(R.id.event_title);
             TextView eventDate = eventView.findViewById(R.id.event_date);
             TextView lotteryStatus = eventView.findViewById(R.id.lottery_status);
-            Button actionButton = eventView.findViewById(R.id.action_button);
-            Button changeImageButton = eventView.findViewById(R.id.change_image_button);
-            Button drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
+            ImageButton waitlistButton = eventView.findViewById(R.id.view_waitlist_button);
+            ImageButton changeImageButton = eventView.findViewById(R.id.change_image_button);
+            ImageButton drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
 
             // Set the data
             eventTitle.setText(event.getTitle());
@@ -234,11 +235,8 @@ public class ViewMyEventsFragment extends Fragment {
             int waitlistCount = event.getWaitingList() != null ? event.getWaitingList().size() : 0;
             lotteryStatus.setText("Waitlist Count: " + waitlistCount);
 
-            // Set the actionButton text to "View Waitlist"
-            actionButton.setText("View Waitlist");
-
             // Set the click listener to show the waitlist
-            actionButton.setOnClickListener(v -> showWaitlist(event));
+            waitlistButton.setOnClickListener(v -> showWaitlist(event));
 
             // Set click listener for changeImageButton
             changeImageButton.setOnClickListener(v -> {

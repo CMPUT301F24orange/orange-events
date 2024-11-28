@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,23 +17,32 @@
             android:layout_gravity="center_horizontal"
             android:src="@drawable/ic_profile" />
 
-        <Button
-            android:id="@+id/upload_image_button"
-            android:layout_width="wrap_content"
+        <!-- Upload and Delete Image Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:backgroundTint="@color/primary"
-            android:layout_marginTop="16dp"
-            android:text="Upload Image" />
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
 
-        <Button
-            android:id="@+id/delete_image_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:backgroundTint="@color/primary"
-            android:layout_marginTop="8dp"
-            android:text="Delete Image" />
+            <ImageButton
+                android:id="@+id/upload_image_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="Upload Image"
+                android:src="@drawable/ic_upload_image"
+                app:tint="@color/primary" />
+
+            <ImageButton
+                android:id="@+id/delete_image_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="Delete Image"
+                android:src="@drawable/ic_delete"
+                app:tint="@color/primary" />
+        </LinearLayout>
 
         <EditText
             android:id="@+id/editTextName"
@@ -65,32 +75,42 @@
             android:layout_marginTop="16dp"
             android:text="Receive Notifications" />
 
-
-        <!-- Facility Button for Organizers -->
-        <Button
-            android:id="@+id/facility_button"
+        <!-- Save changes, logout, and facility profile Image Buttons -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Manage Facility"
-            android:backgroundTint="@color/primary"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
 
-        <Button
-            android:id="@+id/save_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:layout_marginTop="24dp"
-            android:text="Save Changes" />
+            <ImageButton
+                android:id="@+id/save_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="save changes"
+                android:src="@drawable/ic_save_changes"
+                app:tint="@color/primary" />
 
-        <Button
-            android:id="@+id/logout_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:layout_marginTop="8dp"
-            android:text="Logout" />
+            <ImageButton
+                android:id="@+id/facility_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="facility profile"
+                android:src="@drawable/ic_facility"
+                android:visibility="gone"
+                app:tint="@color/primary" />
+
+            <ImageButton
+                android:id="@+id/logout_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="logout"
+                android:src="@drawable/ic_logout"
+                app:tint="@color/primary" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

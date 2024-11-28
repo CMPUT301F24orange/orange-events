@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -100,9 +101,9 @@ public class AdminEventListFragment extends Fragment {
             TextView eventTitle = eventView.findViewById(R.id.event_title);
             TextView eventDate = eventView.findViewById(R.id.event_date);
             TextView lotteryStatus = eventView.findViewById(R.id.lottery_status);
-            Button deleteButton = eventView.findViewById(R.id.delete_button);
-            Button deletePosterButton = eventView.findViewById(R.id.poster_delete_button);
-            Button deleteQRButton = eventView.findViewById(R.id.qr_delete_button);
+            ImageButton deleteButton = eventView.findViewById(R.id.delete_button);
+            ImageButton deletePosterButton = eventView.findViewById(R.id.poster_delete_button);
+            ImageButton deleteQRButton = eventView.findViewById(R.id.qr_delete_button);
 
             String posterImageId = event.getEventImageId();
             if (posterImageId != null) {

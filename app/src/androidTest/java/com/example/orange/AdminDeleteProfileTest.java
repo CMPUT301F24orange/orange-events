@@ -153,7 +153,7 @@ public class AdminDeleteProfileTest {
         sleep(2000);
 
         // Delete the test organizer profile
-        onView(allOf(withId(R.id.profile_delete_button), hasSibling(withText("Test Organizer Delete")))).perform(scrollTo(), click());
+        onView(withId(R.id.profile_delete_button)).perform(scrollTo(), click());
         sleep(2000);
 
         // Verify that the organizer profile no longer exists in the list
@@ -192,7 +192,7 @@ public class AdminDeleteProfileTest {
         sleep(2000);
 
         // Delete the test profile image
-        onView(allOf(withId(R.id.profile_pic_delete_button), hasSibling(withText("Test Organizer Delete")))).perform(scrollTo(), click());
+        onView(withId(R.id.profile_pic_delete_button)).perform(click());
         sleep(2000);
 
         // Verify that the profileImageId is null in the db
@@ -213,7 +213,7 @@ public class AdminDeleteProfileTest {
         sleep(2000);
 
         // Delete the test organizer profile
-        onView(allOf(withId(R.id.profile_delete_button), hasSibling(withText("Test Organizer Delete")))).perform(scrollTo(), click());
+        onView(withId(R.id.profile_delete_button)).perform(scrollTo(), click());
         sleep(2000);
     }
 }

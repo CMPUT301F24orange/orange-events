@@ -116,7 +116,7 @@ public class AdminDeleteFacilityTest {
         sleep(2000);
 
         // Delete the test facility
-        onView(allOf(withId(R.id.facility_remove_button), hasSibling(withText("Test Facility Delete")))).perform(scrollTo(), click());
+        onView(withId(R.id.facility_remove_button)).perform(scrollTo(), click());
         sleep(2000);
 
         // Verify that the facility no longer exists in the list

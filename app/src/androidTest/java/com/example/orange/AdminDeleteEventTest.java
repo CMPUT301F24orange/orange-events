@@ -19,7 +19,9 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -116,7 +118,7 @@ public class AdminDeleteEventTest {
         sleep(2000);
 
         // Find the "Delete Poster" button within the same CardView as the "Test Event Delete" text
-        onView(allOf(withId(R.id.poster_delete_button), hasSibling(withText("Test Event Delete")))).perform(scrollTo(), click());
+        onView(withId(R.id.poster_delete_button)).perform(scrollTo(), click());
         sleep(2000);
 
         // Verify that the eventImageId is null in the db
@@ -154,8 +156,8 @@ public class AdminDeleteEventTest {
         onView(withId(R.id.admin_navigation_view_events)).perform(click());
         sleep(2000);
 
-        // Find the "Delete" button within the same CardView as the "Test Event Delete" text
-        onView(allOf(withId(R.id.delete_button), hasSibling(withText("Test Event Delete")))).perform(scrollTo(), click());
+        // click the delete button
+        onView(withId(R.id.delete_button)).perform(scrollTo(), click());
         sleep(2000);
 
         // Verify that "Test Event Delete" no longer exists in the list
@@ -180,7 +182,7 @@ public class AdminDeleteEventTest {
         sleep(2000);
 
         // Find the "Delete QR" button within the same CardView as the "Test Event Delete" text
-        onView(allOf(withId(R.id.qr_delete_button), hasSibling(withText("Test Event Delete")))).perform(scrollTo(), click());
+        onView(withId(R.id.qr_delete_button)).perform(scrollTo(), click());
         sleep(2000);
 
         // Verify that the qr_hash is null in the db

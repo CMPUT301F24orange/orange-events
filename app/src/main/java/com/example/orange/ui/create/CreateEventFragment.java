@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -68,8 +69,8 @@ public class CreateEventFragment extends Fragment {
     private CheckBox waitlistLimitCheckbox;
     private CheckBox geolocation_checkbox;
     private Button createEventButton;
-    private Button uploadImageButton;
-    private Button deleteImageButton;
+    private ImageButton uploadImageButton;
+    private ImageButton deleteImageButton;
 
     private ImageView eventImage;
     private Uri selectedImageUri;

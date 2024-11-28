@@ -50,42 +50,49 @@
             android:textColor="#555555"
             android:layout_marginTop="4dp" />
 
-        <Button
-            android:id="@+id/action_button"
-            android:layout_width="wrap_content"
+        <!-- First row of buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Action"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/primary"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
-      
-        <Button
-            android:id="@+id/change_image_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Change Image"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/primary"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
-        <Button
-            android:id="@+id/generate_QR_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:text="Generate QR Code"
-            android:textColor="@android:color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/organizer_event_date" />
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
 
-        <Button
-            android:id="@+id/draw_participants_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Draw Participants"
-            android:backgroundTint="@color/primary"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
+            <ImageButton
+                android:id="@+id/view_waitlist_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="Change Image"
+                android:src="@drawable/ic_admin_profiles"
+                app:tint="@color/primary" />
+
+            <ImageButton
+                android:id="@+id/change_image_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="Change Image"
+                android:src="@drawable/ic_edit_image"
+                app:tint="@color/primary" />
+
+            <ImageButton
+                android:id="@+id/generate_QR_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="Delete QR"
+                android:src="@drawable/ic_qr"
+                app:tint="@color/primary" />
+
+            <ImageButton
+                android:id="@+id/draw_participants_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="Draw Participants"
+                android:src="@drawable/ic_draw_participants"
+                app:tint="@color/primary" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
