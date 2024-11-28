@@ -4,6 +4,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.example.orange.data.firebase.FirebaseCallback;
+import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.Facility;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,17 +20,17 @@ import org.junit.runner.RunWith;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.junit.Assert.fail;
 import static java.lang.Thread.sleep;
 
 /**
  * Intent Test for the delete facility functionality in the app.
- *
- * @author Radhe Patel
+ * Updated to align with new FirebaseService methods and UI IDs.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -41,9 +43,10 @@ public class AdminDeleteFacilityTest {
 
 
     /**
-     * Initializes the firebase and creates the mock facility that is to be deleted
+     * Initializes Firebase and creates a mock facility to be deleted.
+     * Also creates a related event linked to the facility.
      *
-     * @author Radhe Patel
+     * Updated to match new FirebaseService and Firestore implementations.
      */
     @Before
     public void setUp() throws InterruptedException {
@@ -100,10 +103,9 @@ public class AdminDeleteFacilityTest {
     }
 
     /**
-     * Test Navigates to the admin facility list and deletes the test facility created in the setup.
-     * It then checks if the facility has been removed from the list.
+     * Tests deleting a facility and verifies that related events are also deleted.
      *
-     * @author Radhe Patel
+     * Updated to match new FirebaseService method signatures.
      */
     @Test
     public void testDeleteFacilityAndRelatedEvents() throws InterruptedException {

@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- @author Radhe Patel -->
-<!-- Currently in use for organizers to view events -->
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -19,8 +17,7 @@
             android:id="@+id/event_image"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="Event Image" />
+            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/event_title"
@@ -36,7 +33,7 @@
             android:id="@+id/event_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Relevant Date"
+            android:text="Event Date"
             android:textSize="14sp"
             android:textColor="#555555"
             android:layout_marginTop="4dp" />
@@ -51,41 +48,14 @@
             android:layout_marginTop="4dp" />
 
         <Button
-            android:id="@+id/action_button"
+            android:id="@+id/join_waitlist_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Action"
+            android:text="Join Waitlist"
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/primary"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
-      
-        <Button
-            android:id="@+id/change_image_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Change Image"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/primary"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
-        <Button
-            android:id="@+id/generate_QR_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:text="Generate QR Code"
-            android:textColor="@android:color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/organizer_event_date" />
 
-        <Button
-            android:id="@+id/draw_participants_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Draw Participants"
-            android:backgroundTint="@color/primary"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
