@@ -1,28 +1,10 @@
 package com.example.orange;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.replaceText;
-import static androidx.test.espresso.action.ViewActions.swipeUp;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-
-import static java.lang.Thread.sleep;
-import static java.util.regex.Pattern.matches;
-
-import android.content.Context;
-import android.util.Log;
-
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
-import com.example.orange.MainActivity;
-import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
@@ -37,10 +19,31 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import static java.lang.Thread.sleep;
+
+import android.content.Context;
+import android.util.Log;
+
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Instrumented test for creating an event.
+ * Updated to match new FirebaseService implementations and UI IDs.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class CreateEventTest {
@@ -80,7 +83,6 @@ public class CreateEventTest {
                     @Override
                     public void onSuccess(String userId) {
                         Log.d("Setup", "User created with ID: " + userId);
-
                         // Step 3: Update the user with the facility ID
                         testUser.setFacilityId(facilityId);
                         firebaseService.updateUser(testUser, new FirebaseCallback<Void>() {
@@ -127,41 +129,41 @@ public class CreateEventTest {
 
         // Fill in the event title
         onView(withId(R.id.titleEditText))
-                .perform(replaceText("Sample Event Title"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("Sample Event Title"), closeSoftKeyboard());
 
         // Fill in the event description
         onView(withId(R.id.descriptionEditText))
-                .perform(replaceText("This is a sample description for the event."), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("This is a sample description for the event."), closeSoftKeyboard());
 
         // Fill in the start and end dates
         onView(withId(R.id.start_date_input))
-                .perform(replaceText("2024/01/01"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("2024/01/01"), closeSoftKeyboard());
         onView(withId(R.id.end_date_input))
-                .perform(replaceText("2024/01/05"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("2024/01/05"), closeSoftKeyboard());
 
         // Perform swipe up to bring additional fields into view
         onView(withId(R.id.fragment_create_event_main)).perform(swipeUp());
 
         // Fill in the event capacity
         onView(withId(R.id.capacityEditText))
-                .perform(replaceText("20"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("20"), closeSoftKeyboard());
 
         // Fill in registration dates
         onView(withId(R.id.registration_opens_edit_text))
-                .perform(replaceText("2023/12/01"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("2023/12/01"), closeSoftKeyboard());
         onView(withId(R.id.registration_deadline_edit_text))
-                .perform(replaceText("2023/12/15"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("2023/12/15"), closeSoftKeyboard());
 
         // Perform another swipe up to bring the lottery day and event price fields into view
         onView(withId(R.id.fragment_create_event_main)).perform(swipeUp());
 
         // Fill in lottery day
         onView(withId(R.id.lottery_day_edit_text))
-                .perform(replaceText("2023/12/20"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("2023/12/20"), closeSoftKeyboard());
 
         // Fill in event price
         onView(withId(R.id.event_price_edit_text))
-                .perform(replaceText("50.00"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("50.00"), closeSoftKeyboard());
 
         // Perform a final swipe up to bring the waitlist fields into view
         onView(withId(R.id.fragment_create_event_main)).perform(swipeUp());
@@ -170,7 +172,7 @@ public class CreateEventTest {
         onView(withId(R.id.waitlist_limit_checkbox))
                 .perform(click());
         onView(withId(R.id.waitlist_limit_edit_text))
-                .perform(replaceText("10"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("10"), closeSoftKeyboard());
 
         // Submit the form and save the event ID for cleanup
         onView(withId(R.id.createEventButton))
@@ -184,6 +186,7 @@ public class CreateEventTest {
                 .check(matches(isDisplayed()));
 
         // After verification, fetch the event ID for cleanup
+        CountDownLatch latch = new CountDownLatch(1);
         firebaseService.getAllEvents(new FirebaseCallback<List<Event>>() {
             @Override
             public void onSuccess(List<Event> events) {
@@ -193,14 +196,17 @@ public class CreateEventTest {
                         break;
                     }
                 }
+                latch.countDown();
             }
 
             @Override
             public void onFailure(Exception e) {
-                Log.e("GetAllEvents", "Failed to fetch events", e);
+                Log.e("CreateEventTest", "Failed to fetch events", e);
+                latch.countDown();
             }
         });
 
+        latch.await(5, TimeUnit.SECONDS);
     }
 
     @After

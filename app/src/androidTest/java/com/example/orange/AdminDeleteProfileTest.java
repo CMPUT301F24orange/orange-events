@@ -4,6 +4,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.example.orange.data.firebase.FirebaseCallback;
+import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.Facility;
 import com.example.orange.data.model.User;
@@ -20,20 +22,22 @@ import org.junit.runner.RunWith;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static java.lang.Thread.sleep;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Intent Test for the delete profile functionality in the app.
- *
- * @author Dhairya Prajapati, Radhe Patel
+ * Updated to align with new FirebaseService methods and UI IDs.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -46,11 +50,12 @@ public class AdminDeleteProfileTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
+
     /**
-     * Initializes the firebase and creates the mock user, along with
-     * the mock facility and event and connects it to the user.
+     * Initializes Firebase and creates a mock user, along with
+     * the mock facility and event, and links them together.
      *
-     * @author Dhairya Prajapati, Radhe Patel
+     * Updated to match new FirebaseService and Firestore implementations.
      */
     @Before
     public void setUp() throws InterruptedException {
@@ -136,11 +141,9 @@ public class AdminDeleteProfileTest {
     }
 
     /**
-     * Test Navigates to the admin profile list and deletes the test user created
-     * in the setup. It then checks if the facility and event associated with the user
-     * have been removed as well.
+     * Tests deleting a user profile and verifies that related facilities and events are also deleted.
      *
-     * @author Dhairya Prajapati
+     * Updated to match new FirebaseService method signatures.
      */
     @Test
     public void testDeleteProfileAndRelatedFacilitiesAndEvents() throws InterruptedException {
@@ -153,7 +156,7 @@ public class AdminDeleteProfileTest {
         sleep(2000);
 
         // Delete the test organizer profile
-        onView(withId(R.id.profile_delete_button)).perform(scrollTo(), click());
+        onView(withId(R.id.profile_delete_button)).perform(click());
         sleep(2000);
 
         // Verify that the organizer profile no longer exists in the list
@@ -175,11 +178,9 @@ public class AdminDeleteProfileTest {
     }
 
     /**
-     * Tests db functionality. Creates a test user with a profileImageId set. It then checks
-     * that the delete profile picture button in fact deletes the profileImageId from the db, i.e
-     * sets it to null.
+     * Tests deleting a user's profile picture and verifies that the image reference is null in Firestore.
      *
-     * @author Radhe Patel
+     * Updated to match new FirebaseService method signatures.
      */
     @Test
     public void testDeleteProfilePicture() throws InterruptedException {
@@ -196,6 +197,7 @@ public class AdminDeleteProfileTest {
         sleep(2000);
 
         // Verify that the profileImageId is null in the db
+        CountDownLatch latch = new CountDownLatch(1);
         firestore.collection("users").document(testUserId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 if (documentSnapshot.contains("profileImageId")) {
@@ -207,13 +209,16 @@ public class AdminDeleteProfileTest {
             } else {
                 fail("The document does not exist in Firestore.");
             }
+            latch.countDown();
         }).addOnFailureListener(e -> {
             fail("Failed to retrieve the document from Firestore: " + e.getMessage());
+            latch.countDown();
         });
-        sleep(2000);
+
+        latch.await(5, TimeUnit.SECONDS);
 
         // Delete the test organizer profile
-        onView(withId(R.id.profile_delete_button)).perform(scrollTo(), click());
+        onView(withId(R.id.profile_delete_button)).perform(click());
         sleep(2000);
     }
 }

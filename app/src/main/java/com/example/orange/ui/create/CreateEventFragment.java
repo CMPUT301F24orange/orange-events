@@ -10,11 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,9 +24,11 @@ import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserSession;
 import com.example.orange.data.model.UserType;
+import com.example.orange.databinding.FragmentCreateEventBinding;
 import com.example.orange.utils.SessionManager;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Blob;
@@ -48,35 +45,17 @@ import java.util.Locale;
  * This fragment provides a comprehensive form interface allowing organizers to input
  * all necessary event details including title, description, dates, capacity,
  * registration details, and an optional event image.
- *
- * @author
  */
 public class CreateEventFragment extends Fragment {
 
     private static final String TAG = "CreateEventFragment";
 
-    private EditText titleEditText;
-    private EditText descriptionEditText;
-    private EditText capacityEditText;
-    private EditText startDateEditText;
-    private EditText endDateEditText;
-    private EditText registrationOpensEditText;
-    private EditText registrationDeadlineEditText;
-    private EditText lotteryDayEditText;
-    private EditText eventPriceEditText;
-    private EditText waitlistLimitEditText;
-
-    private CheckBox waitlistLimitCheckbox;
-    private CheckBox geolocation_checkbox;
-    private Button createEventButton;
-    private ImageButton uploadImageButton;
-    private ImageButton deleteImageButton;
-
-    private ImageView eventImage;
-    private Uri selectedImageUri;
+    private FragmentCreateEventBinding binding;
 
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
+
+    private Uri selectedImageUri;
 
     /**
      * Activity result launcher for handling image selection from device storage.
@@ -86,7 +65,7 @@ public class CreateEventFragment extends Fragment {
             new ActivityResultContracts.PickVisualMedia(),
             uri -> {
                 if (uri != null) {
-                    eventImage.setImageURI(uri);
+                    binding.addImageButton.setImageURI(uri);
                     selectedImageUri = uri;
                 }
             }
@@ -104,58 +83,50 @@ public class CreateEventFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_create_event, container, false);
+        // Inflate the layout using View Binding
+        binding = FragmentCreateEventBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
-        initializeServices();
-        initializeViews(view);
+        // Initialize FirebaseService and SessionManager
+        firebaseService = new FirebaseService();
+        sessionManager = new SessionManager(requireContext());
+
+        // Initialize views and set up click listeners
         setupClickListeners();
 
         return view;
     }
 
     /**
-     * Initializes Firebase and session management services.
+     * Clean up any references to the binding when the view is destroyed.
      */
-    private void initializeServices() {
-        firebaseService = new FirebaseService();
-        sessionManager = new SessionManager(requireContext());
-    }
-
-    /**
-     * Initializes all view components of the fragment.
-     *
-     * @param view The root view of the fragment
-     */
-    private void initializeViews(View view) {
-        titleEditText = view.findViewById(R.id.titleEditText);
-        descriptionEditText = view.findViewById(R.id.descriptionEditText);
-        capacityEditText = view.findViewById(R.id.capacityEditText);
-        startDateEditText = view.findViewById(R.id.start_date_input);
-        endDateEditText = view.findViewById(R.id.end_date_input);
-        registrationOpensEditText = view.findViewById(R.id.registration_opens_edit_text);
-        registrationDeadlineEditText = view.findViewById(R.id.registration_deadline_edit_text);
-        lotteryDayEditText = view.findViewById(R.id.lottery_day_edit_text);
-        eventPriceEditText = view.findViewById(R.id.event_price_edit_text);
-        waitlistLimitEditText = view.findViewById(R.id.waitlist_limit_edit_text);
-        waitlistLimitCheckbox = view.findViewById(R.id.waitlist_limit_checkbox);
-        geolocation_checkbox = view.findViewById(R.id.geolocation_checkbox);
-        createEventButton = view.findViewById(R.id.createEventButton);
-        eventImage = view.findViewById(R.id.add_image_button);
-        uploadImageButton = view.findViewById(R.id.upload_image_button);
-        deleteImageButton = view.findViewById(R.id.delete_image_button);
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     /**
      * Sets up click listeners for all interactive elements in the fragment.
      */
     private void setupClickListeners() {
-        createEventButton.setOnClickListener(v -> createEvent());
-        uploadImageButton.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
+        binding.createEventButton.setOnClickListener(v -> createEvent());
+        binding.uploadImageButton.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                 .build()));
-        deleteImageButton.setOnClickListener(v -> {
-            eventImage.setImageResource(R.drawable.ic_image);
+        binding.deleteImageButton.setOnClickListener(v -> {
+            binding.addImageButton.setImageResource(R.drawable.ic_image); // Placeholder image
             selectedImageUri = null;
+        });
+
+        // Optional: Show/hide waitlistLimitEditText based on checkbox
+        binding.waitlistLimitCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                binding.waitlistLimitEditText.setVisibility(View.VISIBLE);
+            } else {
+                binding.waitlistLimitEditText.setVisibility(View.GONE);
+                binding.waitlistLimitEditText.setText(""); // Clear text when hidden
+            }
         });
     }
 
@@ -187,10 +158,10 @@ public class CreateEventFragment extends Fragment {
 
                     if (selectedImageUri != null) {
                         // Process and upload the image
-                        processAndUploadEventImage(event);
+                        processAndUploadEventImage(event, organizerId);
                     } else {
                         // No image selected, proceed to save event
-                        saveEventToFirebase(event);
+                        saveEventToFirebase(event, organizerId);
                     }
                 } else {
                     Toast.makeText(requireContext(),
@@ -211,11 +182,12 @@ public class CreateEventFragment extends Fragment {
     /**
      * Processes and uploads the event image.
      *
-     * @param event The event object to attach the image ID.
+     * @param event       The event object to attach the image ID.
+     * @param organizerId The ID of the organizer creating the event.
      */
-    private void processAndUploadEventImage(Event event) {
+    private void processAndUploadEventImage(Event event, String organizerId) {
         try {
-            InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
+            InputStream inputStream = requireContext().getContentResolver().openInputStream(selectedImageUri);
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
             // Resize image
@@ -232,7 +204,7 @@ public class CreateEventFragment extends Fragment {
             resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
             byte[] imageData = baos.toByteArray();
 
-            if (imageData.length > 1048576) {
+            if (imageData.length > 1048576) { // 1MB limit
                 Toast.makeText(getContext(), "Image is too large to upload", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -245,8 +217,8 @@ public class CreateEventFragment extends Fragment {
                 public void onSuccess(String imageId) {
                     // Set the image ID in the event
                     event.setEventImageId(imageId);
-                    // Now save the event
-                    saveEventToFirebase(event);
+                    // Now save the event with organizerId and facilityId
+                    saveEventToFirebase(event, organizerId);
                 }
 
                 @Override
@@ -266,21 +238,51 @@ public class CreateEventFragment extends Fragment {
      * @return Event object containing all input data, or null if validation fails
      */
     private Event buildEventFromInputs() {
-        String title = titleEditText.getText().toString().trim();
-        String description = descriptionEditText.getText().toString().trim();
-        Integer capacity = parseIntegerField(capacityEditText.getText().toString().trim());
-        Double price = parseDoubleField(eventPriceEditText.getText().toString().trim());
-        Timestamp startDate = parseDate(startDateEditText.getText().toString());
-        Timestamp endDate = parseDate(endDateEditText.getText().toString());
-        Timestamp registrationOpens = parseDate(registrationOpensEditText.getText().toString());
-        Timestamp registrationDeadline = parseDate(registrationDeadlineEditText.getText().toString());
-        Timestamp lotteryDay = parseDate(lotteryDayEditText.getText().toString());
-        Integer waitlistLimit = waitlistLimitCheckbox.isChecked() ?
-                parseIntegerField(waitlistLimitEditText.getText().toString().trim()) : null;
-        Boolean geolocation = geolocation_checkbox.isChecked();
+        String title = binding.titleEditText.getText().toString().trim();
+        String description = binding.descriptionEditText.getText().toString().trim();
+        Integer capacity = parseIntegerField(binding.capacityEditText.getText().toString().trim());
+        Double price = parseDoubleField(binding.eventPriceEditText.getText().toString().trim());
+        Timestamp startDate = parseDate(binding.startDateInput.getText().toString());
+        Timestamp endDate = parseDate(binding.endDateInput.getText().toString());
+        Timestamp registrationOpens = parseDate(binding.registrationOpensEditText.getText().toString());
+        Timestamp registrationDeadline = parseDate(binding.registrationDeadlineEditText.getText().toString());
+        Timestamp lotteryDay = parseDate(binding.lotteryDayEditText.getText().toString());
+        Integer waitlistLimit = binding.waitlistLimitCheckbox.isChecked() ?
+                parseIntegerField(binding.waitlistLimitEditText.getText().toString().trim()) : null;
+        Boolean geolocation = binding.geolocationCheckbox.isChecked();
 
-        // Perform validation here if necessary
-        // ...
+        // Perform validation
+        if (TextUtils.isEmpty(title)) {
+            Toast.makeText(getContext(), "Title is required", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        if (TextUtils.isEmpty(description)) {
+            Toast.makeText(getContext(), "Description is required", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        if (capacity == null || capacity <= 0) {
+            Toast.makeText(getContext(), "Valid capacity is required", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        if (startDate == null || endDate == null || registrationOpens == null || registrationDeadline == null || lotteryDay == null) {
+            Toast.makeText(getContext(), "All dates must be valid", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        if (price == null || price < 0) {
+            Toast.makeText(getContext(), "Valid event price is required", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        if (binding.waitlistLimitCheckbox.isChecked() && (waitlistLimit == null || waitlistLimit < 0)) {
+            Toast.makeText(getContext(), "Valid waitlist limit is required", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        // Additional validation logic can be added here as needed
 
         Event event = new Event();
         event.setTitle(title);
@@ -301,13 +303,15 @@ public class CreateEventFragment extends Fragment {
     /**
      * Saves the event to Firebase and handles the response.
      *
-     * @param event The event to be saved
+     * @param event       The event to be saved
+     * @param organizerId The ID of the organizer creating the event
      */
-    private void saveEventToFirebase(Event event) {
-        firebaseService.createEvent(event, new FirebaseCallback<String>() {
+    private void saveEventToFirebase(Event event, String organizerId) {
+        firebaseService.createEvent(event, organizerId, new FirebaseCallback<String>() {
             @Override
             public void onSuccess(String eventId) {
                 Toast.makeText(requireContext(), "Event created successfully", Toast.LENGTH_SHORT).show();
+                // Navigate to the "My Events" screen
                 Navigation.findNavController(requireView()).navigate(R.id.navigation_view_my_events);
             }
 

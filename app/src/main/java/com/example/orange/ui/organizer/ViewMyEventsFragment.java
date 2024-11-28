@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
+// Removed unused imports
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,6 +21,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -34,23 +35,24 @@ import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserSession;
 import com.example.orange.data.model.UserType;
+import com.example.orange.databinding.FragmentViewMyOrganizerEventsBinding;
 import com.example.orange.utils.SessionManager;
+import com.google.firebase.firestore.Blob;
+import com.google.zxing.BarcodeFormat;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-
-import com.google.firebase.firestore.Blob;
-import com.google.zxing.BarcodeFormat;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 import java.util.Locale;
 
 /**
@@ -62,31 +64,10 @@ public class ViewMyEventsFragment extends Fragment {
     private static final String TAG = "ViewMyEventsFragment";
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
-    private LinearLayout organizerEventsContainer;
+    private FragmentViewMyOrganizerEventsBinding binding;
 
     private Event selectedEvent; // To keep track of which event is being updated
     private Uri selectedImageUri;
-
-    /**
-     * Initializes the fragment's view and loads the events created by the organizer.
-     *
-     * @param inflater           LayoutInflater to inflate the fragment's layout.
-     * @param container          Parent view the fragment's UI should be attached to.
-     * @param savedInstanceState Previous state data if fragment is being re-created.
-     * @return The created view.
-     */
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_view_my_organizer_events, container, false);
-
-        firebaseService = new FirebaseService();
-        sessionManager = new SessionManager(requireContext());
-        organizerEventsContainer = view.findViewById(R.id.organizer_events_container);
-
-        loadOrganizerEvents();
-
-        return view;
-    }
 
     /**
      * Activity result launcher for handling image selection from device storage.
@@ -105,6 +86,36 @@ public class ViewMyEventsFragment extends Fragment {
                 }
             }
     );
+
+    /**
+     * Initializes the fragment's view and loads the events created by the organizer.
+     *
+     * @param inflater           LayoutInflater to inflate the fragment's layout.
+     * @param container          Parent view the fragment's UI should be attached to.
+     * @param savedInstanceState Previous state data if fragment is being re-created.
+     * @return The created view.
+     */
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentViewMyOrganizerEventsBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+
+        firebaseService = new FirebaseService();
+        sessionManager = new SessionManager(requireContext());
+
+        loadOrganizerEvents();
+
+        return view;
+    }
+
+    /**
+     * Clean up any references to the binding when the view is destroyed.
+     */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
 
     /**
      * Loads events created by the current organizer from Firebase and displays them in the container.
@@ -158,7 +169,6 @@ public class ViewMyEventsFragment extends Fragment {
         });
     }
 
-
     /**
      * Dynamically displays each event in the organizer's events list.
      * Creates and populates view elements for each event, including:
@@ -171,7 +181,7 @@ public class ViewMyEventsFragment extends Fragment {
      * @param events List of Event objects created by the organizer.
      */
     private void displayEvents(List<Event> events) {
-        organizerEventsContainer.removeAllViews();
+        binding.organizerEventsContainer.removeAllViews();
 
         LayoutInflater inflater = LayoutInflater.from(requireContext());
 
@@ -179,16 +189,17 @@ public class ViewMyEventsFragment extends Fragment {
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
         for (Event event : events) {
-            View eventView = inflater.inflate(R.layout.item_view_organizer_event, organizerEventsContainer, false);
+            View eventView = inflater.inflate(R.layout.item_view_organizer_event, binding.organizerEventsContainer, false);
 
-            ImageButton GenerateButton = eventView.findViewById(R.id.generate_QR_button);
+            // Initialize views using findViewById for the inflated eventView
+            Button generateButton = eventView.findViewById(R.id.generate_QR_button);
             ImageView eventImage = eventView.findViewById(R.id.event_image);
             TextView eventTitle = eventView.findViewById(R.id.event_title);
             TextView eventDate = eventView.findViewById(R.id.event_date);
             TextView lotteryStatus = eventView.findViewById(R.id.lottery_status);
-            ImageButton waitlistButton = eventView.findViewById(R.id.view_waitlist_button);
-            ImageButton changeImageButton = eventView.findViewById(R.id.change_image_button);
-            ImageButton drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
+            Button actionButton = eventView.findViewById(R.id.action_button);
+            Button changeImageButton = eventView.findViewById(R.id.change_image_button);
+            Button drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
 
             // Set the data
             eventTitle.setText(event.getTitle());
@@ -217,7 +228,7 @@ public class ViewMyEventsFragment extends Fragment {
                 eventImage.setImageResource(R.drawable.ic_image); // Placeholder if no image is available
             }
 
-            GenerateButton.setOnClickListener(v-> generateQR(event));
+            generateButton.setOnClickListener(v -> generateQR(event));
 
             // Display the relevant date based on event's current status
             if (event.getRegistrationDeadline() != null && currentDate.before(event.getRegistrationDeadline().toDate())) {
@@ -235,8 +246,11 @@ public class ViewMyEventsFragment extends Fragment {
             int waitlistCount = event.getWaitingList() != null ? event.getWaitingList().size() : 0;
             lotteryStatus.setText("Waitlist Count: " + waitlistCount);
 
+            // Set the actionButton text to "View Waitlist"
+            actionButton.setText("View Waitlist");
+
             // Set the click listener to show the waitlist
-            waitlistButton.setOnClickListener(v -> showWaitlist(event));
+            actionButton.setOnClickListener(v -> showWaitlist(event));
 
             // Set click listener for changeImageButton
             changeImageButton.setOnClickListener(v -> {
@@ -244,24 +258,76 @@ public class ViewMyEventsFragment extends Fragment {
                 showImageOptions();
             });
 
+            // Set click listener for drawParticipantsButton
             drawParticipantsButton.setOnClickListener(v -> {
-                firebaseService.drawFromWaitlist(event.getId(), new FirebaseCallback<Void>() {
+                drawFromWaitlist(event);
+            });
+
+            binding.organizerEventsContainer.addView(eventView);
+        }
+    }
+
+    /**
+     * Implements the participant drawing functionality.
+     * Selects users from the waitlist randomly and moves them to the participants list.
+     *
+     * @param event The event from which to draw participants.
+     */
+    private void drawFromWaitlist(Event event) {
+        if (event.isFull()) {
+            Toast.makeText(requireContext(), "Event is already full.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int currentParticipants = event.getParticipants() != null ? event.getParticipants().size() : 0;
+        int selectedParticipants = event.getSelectedParticipants() != null ? event.getSelectedParticipants().size() : 0;
+        int capacity = event.getCapacity() != null ? event.getCapacity() : Integer.MAX_VALUE;
+        int slotsAvailable = capacity - currentParticipants - selectedParticipants;
+
+        if (slotsAvailable <= 0) {
+            Toast.makeText(requireContext(), "No available slots to draw participants.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        firebaseService.getEventWaitlist(event.getId(), new FirebaseCallback<List<String>>() {
+            @Override
+            public void onSuccess(List<String> waitlist) {
+                if (waitlist == null || waitlist.isEmpty()) {
+                    Toast.makeText(requireContext(), "No users on the waitlist to draw.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Shuffle the waitlist to ensure random selection
+                Collections.shuffle(waitlist);
+
+                // Limit the number of users to draw based on available slots
+                int usersToDraw = Math.min(slotsAvailable, waitlist.size());
+                List<String> selectedUsers = waitlist.subList(0, usersToDraw);
+
+                // Perform Firestore transaction for atomic update
+                firebaseService.moveUsersToSelectedParticipants(event.getId(), selectedUsers, new FirebaseCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
-                        Toast.makeText(requireContext(), "Participants drawn successfully", Toast.LENGTH_SHORT).show();
-                        loadOrganizerEvents(); // Refresh the events list
+                        Toast.makeText(requireContext(), "Participants drawn successfully.", Toast.LENGTH_SHORT).show();
+                        loadOrganizerEvents(); // Refresh event data to reflect changes
                     }
 
                     @Override
                     public void onFailure(Exception e) {
                         Toast.makeText(requireContext(), "Failed to draw participants: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Error drawing participants from waitlist", e);
                     }
                 });
-            });
+            }
 
-            organizerEventsContainer.addView(eventView);
-        }
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(requireContext(), "Failed to retrieve waitlist: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error retrieving waitlist", e);
+            }
+        });
     }
+
 
     /**
      * Displays a dialog with options to change or remove the event image.
@@ -311,12 +377,13 @@ public class ViewMyEventsFragment extends Fragment {
      */
     private void processEventImage(Event event) {
         try {
-            InputStream inputStream = getContext().getContentResolver().openInputStream(selectedImageUri);
+            InputStream inputStream = requireContext().getContentResolver().openInputStream(selectedImageUri);
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
             // Resize image
             int maxSize = 500;
-            float scale = Math.min(((float) maxSize / bitmap.getWidth()), ((float) maxSize / bitmap.getHeight()));
+            float scale = Math.min(((float) maxSize / bitmap.getWidth()),
+                    ((float) maxSize / bitmap.getHeight()));
             Matrix matrix = new Matrix();
             matrix.postScale(scale, scale);
             Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
@@ -326,7 +393,7 @@ public class ViewMyEventsFragment extends Fragment {
             resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
             byte[] imageData = baos.toByteArray();
 
-            if (imageData.length > 1048576) {
+            if (imageData.length > 1048576) { // 1MB limit
                 Toast.makeText(getContext(), "Image is too large to upload", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -472,7 +539,7 @@ public class ViewMyEventsFragment extends Fragment {
     }
 
     /**
-     * Generates the hash data for each qr code then places into firebase
+     * Generates the hash data for each QR code then places into Firebase
      *
      * @param data qr info
      */
@@ -494,9 +561,9 @@ public class ViewMyEventsFragment extends Fragment {
     }
 
     /**
-     * Turns the qr code generated into a png file to save space and not have to transfer a large file
+     * Turns the QR code generated into a PNG file to save space and not have to transfer a large file
      *
-     * @param qrBitmap the bitmap of the qr code
+     * @param qrBitmap the bitmap of the QR code
      */
     private Uri saveQRToCache(Bitmap qrBitmap) {
         try {

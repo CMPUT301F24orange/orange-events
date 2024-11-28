@@ -2,6 +2,8 @@ package com.example.orange.data.model;
 
 import com.google.firebase.firestore.DocumentId;
 
+import java.util.Objects;
+
 /**
  * Represents a Facility in the application.
  *
@@ -84,5 +86,20 @@ public class Facility {
      */
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    // Override equals() and hashCode() based on 'id'
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Facility facility = (Facility) o;
+        return Objects.equals(id, facility.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
