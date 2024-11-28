@@ -27,17 +27,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
-        android:id="@+id/eventWaitlistStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="You are on the waitlist"
-        android:textSize="14sp"
-        android:textColor="@android:color/holo_red_dark"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/eventDescription"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/joinButton"
@@ -46,7 +35,6 @@
         android:backgroundTint="@color/primary"
         android:textColor="#FFFFFF"
         android:text="Join Waitlist"
-        app:layout_constraintTop_toBottomOf="@id/eventWaitlistStatus"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
