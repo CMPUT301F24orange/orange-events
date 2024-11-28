@@ -3,6 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="#FFFFFF">
@@ -75,14 +76,14 @@
     </LinearLayout>
 
     <!-- Save Button -->
-    <Button
+    <ImageButton
         android:id="@+id/facility_save_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@null"
+        android:contentDescription="save changes"
+        android:src="@drawable/ic_save_changes"
         android:layout_gravity="center_horizontal"
-        android:text="Save Facility"
-        android:backgroundTint="@color/primary"
-        android:padding="12dp"
-        android:layout_marginTop="16dp" />
+        app:tint="@color/primary" />
 
 </LinearLayout>

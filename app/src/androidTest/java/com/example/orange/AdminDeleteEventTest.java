@@ -51,6 +51,8 @@ public class AdminDeleteEventTest {
      * Initializes Firebase and creates a mock event to be deleted.
      *
      * Updated to match new FirebaseService and Firestore implementations.
+     *
+     * @author Radhe Patel, Graham
      */
     @Before
     public void setUp() throws InterruptedException {
@@ -90,6 +92,8 @@ public class AdminDeleteEventTest {
      * Tests deleting an event image and verifies it has been set to null in Firestore.
      *
      * Updated to match new FirebaseService method signatures.
+     *
+     * @author Radhe Patel, Graham
      */
     @Test
     public void testDeleteEventImage() throws InterruptedException {
@@ -101,8 +105,8 @@ public class AdminDeleteEventTest {
         onView(withId(R.id.admin_navigation_view_events)).perform(click());
         sleep(2000);
 
-        // Find the "Delete Poster" button within the same CardView as the "Test Event Delete" text
-        onView(allOf(withId(R.id.poster_delete_button), hasSibling(withText("Test Event Delete")))).perform(scrollTo(), click());
+        // Find the "Delete Poster" button and click it
+        onView(withId(R.id.poster_delete_button)).perform(click());
         sleep(2000);
 
         // Verify that the eventImageId is null in the db
@@ -132,6 +136,8 @@ public class AdminDeleteEventTest {
      * Tests deleting an event and verifies it no longer exists in the UI and Firestore.
      *
      * Updated to match new FirebaseService method signatures.
+     *
+     * @author Radhe Patel, Graham
      */
     @Test
     public void testDeleteEvent() throws InterruptedException {
@@ -143,8 +149,8 @@ public class AdminDeleteEventTest {
         onView(withId(R.id.admin_navigation_view_events)).perform(click());
         sleep(2000);
 
-        // Find the "Delete" button within the same CardView as the "Test Event Delete" text
-        onView(allOf(withId(R.id.delete_button), hasSibling(withText("Test Event Delete")))).perform(scrollTo(), click());
+        // Find the "Delete" button and click it
+        onView(withId(R.id.delete_button)).perform(click());
         sleep(2000);
 
         // Verify that "Test Event Delete" no longer exists in the list
@@ -155,6 +161,8 @@ public class AdminDeleteEventTest {
      * Tests deleting an event's QR hash and verifies it has been set to null in Firestore.
      *
      * Updated to match new FirebaseService method signatures.
+     *
+     * @author Radhe Patel, Graham
      */
     @Test
     public void testDeleteEventHash() throws InterruptedException {
@@ -167,7 +175,7 @@ public class AdminDeleteEventTest {
         sleep(2000);
 
         // Find the "Delete QR" button within the same CardView as the "Test Event Delete" text
-        onView(allOf(withId(R.id.qr_delete_button), hasSibling(withText("Test Event Delete")))).perform(scrollTo(), click());
+        onView(withId(R.id.qr_delete_button)).perform(click());
         sleep(2000);
 
         // Verify that the qr_hash is null in the db
