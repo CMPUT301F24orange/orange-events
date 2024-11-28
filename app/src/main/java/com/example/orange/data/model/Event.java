@@ -537,7 +537,7 @@ public class Event {
                 public void onSuccess(User result) {
                     Log.d(TAG, result.getFcmToken());
                     EntrantNotifications entrantNotifications = new EntrantNotifications();
-                    entrantNotifications.sendToPhone(context, "title", "message", result);
+                    entrantNotifications.sendToPhone(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", result);
                 }
 
                 @Override
@@ -548,7 +548,7 @@ public class Event {
             // TODO: Trigger notification to userId to accept or decline.
 
 
-            //EntrantNotifications.sendNotification(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", userId);
+            //EntrantNotifications.sendNotification(context, , , userId);
             slotsAvailable--;
         }
     }
