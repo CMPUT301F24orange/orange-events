@@ -89,12 +89,22 @@ public class MainActivityTest {
      * Verifies that the Create Event fragment is displayed and then returns to the Home fragment.
      */
     @Test
-    public void testBottomNavigation_CreateEvent() {
+    public void testBottomNavigation_CreateEvent() throws InterruptedException {
+        onView(withId(R.id.navigation_home))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        // Navigate to Create Event
         onView(withId(R.id.navigation_create_event))
                 .check(matches(isDisplayed()))
                 .perform(click());
+
+        // Add a short delay to allow fragment to load
+        sleep(1000);
+
+        // Verify that the Create Event fragment is displayed
         onView(withId(R.id.fragment_create_event_main)).check(matches(isDisplayed()));
     }
+
 
     /**
      * Tests that the profile menu item is visible when the user is logged in as an ENTRANT.
