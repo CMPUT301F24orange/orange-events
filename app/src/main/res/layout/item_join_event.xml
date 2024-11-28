@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- @author Radhe Patel -->
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -17,10 +16,8 @@
         <ImageView
             android:id="@+id/event_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop"
-            android:contentDescription="Event Image" />
+            android:layout_height="150dp"
+            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/event_title"
@@ -36,7 +33,7 @@
             android:id="@+id/event_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Relevant Date"
+            android:text="Event Date"
             android:textSize="14sp"
             android:textColor="#555555"
             android:layout_marginTop="4dp" />
@@ -51,13 +48,14 @@
             android:layout_marginTop="4dp" />
 
         <Button
-            android:id="@+id/action_button"
+            android:id="@+id/join_waitlist_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Action"
+            android:text="Join Waitlist"
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/primary"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

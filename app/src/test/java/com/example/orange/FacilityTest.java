@@ -9,17 +9,13 @@ import com.example.orange.data.model.Facility;
 import org.junit.Test;
 
 /**
- * Unit tessting for the facility class
- *
- * @author Viral Bhavsar, Dhariya Prajapati
+ * Unit tests for the Facility class, ensuring correct handling of properties.
  */
 public class FacilityTest {
 
     /**
-     *Tests the default constructor of the Facility class.
-     *Checkes if the lists are null
-     *
-     * @author Dhairya Prajapati
+     * Tests the default constructor of the Facility class.
+     * Verifies that all fields are null upon initialization.
      */
     @Test
     public void testDefaultConstructor() {
@@ -29,13 +25,15 @@ public class FacilityTest {
         assertNull("ID should be null", facility.getId());
         assertNull("Name should be null", facility.getName());
         assertNull("Address should be null", facility.getAddress());
+
+        // If Facility has other fields, verify their initial state as well
+        // e.g., List<Event> events
+        // assertNull("Events list should be null", facility.getEvents());
     }
 
     /**
-     * Tests the parameterized constructor
-     * Checks if name and address are correctly
-     *
-     * @author Viral bhavsar, Dhariya Prajapati
+     * Tests the parameterized constructor of the Facility class.
+     * Verifies that name and address are set correctly.
      */
     @Test
     public void testParameterizedConstructor() {
@@ -47,12 +45,17 @@ public class FacilityTest {
         // Verify that the name and address are set correctly
         assertEquals("Name should match the input", expectedName, facility.getName());
         assertEquals("Address should match the input", expectedAddress, facility.getAddress());
+
+        // Verify that ID is still null if not set
+        assertNull("ID should be null", facility.getId());
+
+        // If Facility has other fields, verify their initial state
+        // e.g., List<Event> events
+        // assertNull("Events list should be null", facility.getEvents());
     }
 
     /**
-     * Testing the ID getter and setter
-     *
-     * @author Viral Bhavsar, Dhairya Prajapati
+     * Tests the ID getter and setter methods.
      */
     @Test
     public void testIdGetterSetter() {
@@ -66,9 +69,7 @@ public class FacilityTest {
     }
 
     /**
-     * Testing the name getter and setter
-     *
-     * @author Viral Bhavsar, Dhairya Prajapati
+     * Tests the name getter and setter methods.
      */
     @Test
     public void testNameGetterSetter() {
@@ -82,9 +83,7 @@ public class FacilityTest {
     }
 
     /**
-     * Testing the address getter and setter.
-     *
-     * @author Viral Bhavsar, Dhairya Prajapati
+     * Tests the address getter and setter methods.
      */
     @Test
     public void testAddressGetterSetter() {
@@ -95,5 +94,43 @@ public class FacilityTest {
 
         // Verify that the address is set and retrieved correctly
         assertEquals("Address should match the set value", expectedAddress, facility.getAddress());
+    }
+
+    /**
+     * Tests the equality of two Facility objects.
+     * Assumes that equals() is overridden to compare based on ID.
+     */
+    @Test
+    public void testFacilityEquality() {
+        String facilityId = "facility123";
+        Facility facility1 = new Facility();
+        facility1.setId(facilityId);
+        facility1.setName("Orange Center");
+        facility1.setAddress("123 Orange St");
+
+        Facility facility2 = new Facility();
+        facility2.setId(facilityId);
+        facility2.setName("Orange Center");
+        facility2.setAddress("123 Orange St");
+
+        assertEquals("Facilities with same ID should be equal", facility1, facility2);
+    }
+
+    /**
+     * Tests that two Facilities with different IDs are not equal.
+     */
+    @Test
+    public void testFacilityInequality() {
+        Facility facility1 = new Facility();
+        facility1.setId("facility123");
+        facility1.setName("Orange Center");
+        facility1.setAddress("123 Orange St");
+
+        Facility facility2 = new Facility();
+        facility2.setId("facility456");
+        facility2.setName("Orange Center");
+        facility2.setAddress("123 Orange St");
+
+        assertNotEquals("Facilities with different IDs should not be equal", facility1, facility2);
     }
 }

@@ -5,12 +5,9 @@ import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentId;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-/* Todo:
- *    Add in event image functionality
- *   Complete overall functionality
- */
 
 /**
  * This class defines an Event
@@ -37,6 +34,7 @@ public class Event {
     private List<String> waitingList;
     private List<String> participants;
     private List<String> selectedParticipants;
+    private List<String> cancelledList;
     private String eventImageId; // Changed from Blob to String ID
     private String facilityId;
 
@@ -49,7 +47,7 @@ public class Event {
         waitingList = new ArrayList<>();
         participants = new ArrayList<>();
         selectedParticipants = new ArrayList<>();
-
+        cancelledList = new ArrayList<>();
     }
 
     /**
@@ -483,6 +481,81 @@ public class Event {
     public void setGeolocationEvent(Boolean geolocationEvent) {
         this.geolocationEvent = geolocationEvent;
     }
+
+    // Getter and Setter for cancelledList
+    public List<String> getCancelledList() {
+        return cancelledList;
+    }
+
+    public void setCancelledList(List<String> cancelledList) {
+        this.cancelledList = cancelledList;
+    }
+
+    /**
+     * Selects users randomly from the waiting list to be invited as participants.
+     * @param number The number of users to select.
+     */
+    public void selectParticipantsFromWaitingList(int number) {
+        // Create a copy of the waiting list to avoid modifying the original list during iteration
+        List<String> waitingListCopy = new ArrayList<>(waitingList);
+
+        // Remove users who are already selected or have cancelled
+        waitingListCopy.removeAll(selectedParticipants);
+        waitingListCopy.removeAll(cancelledList);
+
+        // Shuffle the list to randomize the selection
+        Collections.shuffle(waitingListCopy);
+
+        int slotsAvailable = number;
+        for (String userId : waitingListCopy) {
+            if (slotsAvailable == 0) {
+                break;
+            }
+            selectedParticipants.add(userId);
+            // TODO: Trigger notification to userId to accept or decline.
+            slotsAvailable--;
+        }
+    }
+
+    /**
+     * Handles the acceptance of an invitation by a user.
+     * @param userId The ID of the user who accepted.
+     */
+    public void acceptInvitation(String userId) {
+        if (selectedParticipants.contains(userId)) {
+            selectedParticipants.remove(userId);
+            participants.add(userId);
+            // Optionally, update the User object.
+            // TODO: Update user's eventsParticipating list.
+        }
+    }
+
+    /**
+     * Handles the decline of an invitation by a user.
+     * @param userId The ID of the user who declined.
+     */
+    public void declineInvitation(String userId) {
+        if (selectedParticipants.contains(userId)) {
+            selectedParticipants.remove(userId);
+            waitingList.remove(userId);
+            cancelledList.add(userId);
+            // Optionally, update the User object.
+            // TODO: Update user's eventsParticipating list.
+        }
+    }
+
+
+    /**
+     * Fills available spots by selecting new participants from the waiting list.
+     */
+    public void fillSpotsFromWaitingList() {
+        int totalConfirmed = participants.size() + selectedParticipants.size();
+        int spotsNeeded = capacity - totalConfirmed;
+        if (spotsNeeded > 0) {
+            selectParticipantsFromWaitingList(spotsNeeded);
+        }
+    }
+
 
     /**
      * Function to return specific string for an object of type Event
