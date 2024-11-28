@@ -1,5 +1,6 @@
 package com.example.orange;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,13 +9,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.Manifest;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.firebase.FirebaseCallback;
+import com.example.orange.data.model.User;
+import com.example.orange.data.model.UserSession;
 import com.example.orange.data.model.UserType;
+import com.example.orange.ui.notifications.AccessToken;
 import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -24,6 +34,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import com.example.orange.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
+
 
 /**
  * The main activity
@@ -42,14 +55,6 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        //Setup Notifications
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, RC_NOTIFICATION);
-        }
-        EntrantNotifications.createChannel(this);
-        EntrantNotifications.sendNotification(this, "Hello Android Noti", "This is a test NOTI");
-
         // Setup Toolbar
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
@@ -71,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
             setupInitialNavigation();
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

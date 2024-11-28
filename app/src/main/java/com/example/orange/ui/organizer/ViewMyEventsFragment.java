@@ -1,6 +1,7 @@
 package com.example.orange.ui.organizer;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -25,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.example.orange.MainActivity;
 import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
@@ -33,6 +35,8 @@ import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserSession;
 import com.example.orange.data.model.UserType;
+import com.example.orange.ui.notifications.EntrantNotifications;
+import com.example.orange.ui.notifications.FirebaseNotifications;
 import com.example.orange.utils.SessionManager;
 
 import java.io.ByteArrayOutputStream;
@@ -83,7 +87,6 @@ public class ViewMyEventsFragment extends Fragment {
         organizerEventsContainer = view.findViewById(R.id.organizer_events_container);
 
         loadOrganizerEvents();
-
         return view;
     }
 
@@ -417,6 +420,7 @@ public class ViewMyEventsFragment extends Fragment {
      * @param event Event object whose waitlist should be displayed.
      */
     private void showWaitlist(Event event) {
+        event.fillSpotsFromWaitingList(getContext());
         List<String> waitlist = event.getWaitingList();
         if (waitlist == null || waitlist.isEmpty()) {
             Toast.makeText(requireContext(), "No users on the waitlist", Toast.LENGTH_SHORT).show();

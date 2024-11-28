@@ -141,7 +141,7 @@ public class JoinEventFragment extends Fragment {
      * @param event Event object the user wants to join the waitlist for.
      */
     private void addEntrantToWaitlist(Event event) {
-        String userId = sessionManager.getUserSession().getUserId();
+        String userId = sessionManager.getUserSession().getUserId() + "_ENTRANT";
         firebaseService.addToEventWaitlist(event.getId(), userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {

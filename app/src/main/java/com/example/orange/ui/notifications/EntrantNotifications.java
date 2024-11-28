@@ -7,21 +7,48 @@ import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
+import android.telecom.Call;
+import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.orange.R;
+import com.example.orange.data.firebase.FirebaseCallback;
+import com.example.orange.data.firebase.FirebaseService;
+import com.example.orange.data.model.Event;
+import com.example.orange.data.model.User;
+import com.example.orange.ui.events.entrantEventDetailsFragment;
+import com.example.orange.utils.SessionManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 
-public class EntrantNotifications {
-
+public class EntrantNotifications{
+    private static SessionManager sessionManager;
+    private static FirebaseService firebaseService;
+    public static final String TAG = "ORANGE";
     public static final String LOTTERY_CHANNEL_ID = "lottery_channel";
+    private final String postURL = "https://fcm.googleapis.com/v1/projects/event-lottery-system---orange/messages:send";
 
     public static void createChannel(Context context){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -38,18 +65,65 @@ public class EntrantNotifications {
             }
         }
     }
-
     public static void sendNotification(Context context, String title, String message){
+        //String userid = sessionManager.getUserSession().getUserId();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, LOTTERY_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setSmallIcon(R.drawable.app_logo)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            return;
+        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
+        bigTextStyle.bigText(title);
+        bigTextStyle.setBigContentTitle(title);
+        bigTextStyle.setSummaryText(title);
+
+        builder.setStyle(bigTextStyle);
+
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            createChannel(context);
         }
-        notificationManagerCompat.notify(4255,builder.build());
+        manager.notify(4255,builder.build());
+    }
+    public void sendToPhone(Context context, String title, String message, User user){
+        FirebaseNotifications firebaseNotifications = new FirebaseNotifications();
+        firebaseNotifications.onNewToken(user.getFcmToken());
+        Log.d(TAG, context.toString());
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        JSONObject mainObj = new JSONObject();
+        try {
+            JSONObject messageObject = new JSONObject();
+            JSONObject notificationsObject = new JSONObject();
+            notificationsObject.put("title", title);
+            notificationsObject.put("body", message);
+
+            messageObject.put("token",user.getFcmToken());
+            messageObject.put("notification", notificationsObject);
+
+            mainObj.put("message", messageObject);
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, postURL, mainObj, response -> {
+                // code run got response
+            },volleyError ->{
+                // code run error
+            }) {
+                @NonNull
+                @Override
+                public Map<String, String> getHeaders() {
+                    AccessToken accessToken = new AccessToken();
+                    String accessKey = accessToken.getAccessToken();
+                    Map<String, String> header = new HashMap<>();
+                    header.put("content-Type", "application/Json");
+                    header.put("authorization", "Bearer " + accessKey);
+                    return header;
+                }
+            };
+
+            requestQueue.add(request);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+
     }
 }

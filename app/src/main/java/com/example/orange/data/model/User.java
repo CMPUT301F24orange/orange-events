@@ -21,6 +21,7 @@ public class User {
     private String email;
     private String phone;
     private String deviceId;
+    private String fcmToken;
     private String profileImageUrl;
     private boolean receiveNotifications;
     private List<String> eventsParticipating;
@@ -295,6 +296,20 @@ public class User {
         this.deviceId = deviceId;
     }
 
+    /**
+     * Gets the FCM token of the user, which distinguishes their firebase account
+     *
+     * @return the user's FCM token
+     */
+    public String getFcmToken(){
+        return fcmToken;
+    }
+    /**
+     * Sets the user's FCM token, which distinguishes their firebase account from others
+     *
+     * @param fcmToken the user's firebase FCM token
+     */
+    public void setFcmToken(String fcmToken){this.fcmToken = fcmToken;}
     /**
      * Retrieves the user's profile image ID.
      *

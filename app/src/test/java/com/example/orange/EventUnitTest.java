@@ -9,10 +9,12 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 
+import android.content.Context;
+
 public class EventUnitTest {
 
     private Event event;
-
+    Context context;
     @Before
     public void setUp() {
         // Create an event with capacity N
@@ -41,7 +43,7 @@ public class EventUnitTest {
         System.out.println("\nWaiting List after adding users: " + event.getWaitingList());
 
         // Select participants from the waiting list
-        event.selectParticipantsFromWaitingList(event.getCapacity());
+        event.selectParticipantsFromWaitingList(event.getCapacity(),context.getApplicationContext());
 
         // Print selected participants after selection
         System.out.println("\nSelected Participants after initial selection: " + event.getSelectedParticipants());
@@ -81,7 +83,7 @@ public class EventUnitTest {
         assertEquals(event.getCapacity() - 2, event.getSelectedParticipants().size());
 
         // Fill vacant spots
-        event.fillSpotsFromWaitingList();
+        event.fillSpotsFromWaitingList(context);
         System.out.println("\nFilled vacant spots from waiting list.");
 
         // Print selected participants after filling spots

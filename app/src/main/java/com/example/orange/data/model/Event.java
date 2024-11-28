@@ -1,5 +1,17 @@
 package com.example.orange.data.model;
 
+
+import static com.example.orange.ui.notifications.EntrantNotifications.TAG;
+
+import android.content.Context;
+import android.util.Log;
+
+import com.example.orange.MainActivity;
+import com.example.orange.data.firebase.FirebaseCallback;
+import com.example.orange.data.firebase.FirebaseService;
+import com.example.orange.ui.notifications.EntrantNotifications;
+import com.example.orange.ui.notifications.FirebaseNotifications;
+import com.example.orange.utils.SessionManager;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentId;
@@ -41,6 +53,8 @@ public class Event {
     private List<String> cancelledList;
     private String eventImageId; // Changed from Blob to String ID
     private String facilityId;
+    Context context;
+
 
     /**
      * Default constructor required for Firestone
@@ -499,7 +513,8 @@ public class Event {
      * Selects users randomly from the waiting list to be invited as participants.
      * @param number The number of users to select.
      */
-    public void selectParticipantsFromWaitingList(int number) {
+    public void selectParticipantsFromWaitingList(int number, Context context) {
+        FirebaseService firebaseService = new FirebaseService();
         // Create a copy of the waiting list to avoid modifying the original list during iteration
         List<String> waitingListCopy = new ArrayList<>(waitingList);
 
@@ -516,7 +531,24 @@ public class Event {
                 break;
             }
             selectedParticipants.add(userId);
+            Log.d("ORANGE", userId);
+            firebaseService.getUserById(userId, new FirebaseCallback<User>() {
+                @Override
+                public void onSuccess(User result) {
+                    Log.d(TAG, result.getFcmToken());
+                    EntrantNotifications entrantNotifications = new EntrantNotifications();
+                    entrantNotifications.sendToPhone(context, "title", "message", result);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+
+                }
+            });
             // TODO: Trigger notification to userId to accept or decline.
+
+
+            //EntrantNotifications.sendNotification(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", userId);
             slotsAvailable--;
         }
     }
@@ -552,11 +584,11 @@ public class Event {
     /**
      * Fills available spots by selecting new participants from the waiting list.
      */
-    public void fillSpotsFromWaitingList() {
+    public void fillSpotsFromWaitingList(Context context) {
         int totalConfirmed = participants.size() + selectedParticipants.size();
         int spotsNeeded = capacity - totalConfirmed;
         if (spotsNeeded > 0) {
-            selectParticipantsFromWaitingList(spotsNeeded);
+            selectParticipantsFromWaitingList(spotsNeeded, context);
         }
     }
 

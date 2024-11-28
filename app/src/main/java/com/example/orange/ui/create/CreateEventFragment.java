@@ -31,6 +31,7 @@ import com.example.orange.data.model.Event;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserSession;
 import com.example.orange.data.model.UserType;
+import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Blob;
@@ -175,7 +176,6 @@ public class CreateEventFragment extends Fragment {
 
         String deviceId = userSession.getdeviceId();
         UserType userType = userSession.getUserType();
-
         firebaseService.getUserByDeviceIdAndType(deviceId, userType, new FirebaseCallback<User>() {
             @Override
             public void onSuccess(User user) {
