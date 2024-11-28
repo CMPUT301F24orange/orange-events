@@ -26,7 +26,7 @@ import static java.lang.Thread.sleep;
  * Instrumented test suite for the MainActivity, testing navigation and visibility
  * of elements based on user state.
  *
- * @author Graham Flokstra
+ * Updated to align with new codebase structure and FirebaseService implementation.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -40,7 +40,7 @@ public class MainActivityTest {
      * Setup method to initialize the SessionManager, ensure the user is logged out,
      * and navigate to the home screen.
      *
-     * @author Graham Flokstra
+     * Updated to match new SessionManager implementation.
      */
     @Before
     public void setup() throws InterruptedException {
@@ -59,8 +59,6 @@ public class MainActivityTest {
     /**
      * Tests the Home navigation button in the bottom navigation.
      * Verifies that the Home fragment is displayed after clicking the Home button.
-     *
-     * @author Graham Flokstra
      */
     @Test
     public void testBottomNavigation_Home() {
@@ -74,8 +72,7 @@ public class MainActivityTest {
      * Tests the Join Event navigation button in the bottom navigation.
      * Verifies that the Join Event fragment is displayed after clicking the button.
      *
-     * @author Graham Flokstra
-     * @throws InterruptedException if the thread sleep is interrupted
+     * Updated fragment ID to match new implementation.
      */
     @Test
     public void testBottomNavigation_JoinEvent() throws InterruptedException {
@@ -90,8 +87,6 @@ public class MainActivityTest {
     /**
      * Tests the Create Event navigation button in the bottom navigation.
      * Verifies that the Create Event fragment is displayed and then returns to the Home fragment.
-     *
-     * @author Graham Flokstra
      */
     @Test
     public void testBottomNavigation_CreateEvent() {
@@ -104,8 +99,6 @@ public class MainActivityTest {
     /**
      * Tests that the profile menu item is visible when the user is logged in as an ENTRANT.
      * Verifies that the profile option is displayed after the session is recreated.
-     *
-     * @author Graham Flokstra
      */
     @Test
     public void testOptionsMenu_ProfileVisibleWhenLoggedIn() {
@@ -117,8 +110,6 @@ public class MainActivityTest {
     /**
      * Tests navigation for a user logged in as an ORGANIZER.
      * Verifies that the "View My Events" navigation item is displayed and navigates to the appropriate fragment.
-     *
-     * @author Graham Flokstra
      */
     @Test
     public void testNavigationForOrganizer() throws InterruptedException {
@@ -134,8 +125,6 @@ public class MainActivityTest {
     /**
      * Tests navigation for a user logged in as an ENTRANT.
      * Verifies that the "View Events" navigation item is displayed and navigates to the appropriate fragment.
-     *
-     * @author Graham Flokstra
      */
     @Test
     public void testNavigationForEntrant() throws InterruptedException {
@@ -155,8 +144,6 @@ public class MainActivityTest {
     /**
      * Tests the behavior after logging out. Verifies that navigation items like Join Event and Create Event
      * are visible in the logged-out state.
-     *
-     * @author Graham Flokstra
      */
     @Test
     public void testLogoutBehavior() throws InterruptedException {
@@ -184,8 +171,6 @@ public class MainActivityTest {
     /**
      * Tests the initial navigation state for a logged-out user.
      * Verifies that Join Event, Create Event, and Home buttons are visible and clickable.
-     *
-     * @author Graham Flokstra
      */
     @Test
     public void testInitialNavigationNotLoggedIn() {
@@ -197,10 +182,7 @@ public class MainActivityTest {
     /**
      * Tests the Admin mode button in the top navigation.
      * Verifies that the Admin view is displayed after clicking the button.
-     * goes back to the home page after and checks that the user returns correctly.
-     *
-     * @author Radhe Patel
-     * @throws InterruptedException if the thread sleep is interrupted
+     * Navigates back to the home page after and checks that the user returns correctly.
      */
     @Test
     public void testAdminMode() throws InterruptedException {

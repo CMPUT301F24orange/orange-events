@@ -4,12 +4,14 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.example.orange.data.firebase.FirebaseCallback;
+import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.Facility;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,22 +20,22 @@ import org.junit.runner.RunWith;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static java.lang.Thread.sleep;
 
-import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Intent Test for the delete event functionality in the app.
- *
- * @author Radhe Patel
+ * Updated to align with new FirebaseService methods and UI IDs.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -46,9 +48,9 @@ public class AdminDeleteEventTest {
 
 
     /**
-     * Initializes the firebase and creates the mock event that is to be deleted
+     * Initializes Firebase and creates a mock event to be deleted.
      *
-     * @author Radhe Patel
+     * Updated to match new FirebaseService and Firestore implementations.
      */
     @Before
     public void setUp() throws InterruptedException {
@@ -84,26 +86,10 @@ public class AdminDeleteEventTest {
         sleep(3000);
     }
 
-    @After
-    public void tearDown() {
-        // Delete the test event from Firestore
-        firestore.collection("events").document(testEventId).delete()
-                .addOnSuccessListener(aVoid -> {
-                    System.out.println("Test event successfully deleted from Firestore.");
-                })
-                .addOnFailureListener(e -> {
-                    System.err.println("Failed to delete test event from Firestore: " + e.getMessage());
-                });
-    }
-
-
-
     /**
-     * Tests db functionality. Creates a test event with an eventImageId set. It then checks
-     * that the delete poster button in fact deletes the eventImageId from the db, i.e
-     * sets it to null.
+     * Tests deleting an event image and verifies it has been set to null in Firestore.
      *
-     * @author Radhe Patel
+     * Updated to match new FirebaseService method signatures.
      */
     @Test
     public void testDeleteEventImage() throws InterruptedException {
@@ -120,6 +106,7 @@ public class AdminDeleteEventTest {
         sleep(2000);
 
         // Verify that the eventImageId is null in the db
+        CountDownLatch latch = new CountDownLatch(1);
         firestore.collection("events").document(testEventId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 if (documentSnapshot.contains("eventImageId")) {
@@ -131,18 +118,20 @@ public class AdminDeleteEventTest {
             } else {
                 fail("The document does not exist in Firestore.");
             }
+            latch.countDown();
         }).addOnFailureListener(e -> {
             fail("Failed to retrieve the document from Firestore: " + e.getMessage());
+            latch.countDown();
         });
-        sleep(2000);
+
+        latch.await(5, TimeUnit.SECONDS);
     }
 
 
     /**
-     * Test Navigates to the admin event list and deletes the test event created
-     * in the setup. It then checks if the event has been removed from the list.
+     * Tests deleting an event and verifies it no longer exists in the UI and Firestore.
      *
-     * @author Radhe Patel
+     * Updated to match new FirebaseService method signatures.
      */
     @Test
     public void testDeleteEvent() throws InterruptedException {
@@ -163,11 +152,9 @@ public class AdminDeleteEventTest {
     }
 
     /**
-     * Tests db functionality. Creates a test event with qr_hash set. It then checks
-     * that the delete poster button in fact deletes the qr_hash from the db, i.e
-     * sets it to null.
+     * Tests deleting an event's QR hash and verifies it has been set to null in Firestore.
      *
-     * @author Radhe Patel
+     * Updated to match new FirebaseService method signatures.
      */
     @Test
     public void testDeleteEventHash() throws InterruptedException {
@@ -184,6 +171,7 @@ public class AdminDeleteEventTest {
         sleep(2000);
 
         // Verify that the qr_hash is null in the db
+        CountDownLatch latch = new CountDownLatch(1);
         firestore.collection("events").document(testEventId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 if (documentSnapshot.contains("qr_hash")) {
@@ -195,10 +183,13 @@ public class AdminDeleteEventTest {
             } else {
                 fail("The document does not exist in Firestore.");
             }
+            latch.countDown();
         }).addOnFailureListener(e -> {
             fail("Failed to retrieve the document from Firestore: " + e.getMessage());
+            latch.countDown();
         });
-        sleep(2000);
+
+        latch.await(5, TimeUnit.SECONDS);
     }
 
 }

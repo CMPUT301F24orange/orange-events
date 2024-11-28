@@ -9,7 +9,7 @@ import com.example.orange.data.model.Facility;
 import org.junit.Test;
 
 /**
- * Unit tessting for the facility class
+ * Unit testing for the facility class
  *
  * @author Viral Bhavsar, Dhariya Prajapati
  */
