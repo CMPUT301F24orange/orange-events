@@ -70,8 +70,6 @@ public class EntrantNotifications{
         }
     }
     public static void sendNotification(Context context, String title, String message){
-        String userid = sessionManager.getUserSession().getUserId();
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, LOTTERY_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
@@ -84,9 +82,6 @@ public class EntrantNotifications{
         bigTextStyle.setSummaryText(title);
 
         builder.setStyle(bigTextStyle);
-        Intent intent = new Intent(context, entrantEventDetailsActivity.class);
-        //intent.putExtra("event_id", eventId);
-        context.startActivity(intent);
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             createChannel(context);
