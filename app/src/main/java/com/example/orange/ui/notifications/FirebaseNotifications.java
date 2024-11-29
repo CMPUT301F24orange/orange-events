@@ -1,11 +1,14 @@
 package com.example.orange.ui.notifications;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.example.orange.data.firebase.FirebaseService;
+import com.example.orange.ui.events.entrantEventDetailsFragment;
 import com.example.orange.utils.SessionManager;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -34,6 +37,6 @@ public class FirebaseNotifications extends FirebaseMessagingService {
 
     }
     private void updateNewToken(String token){
-        //update db
+        //TODO: update db
     }
 }

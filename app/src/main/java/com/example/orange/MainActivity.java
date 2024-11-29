@@ -1,6 +1,5 @@
 package com.example.orange;
 
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,10 +7,10 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.Manifest;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.Manifest;
 
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.firebase.FirebaseCallback;
@@ -55,6 +54,11 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        //Allow Notifications
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, RC_NOTIFICATION);
+        }
         // Setup Toolbar
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);

@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,6 +21,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -31,7 +33,9 @@ import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.User;
+import com.example.orange.ui.events.entrantEventDetailsActivity;
 import com.example.orange.ui.events.entrantEventDetailsFragment;
+import com.example.orange.ui.profile.ProfileFragment;
 import com.example.orange.utils.SessionManager;
 
 import org.json.JSONException;
@@ -66,7 +70,8 @@ public class EntrantNotifications{
         }
     }
     public static void sendNotification(Context context, String title, String message){
-        //String userid = sessionManager.getUserSession().getUserId();
+        String userid = sessionManager.getUserSession().getUserId();
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, LOTTERY_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
@@ -79,7 +84,9 @@ public class EntrantNotifications{
         bigTextStyle.setSummaryText(title);
 
         builder.setStyle(bigTextStyle);
-
+        Intent intent = new Intent(context, entrantEventDetailsActivity.class);
+        //intent.putExtra("event_id", eventId);
+        context.startActivity(intent);
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             createChannel(context);
