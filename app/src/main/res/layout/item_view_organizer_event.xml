@@ -51,6 +51,13 @@
             android:textColor="#555555"
             android:layout_marginTop="4dp" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp" />
+
         <!-- First row of buttons -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -94,6 +101,16 @@
                 android:contentDescription="Draw Participants"
                 android:src="@drawable/ic_draw_participants"
                 app:tint="@color/primary" />
+
+            <ImageButton
+                android:id="@+id/map_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="Map"
+                android:src="@drawable/ic_map"
+                app:tint="@color/primary"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <!-- Second row of buttons for additional lists -->

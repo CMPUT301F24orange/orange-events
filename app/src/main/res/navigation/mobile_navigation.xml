@@ -30,6 +30,10 @@
         <action
             android:id="@+id/action_view_my_events_to_view_event_waitlist"
             app:destination="@id/view_event_waitlist" />
+
+        <action
+            android:id="@+id/action_view_my_events_to_map_fragment"
+            app:destination="@id/mapsFragment" />
     </fragment>
 
     <fragment
@@ -84,4 +88,15 @@
         android:id="@+id/navigation_eventDetails"
         android:name="com.example.orange.ui.events.entrantEventDetailsFragment"
         android:label="EventDetails" />
+
+    <fragment
+        android:id="@+id/viewMyEventsFragment"
+        android:name="com.example.orange.ui.organizer.ViewMyEventsFragment">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/mapsFragment"
+        android:name="com.example.orange.ui.organizer.MapsFragment" />
+
 </navigation>

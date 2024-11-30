@@ -33,7 +33,6 @@ import com.example.orange.utils.SessionManager;
 public class entrantEventDetailsFragment extends Fragment {
 
     public Button joinEventButton;
-    public Button leaveEventButton;
 
     private String eventId;
     public FirebaseService firebaseService; // Service to interact with Firebase
