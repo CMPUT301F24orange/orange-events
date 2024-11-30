@@ -1,5 +1,10 @@
 package com.example.orange.data.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentId;
@@ -14,7 +19,7 @@ import java.util.List;
  *
  * @author Graham Flokstra
  */
-public class Event {
+public class Event implements Parcelable {
     @DocumentId // Helps auto populate document id with firestore
     private String id;
     private String title;
@@ -67,6 +72,102 @@ public class Event {
         this.organizerId = organizerId;
         this.waitingList = new ArrayList<>();
         this.participants = new ArrayList<>();
+    }
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(title);
+        dest.writeString(description);
+        dest.writeParcelable(date, flags);
+        dest.writeParcelable(startDate, flags);
+        dest.writeParcelable(endDate, flags);
+        dest.writeParcelable(registrationOpens, flags);
+        dest.writeParcelable(registrationDeadline, flags);
+        dest.writeParcelable(lotteryDrawDate, flags);
+        dest.writeParcelable(eventDate, flags);
+        if (price == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeDouble(price);
+        }
+        if (capacity == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(capacity);
+        }
+        if (waitlistLimit == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(waitlistLimit);
+        }
+        dest.writeString(organizerId);
+        dest.writeString(qr_hash);
+        dest.writeValue(geolocationEvent); // Can write Boolean as a nullable value
+        dest.writeStringList(waitingList);
+        dest.writeStringList(participants);
+        dest.writeStringList(selectedParticipants);
+        dest.writeStringList(cancelledList);
+        dest.writeString(eventImageId);
+        dest.writeString(facilityId);
+    }
+
+    public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
+        @Override
+        public Event createFromParcel(Parcel in) {
+            return new Event(in);
+        }
+
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
+
+    public Event(Parcel in) {
+        id = in.readString();
+        title = in.readString();
+        description = in.readString();
+        date = in.readParcelable(Timestamp.class.getClassLoader());
+        startDate = in.readParcelable(Timestamp.class.getClassLoader());
+        endDate = in.readParcelable(Timestamp.class.getClassLoader());
+        registrationOpens = in.readParcelable(Timestamp.class.getClassLoader());
+        registrationDeadline = in.readParcelable(Timestamp.class.getClassLoader());
+        lotteryDrawDate = in.readParcelable(Timestamp.class.getClassLoader());
+        eventDate = in.readParcelable(Timestamp.class.getClassLoader());
+        if (in.readByte() == 0) {
+            price = null;
+        } else {
+            price = in.readDouble();
+        }
+        if (in.readByte() == 0) {
+            capacity = null;
+        } else {
+            capacity = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            waitlistLimit = null;
+        } else {
+            waitlistLimit = in.readInt();
+        }
+        organizerId = in.readString();
+        qr_hash = in.readString();
+        geolocationEvent = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        waitingList = in.createStringArrayList();
+        participants = in.createStringArrayList();
+        selectedParticipants = in.createStringArrayList();
+        cancelledList = in.createStringArrayList();
+        eventImageId = in.readString();
+        facilityId = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     /**
@@ -574,5 +675,7 @@ public class Event {
                 ", participants=" + participants.size() +
                 '}';
     }
+
+
 
 }
