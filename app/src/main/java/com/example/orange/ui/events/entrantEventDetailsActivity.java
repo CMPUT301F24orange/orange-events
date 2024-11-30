@@ -23,7 +23,14 @@ import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.ImageData;
+import com.example.orange.data.model.Notification;
+import com.example.orange.data.model.NotificationType;
+import com.example.orange.data.model.User;
+import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Activity to display details of an event and allow users to join or leave the event's waitlist.
@@ -34,7 +41,7 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
 
     private Button joinEventButton;
     private Button leaveEventButton;
-
+    private EntrantNotifications entrantNotifications;
     private String eventId;
     private FirebaseService firebaseService; // Service to interact with Firebase
     private SessionManager sessionManager; // Manages user session
@@ -47,7 +54,7 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
 
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(this);
-
+        entrantNotifications = new EntrantNotifications();
         // Get event ID from the Intent
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -69,8 +76,8 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
 
         joinEventButton = findViewById(R.id.AcceptEventButton);
         leaveEventButton = findViewById(R.id.DeclineEventButton);
-        joinEventButton.setOnClickListener(v -> joinEvent(eventId));
-        leaveEventButton.setOnClickListener(v -> leaveEvent(eventId));
+        joinEventButton.setOnClickListener(v -> acceptEvent(eventId));
+        leaveEventButton.setOnClickListener(v -> declineEvent(eventId));
     }
 
     /**
@@ -131,12 +138,48 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
      *
      * @param eventId The ID of the event to join
      */
-    private void joinEvent(String eventId) {
+    private void acceptEvent(String eventId) {
         String userId = sessionManager.getUserSession().getUserId();
         //TODO: intsead of adding to the waitlist add list of accepted users
-        firebaseService.addToEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
+        firebaseService.acceptEventInvitation(eventId, userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
+                firebaseService.getNotificationsForUser(userId, new FirebaseCallback<List<Notification>>() {
+                    @Override
+                    public void onSuccess(List<Notification> notis) {
+                        for(Notification notifications : notis){
+                            if(Objects.equals(notifications.getEventId(), eventId)){
+                                notifications.accept();
+                                firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
+                                    @Override
+                                    public void onSuccess(Event event) {
+                                        firebaseService.getUserById(event.getOrganizerId(), new FirebaseCallback<User>() {
+                                            @Override
+                                            public void onSuccess(User organizer) {
+                                                entrantNotifications.sendToPhone(getApplicationContext(), "A user has accepted the offer to join your event", userId + " has accepted the offer!", organizer,eventId);
+                                                Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
+
+                                            }
+                                            @Override
+                                            public void onFailure(Exception e) {
+                                                Log.d("ORANGE", "Failed to get user");
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.d("ORANGE", "Failed to get event");
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d("Notifications", "Failed to grab notifications");
+                    }
+                });
                 Toast.makeText(entrantEventDetailsActivity.this, "Accepted the offer", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -149,6 +192,7 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
                 Toast.makeText(entrantEventDetailsActivity.this, "Failed to accept offer", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     /**
@@ -156,12 +200,47 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
      *
      * @param eventId The ID of the event to leave
      */
-    private void leaveEvent(String eventId) {
+    private void declineEvent(String eventId) {
         String userId = sessionManager.getUserSession().getUserId();
-        //TODO: intsead of adding to the waitlist add list of declined users
-        firebaseService.removeFromEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
+        firebaseService.declineEventInvitation(eventId, userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
+                firebaseService.getNotificationsForUser(userId, new FirebaseCallback<List<Notification>>() {
+                    @Override
+                    public void onSuccess(List<Notification> notis) {
+                        for(Notification notifications : notis){
+                            if(Objects.equals(notifications.getEventId(), eventId)){
+                                notifications.decline();
+                                firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
+                                    @Override
+                                    public void onSuccess(Event event) {
+                                        firebaseService.getUserById(event.getOrganizerId(), new FirebaseCallback<User>() {
+                                            @Override
+                                            public void onSuccess(User organizer) {
+                                                entrantNotifications.sendToPhone(getApplicationContext(), "A user has declined the offer to join your event", userId + " has declined the offer!", organizer,eventId);
+                                                Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
+                                                event.fillSpotsFromWaitingList(getApplicationContext());
+                                            }
+                                            @Override
+                                            public void onFailure(Exception e) {
+                                                Log.d("ORANGE", "Failed to get user");
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.d("ORANGE", "Failed to get event");
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d("Notifications", "Failed to grab notifications");
+                    }
+                });
                 Toast.makeText(entrantEventDetailsActivity.this, "Declined the offer", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -174,5 +253,6 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
                 Toast.makeText(entrantEventDetailsActivity.this, "Failed to decline offer", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 }

@@ -543,8 +543,6 @@ public class Event {
             });
             // TODO: Trigger notification to userId to accept or decline.
 
-
-            //EntrantNotifications.sendNotification(context, , , userId);
             slotsAvailable--;
         }
     }

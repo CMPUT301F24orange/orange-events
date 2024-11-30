@@ -76,12 +76,6 @@ public class EntrantNotifications{
                 .setContentText(message)
                 .setSmallIcon(R.drawable.app_logo)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-        Intent intent = new Intent(context, entrantEventDetailsActivity.class);
-        //Log.d("EVENT ID", eid);
-        //intent.putExtra("event_id", eid);
-        PendingIntent pendingIntent;
-        pendingIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_IMMUTABLE);
-        builder.setContentIntent(pendingIntent);
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -133,18 +127,20 @@ public class EntrantNotifications{
                 .setSmallIcon(R.drawable.app_logo)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         // Pass the eventId as a bundle
-        Intent intent = new Intent(context, entrantEventDetailsActivity.class);
-        Bundle idBundle = new Bundle();
-        idBundle.putString("event_id", eventId);
-        intent.putExtras(idBundle);
-        PendingIntent pendingIntent;
-        pendingIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-        builder.setContentIntent(pendingIntent);
-
+        if(!user.getEventsOrganizing().contains(eventId)){
+            Intent intent = new Intent(context, entrantEventDetailsActivity.class);
+            Bundle idBundle = new Bundle();
+            idBundle.putString("event_id", eventId);
+            intent.putExtras(idBundle);
+            PendingIntent pendingIntent;
+            pendingIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+            builder.setContentIntent(pendingIntent);
+        }
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             createChannel(context);
         }
         manager.notify(4255,builder.build());
     }
+
 }
