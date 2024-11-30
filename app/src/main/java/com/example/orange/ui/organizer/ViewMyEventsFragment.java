@@ -28,6 +28,8 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
@@ -70,7 +72,9 @@ public class ViewMyEventsFragment extends Fragment {
 
     private Event selectedEvent; // To keep track of which event is being updated
     private Uri selectedImageUri;
-
+    // Add these new members
+    private SelectedParticipantsAdapter selectedParticipantsAdapter;
+    private List<String> currentSelectedParticipants;
     /**
      * Activity result launcher for handling image selection from device storage.
      * Launches the system's media picker and handles the selected image.
@@ -571,27 +575,66 @@ public class ViewMyEventsFragment extends Fragment {
     }
 
     /**
-     * Displays the selected participants for a specified event in an AlertDialog.
+     * Displays the selected participants for a specified event in a dialog with the ability to remove users.
      *
      * @param event Event object whose selected participants should be displayed.
      */
     private void showSelectedParticipants(Event event) {
-        List<String> selectedParticipants = event.getSelectedParticipants();
-        if (selectedParticipants == null || selectedParticipants.isEmpty()) {
+        currentSelectedParticipants = event.getSelectedParticipants();
+        if (currentSelectedParticipants == null || currentSelectedParticipants.isEmpty()) {
             Toast.makeText(requireContext(), "No selected participants.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create a dialog to show the selected participants
-        StringBuilder selectedStr = new StringBuilder("Selected Participants:\n");
-        for (String userId : selectedParticipants) {
-            selectedStr.append(userId).append("\n");
-        }
+        // Inflate the custom dialog layout
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View dialogView = inflater.inflate(R.layout.dialog_selected_participants, null);
 
+        RecyclerView recyclerView = dialogView.findViewById(R.id.selected_participants_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        selectedParticipantsAdapter = new SelectedParticipantsAdapter(requireContext(), currentSelectedParticipants, userId -> {
+            // Handle participant removal
+            removeSelectedParticipant(event, userId);
+        });
+        recyclerView.setAdapter(selectedParticipantsAdapter);
+
+        // Build and show the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Selected Participants for Event: " + event.getTitle());
+        builder.setView(dialogView);
+        builder.setPositiveButton("Close", null);
+        builder.show();
+    }
+
+    /**
+     * Removes a participant from the selected participants list.
+     *
+     * @param event  The event from which to remove the participant.
+     * @param userId The ID of the user to remove.
+     */
+    private void removeSelectedParticipant(Event event, String userId) {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Selected Participants for Event: " + event.getTitle())
-                .setMessage(selectedStr.toString())
-                .setPositiveButton("OK", null)
+                .setTitle("Remove Participant")
+                .setMessage("Are you sure you want to remove this participant?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // Remove the user from selected participants in Firebase
+                    firebaseService.removeFromSelectedParticipants(event.getId(), userId, new FirebaseCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            Toast.makeText(requireContext(), "Participant removed successfully.", Toast.LENGTH_SHORT).show();
+                            // Update the local list and notify the adapter
+                            currentSelectedParticipants.remove(userId);
+                            selectedParticipantsAdapter.updateList(currentSelectedParticipants);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(requireContext(), "Failed to remove participant: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("No", null)
                 .show();
     }
 
