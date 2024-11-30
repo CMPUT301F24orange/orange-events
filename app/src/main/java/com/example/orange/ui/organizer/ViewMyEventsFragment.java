@@ -273,6 +273,7 @@ public class ViewMyEventsFragment extends Fragment {
      * Selects users from the waitlist randomly and moves them to the participants list.
      * Additionally, creates notifications for both selected and unselected users.
      *
+     * @author Graham Flokstra
      * @param event The event from which to draw participants.
      */
     private void drawFromWaitlist(Event event) {
