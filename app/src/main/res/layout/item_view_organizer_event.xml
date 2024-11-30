@@ -64,8 +64,8 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@null"
-                android:contentDescription="Change Image"
-                android:src="@drawable/ic_admin_profiles"
+                android:contentDescription="View Waitlist"
+                android:src="@drawable/ic_waitlist"
                 app:tint="@color/primary" />
 
             <ImageButton
@@ -82,7 +82,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@null"
-                android:contentDescription="Delete QR"
+                android:contentDescription="Generate QR"
                 android:src="@drawable/ic_qr"
                 app:tint="@color/primary" />
 
@@ -95,5 +95,46 @@
                 android:src="@drawable/ic_draw_participants"
                 app:tint="@color/primary" />
         </LinearLayout>
+
+        <!-- Second row of buttons for additional lists -->
+        <LinearLayout
+            android:id="@+id/second_button_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"> <!-- Initially hidden -->
+
+            <ImageButton
+                android:id="@+id/view_selected_participants_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="View Selected Participants"
+                android:src="@drawable/ic_pending"
+                app:tint="@color/primary"
+                android:layout_marginEnd="16dp" />
+
+            <ImageButton
+                android:id="@+id/view_cancelled_participants_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="View Cancelled Participants"
+                android:src="@drawable/ic_canceled"
+                app:tint="@color/primary"
+                android:layout_marginEnd="16dp" />
+
+            <ImageButton
+                android:id="@+id/view_participating_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="View Participating"
+                android:src="@drawable/ic_accepted"
+                app:tint="@color/primary" />
+        </LinearLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
