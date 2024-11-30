@@ -1,5 +1,7 @@
 package com.example.orange.ui.events;
 
+import static androidx.test.platform.app.InstrumentationRegistry.getArguments;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -47,12 +49,22 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
 
         // Get event ID from the Intent
-        eventId = getIntent().getStringExtra("event_id");
-        if (eventId != null) {
-            loadEventDetails(eventId); // Load event details from Firebase
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String eventId = extras.getString("event_id");
+            Log.d("ENTRANT_EVENT_DETAILS", "Received event_id: " + eventId);
+
+            if (eventId == null || eventId.isEmpty()) {
+                Log.e("ENTRANT_EVENT_DETAILS", "event_id is null or empty!");
+                finish(); // Exit the activity as the ID is critical
+                return;
+            }
+
+            // Proceed to load event details
+            loadEventDetails(eventId);
         } else {
-            Toast.makeText(this, "No event ID found", Toast.LENGTH_SHORT).show();
-            finish(); // Close activity if no event ID is provided
+            Log.e("ENTRANT_EVENT_DETAILS", "No extras received in Intent!");
+            finish(); // Exit if no extras were passed
         }
 
         joinEventButton = findViewById(R.id.AcceptEventButton);
