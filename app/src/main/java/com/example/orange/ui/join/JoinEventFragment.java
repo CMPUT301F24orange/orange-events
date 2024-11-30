@@ -278,7 +278,7 @@ public class JoinEventFragment extends Fragment {
 
     private void updateLocationInFirebase(String eventId, String userId, double latitude, double longitude) {
         Map<String, Object> userLocation = new HashMap<>();
-        userLocation.put("userId", userId);
+        userLocation.put("ID", userId);
         userLocation.put("latitude", latitude);
         userLocation.put("longitude", longitude);
 
