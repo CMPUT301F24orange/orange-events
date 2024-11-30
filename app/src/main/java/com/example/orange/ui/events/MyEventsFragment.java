@@ -148,7 +148,7 @@ public class MyEventsFragment extends Fragment {
             boolean isWaitlisted = event.getWaitingList() != null && event.getWaitingList().contains(userId);
 
             // Set event date
-            String eventDateText = event.getEventDate() != null ? dateFormat.format(event.getEventDate().toDate()) : "No date available";
+            String eventDateText = event.getStartDate() != null ? dateFormat.format(event.getStartDate().toDate()) : "No date available";
             eventDate.setText("Event Date: " + eventDateText);
 
             // Set lottery status based on user's status

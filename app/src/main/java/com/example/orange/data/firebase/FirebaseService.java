@@ -466,6 +466,68 @@ public class FirebaseService {
                 });
     }
 
+    /**
+     * Retrieves all events associated with a user, whether they are in the waitlist,
+     * selected participants, or confirmed participants.
+     * @author Graham Flokstra
+     * @param userId   String representing the unique ID of the current user.
+     * @param callback FirebaseCallback<List<Event>> to handle the result, providing a list of Event objects
+     *                 the user is associated with (either in the participants or waiting list).
+     */
+
+    public void getUserEventsWithoutCancelled(String userId, FirebaseCallback<List<Event>> callback) {
+        List<Event> combinedEvents = new ArrayList<>();
+
+        // Query 1: Events where the user is in the waitingList
+        Task<QuerySnapshot> waitlistTask = db.collection("events")
+                .whereArrayContains("waitingList", userId)
+                .get();
+
+        // Query 2: Events where the user is in the selectedParticipants
+        Task<QuerySnapshot> selectedTask = db.collection("events")
+                .whereArrayContains("selectedParticipants", userId)
+                .get();
+
+        // Query 3: Events where the user is in the participants
+        Task<QuerySnapshot> participantsTask = db.collection("events")
+                .whereArrayContains("participants", userId)
+                .get();
+
+        // Execute all queries asynchronously
+        Tasks.whenAllComplete(waitlistTask, selectedTask, participantsTask)
+                .addOnSuccessListener(task -> {
+                    for (Task<?> individualTask : task) {
+                        if (individualTask.isSuccessful()) {
+                            QuerySnapshot snapshot = ((Task<QuerySnapshot>) individualTask).getResult();
+                            for (DocumentSnapshot document : snapshot.getDocuments()) {
+                                Event event = document.toObject(Event.class);
+                                if (event != null && !combinedEvents.contains(event)) {
+                                    combinedEvents.add(event);
+                                }
+                            }
+                        } else {
+                            // Log individual query failures but continue processing
+                            Log.e("FirebaseService", "Error fetching user events: " + individualTask.getException());
+                        }
+                    }
+
+                    // Logging for debugging
+                    Log.d("FirebaseService", "Total Events Found: " + combinedEvents.size());
+                    for (Event event : combinedEvents) {
+                        Log.d("FirebaseService", "Event ID: " + event.getId());
+                        Log.d("FirebaseService", "Participants: " + event.getParticipants());
+                        Log.d("FirebaseService", "Selected Participants: " + event.getSelectedParticipants());
+                        Log.d("FirebaseService", "Waitlist: " + event.getWaitingList());
+                    }
+
+                    callback.onSuccess(combinedEvents);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseService", "Error fetching user events", e);
+                    callback.onFailure(e);
+                });
+    }
+
 
     /**
      * Removes a specified user from the list of participants in a given event.
