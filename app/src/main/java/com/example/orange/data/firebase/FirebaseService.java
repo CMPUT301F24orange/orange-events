@@ -4,16 +4,23 @@ import android.util.Log;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.Facility;
 import com.example.orange.data.model.ImageData;
+import com.example.orange.data.model.Notification;
+import com.example.orange.data.model.NotificationType;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.Blob;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.example.orange.data.model.UserSession;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -398,29 +405,129 @@ public class FirebaseService {
     }
 
     /**
-     * Retrieves a list of events that the current user is participating in or is on the waitlist for.
-     *
+     * Retrieves all events associated with a user, whether they are in the waitlist,
+     * selected participants, or confirmed participants.     *
      * @author Graham Flokstra
      * @param userId   String representing the unique ID of the current user.
      * @param callback FirebaseCallback<List<Event>> to handle the result, providing a list of Event objects
      *                 the user is associated with (either in the participants or waiting list).
      */
+
     public void getUserEvents(String userId, FirebaseCallback<List<Event>> callback) {
-        db.collection("events")
-                .whereArrayContainsAny("waitingList", Collections.singletonList(userId))
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Event> events = new ArrayList<>();
-                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                        Event event = document.toObject(Event.class);
-                        if (event != null) {
-                            events.add(event);
+        List<Event> combinedEvents = new ArrayList<>();
+
+        // Query 1: Events where the user is in the waitingList
+        Task<QuerySnapshot> waitlistTask = db.collection("events")
+                .whereArrayContains("waitingList", userId)
+                .get();
+
+        // Query 2: Events where the user is in the selectedParticipants
+        Task<QuerySnapshot> selectedTask = db.collection("events")
+                .whereArrayContains("selectedParticipants", userId)
+                .get();
+
+        // Query 3: Events where the user is in the participants
+        Task<QuerySnapshot> participantsTask = db.collection("events")
+                .whereArrayContains("participants", userId)
+                .get();
+
+        // Execute all queries asynchronously
+        Tasks.whenAllComplete(waitlistTask, selectedTask, participantsTask)
+                .addOnSuccessListener(task -> {
+                    for (Task<?> individualTask : task) {
+                        if (individualTask.isSuccessful()) {
+                            QuerySnapshot snapshot = ((Task<QuerySnapshot>) individualTask).getResult();
+                            for (DocumentSnapshot document : snapshot.getDocuments()) {
+                                Event event = document.toObject(Event.class);
+                                if (event != null && !combinedEvents.contains(event)) {
+                                    combinedEvents.add(event);
+                                }
+                            }
+                        } else {
+                            // Log individual query failures but continue processing
+                            Log.e("FirebaseService", "Error fetching user events: " + individualTask.getException());
                         }
                     }
-                    callback.onSuccess(events);
+
+                    // Logging for debugging
+                    Log.d("FirebaseService", "Total Events Found: " + combinedEvents.size());
+                    for (Event event : combinedEvents) {
+                        Log.d("FirebaseService", "Event ID: " + event.getId());
+                        Log.d("FirebaseService", "Participants: " + event.getParticipants());
+                        Log.d("FirebaseService", "Selected Participants: " + event.getSelectedParticipants());
+                        Log.d("FirebaseService", "Waitlist: " + event.getWaitingList());
+                    }
+
+                    callback.onSuccess(combinedEvents);
                 })
-                .addOnFailureListener(callback::onFailure);
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseService", "Error fetching user events", e);
+                    callback.onFailure(e);
+                });
     }
+
+    /**
+     * Retrieves all events associated with a user, whether they are in the waitlist,
+     * selected participants, or confirmed participants.
+     * @author Graham Flokstra
+     * @param userId   String representing the unique ID of the current user.
+     * @param callback FirebaseCallback<List<Event>> to handle the result, providing a list of Event objects
+     *                 the user is associated with (either in the participants or waiting list).
+     */
+
+    public void getUserEventsWithoutCancelled(String userId, FirebaseCallback<List<Event>> callback) {
+        List<Event> combinedEvents = new ArrayList<>();
+
+        // Query 1: Events where the user is in the waitingList
+        Task<QuerySnapshot> waitlistTask = db.collection("events")
+                .whereArrayContains("waitingList", userId)
+                .get();
+
+        // Query 2: Events where the user is in the selectedParticipants
+        Task<QuerySnapshot> selectedTask = db.collection("events")
+                .whereArrayContains("selectedParticipants", userId)
+                .get();
+
+        // Query 3: Events where the user is in the participants
+        Task<QuerySnapshot> participantsTask = db.collection("events")
+                .whereArrayContains("participants", userId)
+                .get();
+
+        // Execute all queries asynchronously
+        Tasks.whenAllComplete(waitlistTask, selectedTask, participantsTask)
+                .addOnSuccessListener(task -> {
+                    for (Task<?> individualTask : task) {
+                        if (individualTask.isSuccessful()) {
+                            QuerySnapshot snapshot = ((Task<QuerySnapshot>) individualTask).getResult();
+                            for (DocumentSnapshot document : snapshot.getDocuments()) {
+                                Event event = document.toObject(Event.class);
+                                if (event != null && !combinedEvents.contains(event)) {
+                                    combinedEvents.add(event);
+                                }
+                            }
+                        } else {
+                            // Log individual query failures but continue processing
+                            Log.e("FirebaseService", "Error fetching user events: " + individualTask.getException());
+                        }
+                    }
+
+                    // Logging for debugging
+                    Log.d("FirebaseService", "Total Events Found: " + combinedEvents.size());
+                    for (Event event : combinedEvents) {
+                        Log.d("FirebaseService", "Event ID: " + event.getId());
+                        Log.d("FirebaseService", "Participants: " + event.getParticipants());
+                        Log.d("FirebaseService", "Selected Participants: " + event.getSelectedParticipants());
+                        Log.d("FirebaseService", "Waitlist: " + event.getWaitingList());
+                    }
+
+                    callback.onSuccess(combinedEvents);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseService", "Error fetching user events", e);
+                    callback.onFailure(e);
+                });
+    }
+
 
     /**
      * Removes a specified user from the list of participants in a given event.
@@ -1192,11 +1299,9 @@ public class FirebaseService {
         DocumentReference userRef = db.collection("users").document(userId);
 
         db.runTransaction(transaction -> {
-            // Retrieve the event and user documents
             DocumentSnapshot eventSnapshot = transaction.get(eventRef);
             DocumentSnapshot userSnapshot = transaction.get(userRef);
 
-            // Proceed only if both documents exist
             if (eventSnapshot.exists() && userSnapshot.exists()) {
                 // Move user from selectedParticipants to participants
                 transaction.update(eventRef, "selectedParticipants", FieldValue.arrayRemove(userId));
@@ -1206,7 +1311,6 @@ public class FirebaseService {
                 transaction.update(userRef, "eventsWaitlisted", FieldValue.arrayRemove(eventId));
                 transaction.update(userRef, "eventsParticipating", FieldValue.arrayUnion(eventId));
             }
-            // If either document doesn't exist, do nothing
             return null;
         }).addOnSuccessListener(aVoid -> {
             Log.d(TAG, "User successfully accepted event invitation");
@@ -1216,6 +1320,7 @@ public class FirebaseService {
             callback.onFailure(e);
         });
     }
+
 
     /**
      * Updates both Event and User documents when a user declines an invitation to participate.
@@ -1294,5 +1399,166 @@ public class FirebaseService {
             callback.onFailure(e);
         });
     }
+
+
+    /* --------------- Notifications ---------------- */
+
+
+
+    /**
+     * Creates a new notification in Firestore.
+     *
+     * @param notification The Notification object to be created.
+     * @param callback     A callback to handle the result of the operation.
+     */
+    public void createNotification(Notification notification, FirebaseCallback<String> callback) {
+        DocumentReference newNotificationRef = db.collection("notifications").document();
+        notification.setId(newNotificationRef.getId());
+        db.collection("notifications").document(notification.getId())
+                .set(notification)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Notification created successfully");
+                    callback.onSuccess(notification.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create notification", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Retrieves a notification by its ID.
+     *
+     * @param notificationId The ID of the notification.
+     * @param callback       A callback to handle the result of the operation.
+     */
+    public void getNotificationById(String notificationId, FirebaseCallback<Notification> callback) {
+        db.collection("notifications").document(notificationId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Notification notification = documentSnapshot.toObject(Notification.class);
+                        callback.onSuccess(notification);
+                    } else {
+                        callback.onSuccess(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to retrieve notification", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Retrieves all notifications for a specific user.
+     *
+     * @param userId   The ID of the user.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void getNotificationsForUser(String userId, FirebaseCallback<List<Notification>> callback) {
+        db.collection("notifications")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Notification> notifications = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        Notification notification = document.toObject(Notification.class);
+                        if (notification != null) {
+                            notifications.add(notification);
+                        }
+                    }
+                    callback.onSuccess(notifications);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to retrieve notifications for user", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Updates a notification in Firestore.
+     *
+     * @param notification The Notification object with updated data.
+     * @param callback     A callback to handle the result of the operation.
+     */
+    public void updateNotification(Notification notification, FirebaseCallback<Void> callback) {
+        db.collection("notifications").document(notification.getId())
+                .set(notification)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Notification updated successfully");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to update notification", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Deletes a notification from Firestore.
+     *
+     * @param notificationId The ID of the notification to delete.
+     * @param callback       A callback to handle the result of the operation.
+     */
+    public void deleteNotification(String notificationId, FirebaseCallback<Void> callback) {
+        db.collection("notifications").document(notificationId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Notification deleted successfully");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to delete notification", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Creates notifications for selected and unselected users after drawing participants.
+     *
+     * @param eventId          The ID of the event.
+     * @param selectedUserIds  List of user IDs who were selected.
+     * @param unselectedUserIds List of user IDs who were not selected.
+     * @param callback         A callback to handle the result of the operation.
+     */
+    public void createDrawNotifications(String eventId, List<String> selectedUserIds, List<String> unselectedUserIds, FirebaseCallback<Void> callback) {
+        // Create a list to hold all notification creation tasks
+        List<Notification> notifications = new ArrayList<>();
+
+        // Create notifications for selected users
+        for (String userId : selectedUserIds) {
+            Notification notification = new Notification(eventId, userId, NotificationType.SELECTED_TO_PARTICIPATE);
+            notifications.add(notification);
+        }
+
+        // Create notifications for unselected users
+        for (String userId : unselectedUserIds) {
+            Notification notification = new Notification(eventId, userId, NotificationType.NOT_SELECTED);
+            notifications.add(notification);
+        }
+
+        // Batch write to Firestore
+        WriteBatch batch = db.batch();
+        CollectionReference notificationsRef = db.collection("notifications");
+
+        for (Notification notification : notifications) {
+            DocumentReference docRef = notificationsRef.document();
+            notification.setId(docRef.getId());
+            batch.set(docRef, notification);
+        }
+
+        // Commit the batch
+        batch.commit()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "All notifications created successfully.");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create notifications.", e);
+                    callback.onFailure(e);
+                });
+    }
+
+
+
 
 }
