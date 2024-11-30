@@ -12,6 +12,7 @@ import com.google.firebase.firestore.DocumentId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -42,6 +43,7 @@ public class Event implements Parcelable {
     private List<String> cancelledList;
     private String eventImageId; // Changed from Blob to String ID
     private String facilityId;
+    private List<Map<String, Object>> location;
 
     /**
      * Default constructor required for Firestone
@@ -114,6 +116,7 @@ public class Event implements Parcelable {
         dest.writeStringList(cancelledList);
         dest.writeString(eventImageId);
         dest.writeString(facilityId);
+
     }
 
     public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
@@ -526,7 +529,13 @@ public class Event implements Parcelable {
     public void setWaitlistLimit(Integer waitlistLimit) { this.waitlistLimit = waitlistLimit; }
 
 
+    public List<Map<String, Object>> getLocation() {
+        return location;
+    }
 
+    public void setLocation(List<Map<String, Object>> location) {
+        this.location = location;
+    }
 
     /**
      * Retrieves the event's image ID.
