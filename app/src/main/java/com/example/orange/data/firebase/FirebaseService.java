@@ -1558,6 +1558,21 @@ public class FirebaseService {
                 });
     }
 
+    /**
+     * Removes the user's location entry entirely from the event's location field in Firestore.
+     *
+     * @param eventId Unique ID of the event.
+     * @param userId  Unique ID of the user.
+     * @param callback Callback to handle success or failure.
+     */
+    public void removeUserFromEventLocation(String eventId, String userId, FirebaseCallback<Void> callback) {
+        db.collection("events")
+                .document(eventId)
+                .update("location." + userId, FieldValue.delete()) // Delete the user's location entry
+                .addOnSuccessListener(unused -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
 
 
 
