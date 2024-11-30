@@ -1,5 +1,7 @@
 package com.example.orange.ui.events;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -9,9 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
+import com.example.orange.MainActivity;
 import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
@@ -21,6 +25,8 @@ import com.example.orange.utils.SessionManager;
 
 /**
  * Activity to display details of an event and allow users to join or leave the event's waitlist.
+ *
+ * @author Brandon Ramirez
  */
 public class entrantEventDetailsActivity extends AppCompatActivity {
 
@@ -31,10 +37,11 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
     private FirebaseService firebaseService; // Service to interact with Firebase
     private SessionManager sessionManager; // Manages user session
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_entrant_event_details); // Reusing the same layout
+        setContentView(R.layout.activity_lottery_event_details);
 
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(this);
@@ -48,8 +55,8 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
             finish(); // Close activity if no event ID is provided
         }
 
-        joinEventButton = findViewById(R.id.joinWaitlistButton);
-        leaveEventButton = findViewById(R.id.leaveWaitlistButton);
+        joinEventButton = findViewById(R.id.AcceptEventButton);
+        leaveEventButton = findViewById(R.id.DeclineEventButton);
         joinEventButton.setOnClickListener(v -> joinEvent(eventId));
         leaveEventButton.setOnClickListener(v -> leaveEvent(eventId));
     }
@@ -89,14 +96,10 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
                         eventImage.setImageResource(R.drawable.ic_image); // Placeholder if no image is available
                     }
 
-                    ((TextView) findViewById(R.id.eventName)).setText(result.getTitle());
+                    ((TextView) findViewById(R.id.eventName)).setText("Congratulations! You have been selected to join the " + result.getTitle() + " event");
                     ((TextView) findViewById(R.id.eventDescriptionText)).setText(result.getDescription());
                     ((TextView) findViewById(R.id.eventDateText)).setText(result.getStartDate() != null ? result.getStartDate().toDate().toString() : "N/A");
-                    ((TextView) findViewById(R.id.registrationOpensText)).setText(result.getRegistrationOpens() != null ? result.getRegistrationOpens().toDate().toString() : "N/A");
-                    ((TextView) findViewById(R.id.registrationDeadlineText)).setText(result.getRegistrationDeadline() != null ? result.getRegistrationDeadline().toDate().toString() : "N/A");
                     ((TextView) findViewById(R.id.eventLimitText)).setText(String.valueOf(result.getCapacity()));
-                    ((TextView) findViewById(R.id.waitlistLimitText)).setText(result.getWaitlistLimit() != null ? String.valueOf(result.getWaitlistLimit()) : "N/A");
-                    ((TextView) findViewById(R.id.lotteryDayText)).setText(result.getLotteryDrawDate() != null ? result.getLotteryDrawDate().toDate().toString() : "N/A");
                     ((TextView) findViewById(R.id.eventPriceText)).setText(result.getPrice() != null ? result.getPrice().toString() : "N/A");
                 } else {
                     Toast.makeText(entrantEventDetailsActivity.this, "Event not found", Toast.LENGTH_SHORT).show(); // Show error if event not found
@@ -118,15 +121,20 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
      */
     private void joinEvent(String eventId) {
         String userId = sessionManager.getUserSession().getUserId();
+        //TODO: intsead of adding to the waitlist add list of accepted users
         firebaseService.addToEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Toast.makeText(entrantEventDetailsActivity.this, "Added to waitlist", Toast.LENGTH_SHORT).show();
+                Toast.makeText(entrantEventDetailsActivity.this, "Accepted the offer", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
             }
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(entrantEventDetailsActivity.this, "Failed to add to waitlist", Toast.LENGTH_SHORT).show();
+                Toast.makeText(entrantEventDetailsActivity.this, "Failed to accept offer", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -138,15 +146,20 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
      */
     private void leaveEvent(String eventId) {
         String userId = sessionManager.getUserSession().getUserId();
+        //TODO: intsead of adding to the waitlist add list of declined users
         firebaseService.removeFromEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Toast.makeText(entrantEventDetailsActivity.this, "Removed from waitlist", Toast.LENGTH_SHORT).show();
+                Toast.makeText(entrantEventDetailsActivity.this, "Declined the offer", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
             }
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(entrantEventDetailsActivity.this, "Failed to remove from waitlist", Toast.LENGTH_SHORT).show();
+                Toast.makeText(entrantEventDetailsActivity.this, "Failed to decline offer", Toast.LENGTH_SHORT).show();
             }
         });
     }

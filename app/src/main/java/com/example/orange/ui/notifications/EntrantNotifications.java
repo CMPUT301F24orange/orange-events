@@ -53,7 +53,7 @@ public class EntrantNotifications{
     public static final String TAG = "ORANGE";
     public static final String LOTTERY_CHANNEL_ID = "lottery_channel";
     private final String postURL = "https://fcm.googleapis.com/v1/projects/event-lottery-system---orange/messages:send";
-
+    public static String eid = "";
     public static void createChannel(Context context){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -75,20 +75,21 @@ public class EntrantNotifications{
                 .setContentText(message)
                 .setSmallIcon(R.drawable.app_logo)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        Intent intent = new Intent(context, entrantEventDetailsActivity.class);
+        Log.d("EVENT ID", eid);
+        intent.putExtra("event_id", "sQblsB7cJyYRxa1UKOPG");
+        PendingIntent pendingIntent;
+        pendingIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_IMMUTABLE);
+        builder.setContentIntent(pendingIntent);
 
-        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
-        bigTextStyle.bigText(title);
-        bigTextStyle.setBigContentTitle(title);
-        bigTextStyle.setSummaryText(title);
-
-        builder.setStyle(bigTextStyle);
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             createChannel(context);
         }
         manager.notify(4255,builder.build());
     }
-    public void sendToPhone(Context context, String title, String message, User user){
+    public void sendToPhone(Context context, String title, String message, User user, String eventId){
+        eid = eventId;
         FirebaseNotifications firebaseNotifications = new FirebaseNotifications();
         firebaseNotifications.onNewToken(user.getFcmToken());
         Log.d(TAG, context.toString());

@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, RC_NOTIFICATION);
         }
+        EntrantNotifications.createChannel(this);
+        EntrantNotifications.sendNotification(this, "title", "Message");
+
         // Setup Toolbar
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);

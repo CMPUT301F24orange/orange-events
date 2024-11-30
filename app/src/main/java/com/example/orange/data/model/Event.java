@@ -534,10 +534,10 @@ public class Event {
             Log.d("ORANGE", userId);
             firebaseService.getUserById(userId, new FirebaseCallback<User>() {
                 @Override
-                public void onSuccess(User result) {
-                    Log.d(TAG, result.getFcmToken());
+                public void onSuccess(User user) {
+                    Log.d(TAG, user.getFcmToken());
                     EntrantNotifications entrantNotifications = new EntrantNotifications();
-                    entrantNotifications.sendToPhone(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", result);
+                    entrantNotifications.sendToPhone(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", user, id);
                 }
 
                 @Override

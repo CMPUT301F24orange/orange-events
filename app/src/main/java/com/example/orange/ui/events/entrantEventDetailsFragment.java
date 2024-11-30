@@ -58,8 +58,8 @@ public class entrantEventDetailsFragment extends Fragment {
             Toast.makeText(requireContext(), "No event ID found", Toast.LENGTH_SHORT).show();
         }
 
-        joinEventButton = view.findViewById(R.id.joinWaitlistButton);
-        leaveEventButton = view.findViewById(R.id.leaveWaitlistButton);
+        joinEventButton = view.findViewById(R.id.AcceptEventButton);
+        leaveEventButton = view.findViewById(R.id.DeclineEventButton);
         joinEventButton.setOnClickListener(v -> joinEvent(eventId));
         leaveEventButton.setOnClickListener(v -> leaveEvent(eventId));
 

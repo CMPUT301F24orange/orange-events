@@ -26,7 +26,6 @@ public class FirebaseNotifications extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
         super.onMessageReceived(message);
-
         String title = message.getNotification().getTitle();
         String content = message.getNotification().getBody();
         String data = new Gson().toJson(message.getData());
