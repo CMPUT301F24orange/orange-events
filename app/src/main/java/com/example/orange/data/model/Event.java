@@ -20,10 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/* Todo:
- *    Add in event image functionality
- *   Complete overall functionality
- */
 
 /**
  * This class defines an Event

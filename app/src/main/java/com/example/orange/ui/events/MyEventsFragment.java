@@ -3,6 +3,7 @@ package com.example.orange.ui.events;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,8 +69,11 @@ public class MyEventsFragment extends Fragment {
      * Loads the current user's events from Firebase and calls displayEvents to render them.
      */
     private void loadUserEvents() {
-        String userId = sessionManager.getUserSession().getUserId();
+        String userID = sessionManager.getUserSession().getUserId();
+        String userType = sessionManager.getUserSession().getUserType().toString();
+        String userId = userID+"_"+userType;
 
+        Log.d("View FRAG",userId );
         firebaseService.getUserEvents(userId, new FirebaseCallback<List<Event>>() {
             @Override
             public void onSuccess(List<Event> events) {

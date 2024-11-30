@@ -26,10 +26,12 @@ public class User {
     private boolean receiveNotifications;
     private List<String> eventsParticipating;
     private List<String> eventsOrganizing;
+    private List<String> eventsWaitlisted;
+    private List<String> eventsCancelled;
     private boolean receiveOrganizerNotifications;
     private boolean receiveAdminNotifications;
     private String facilityId;
-    private String profileImageId; 
+    private String profileImageId;
 
     /**
      * Default constructor required for Firestore.
@@ -38,10 +40,12 @@ public class User {
     public User() {
         eventsParticipating = new ArrayList<>();
         eventsOrganizing = new ArrayList<>();
+        eventsWaitlisted = new ArrayList<>();      // Initialize new lists
+        eventsCancelled = new ArrayList<>();
     }
 
     /**
-     * Constructs a new User with specified username and user type.
+     * Constructs a new User with specified device ID and user type.
      *
      * @param deviceId The deviceId of the user.
      * @param userType The type of the user (e.g., ENTRANT, ORGANIZER, ADMIN).
@@ -51,9 +55,12 @@ public class User {
         this.userType = userType;
         this.eventsParticipating = new ArrayList<>();
         this.eventsOrganizing = new ArrayList<>();
+        this.eventsWaitlisted = new ArrayList<>();
+        this.eventsCancelled = new ArrayList<>();
         this.receiveOrganizerNotifications = false;
         this.receiveAdminNotifications = false;
     }
+
 
     // Getters and Setters
 
@@ -366,6 +373,83 @@ public class User {
     }
 
     /**
+     * Gets the list of events the user is waitlisted for.
+     *
+     * @return List of event IDs.
+     */
+    public List<String> getEventsWaitlisted() {
+        return eventsWaitlisted;
+    }
+
+    /**
+     * Sets the list of events the user is waitlisted for.
+     *
+     * @param eventsWaitlisted List of event IDs to set.
+     */
+    public void setEventsWaitlisted(List<String> eventsWaitlisted) {
+        this.eventsWaitlisted = eventsWaitlisted;
+    }
+
+    /**
+     * Adds an event to the user's waitlist.
+     *
+     * @param eventId The ID of the event to add.
+     */
+    public void addEventWaitlisted(String eventId) {
+        if (!this.eventsWaitlisted.contains(eventId)) {
+            this.eventsWaitlisted.add(eventId);
+        }
+    }
+
+    /**
+     * Removes an event from the user's waitlist.
+     *
+     * @param eventId The ID of the event to remove.
+     */
+    public void removeEventWaitlisted(String eventId) {
+        this.eventsWaitlisted.remove(eventId);
+    }
+
+    /**
+     * Gets the list of events the user has cancelled.
+     *
+     * @return List of event IDs.
+     */
+    public List<String> getEventsCancelled() {
+        return eventsCancelled;
+    }
+
+    /**
+     * Sets the list of events the user has cancelled.
+     *
+     * @param eventsCancelled List of event IDs to set.
+     */
+    public void setEventsCancelled(List<String> eventsCancelled) {
+        this.eventsCancelled = eventsCancelled;
+    }
+
+    /**
+     * Adds an event to the user's cancelled list.
+     *
+     * @param eventId The ID of the event to add.
+     */
+    public void addEventCancelled(String eventId) {
+        if (!this.eventsCancelled.contains(eventId)) {
+            this.eventsCancelled.add(eventId);
+        }
+    }
+
+    /**
+     * Removes an event from the user's cancelled list.
+     *
+     * @param eventId The ID of the event to remove.
+     */
+    public void removeEventCancelled(String eventId) {
+        this.eventsCancelled.remove(eventId);
+    }
+
+
+    /**
      * Returns a string representation of the User object.
      *
      * @return A string containing user details.
@@ -378,6 +462,8 @@ public class User {
                 ", userType=" + userType +
                 ", eventsParticipating=" + eventsParticipating.size() +
                 ", eventsOrganizing=" + eventsOrganizing.size() +
+                ", eventsWaitlisted=" + eventsWaitlisted.size() +    // Include new fields
+                ", eventsCancelled=" + eventsCancelled.size() +
                 ", receiveOrganizerNotifications=" + receiveOrganizerNotifications +
                 ", receiveAdminNotifications=" + receiveAdminNotifications +
                 '}';

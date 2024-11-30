@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -62,11 +63,11 @@ public class ProfileFragment extends Fragment {
 
     private ImageView profileImage;
 
-    private Button uploadImageButton;
-    private Button saveButton;
-    private Button deleteImageButton;
-    private Button logoutButton;
-    private Button facilityButton;
+    private ImageButton uploadImageButton;
+    private ImageButton saveButton;
+    private ImageButton deleteImageButton;
+    private ImageButton logoutButton;
+    private ImageButton facilityButton;
 
     private CheckBox receiveNotificationsCheckbox;
 

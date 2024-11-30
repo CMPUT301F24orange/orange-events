@@ -146,7 +146,7 @@ public class FirebaseService {
      * @return String
      */
     private String generateUserId(String deviceId, UserType userType) {
-        return deviceId + "_" + userType.name();
+        return deviceId + "_" + userType.toString();
     }
 
     /**
@@ -171,25 +171,61 @@ public class FirebaseService {
     }
 
     /**
-     * Creates a new event in Firestore.
+     * Creates a new event in Firestore and updates the organizer's eventsOrganizing list atomically.
+     *
+     * @author Graham Flokstra
      *
      * @param event    The Event object to be created in Firestore.
+     * @param userId   The ID of the organizer creating the event.
      * @param callback A callback to handle the result of the operation.
      */
-    public void createEvent(Event event, FirebaseCallback<String> callback) {
+    public void createEvent(Event event, String userId, FirebaseCallback<String> callback) {
         DocumentReference newEventRef = db.collection("events").document();
         event.setId(newEventRef.getId());
-        newEventRef.set(event)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Event created successfully in Firestore");
-                    callback.onSuccess(event.getId());
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to create event in Firestore", e);
-                    callback.onFailure(e);
-                });
+
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction(transaction -> {
+            // Retrieve the user document
+            DocumentSnapshot userSnapshot = transaction.get(userRef);
+            if (!userSnapshot.exists()) {
+                throw new FirebaseServiceException("Organizer does not exist");
+            }
+
+            // Optionally, verify that the user is an organizer
+            User user = userSnapshot.toObject(User.class);
+            if (user == null || user.getUserType() != UserType.ORGANIZER) {
+                throw new FirebaseServiceException("User is not an organizer");
+            }
+
+            // Set organizerId and facilityId in the event
+            event.setOrganizerId(user.getId());
+            event.setFacilityId(user.getFacilityId());
+
+            // Create the event document
+            transaction.set(newEventRef, event);
+
+            // Update the user's eventsOrganizing list
+            transaction.update(userRef, "eventsOrganizing", FieldValue.arrayUnion(event.getId()));
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "Event created successfully in Firestore and organizer's list updated");
+            callback.onSuccess(event.getId());
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Failed to create event in Firestore", e);
+            callback.onFailure(e);
+        });
     }
 
+    /**
+     * Custom exception class for FirebaseService-related errors.
+     */
+    public static class FirebaseServiceException extends RuntimeException {
+        public FirebaseServiceException(String message) {
+            super(message);
+        }
+    }
 
     /**
      * Retrieves an event from Firestore based on its ID.
@@ -492,6 +528,62 @@ public class FirebaseService {
     }
 
     /**
+     * Adds a user to the waitlist of an event and updates the user's waitlisted events.
+     *
+     * @param eventId  The ID of the event to join.
+     * @param userId   The ID of the user joining the event.
+     * @param callback A callback to handle success or failure.
+     */
+    public void joinEventWaitlist(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction(transaction -> {
+            // Retrieve the event and user documents
+            DocumentSnapshot eventSnapshot = transaction.get(eventRef);
+            DocumentSnapshot userSnapshot = transaction.get(userRef);
+
+            if (!eventSnapshot.exists()) {
+                throw new FirebaseServiceException("Event does not exist.");
+            }
+
+            if (!userSnapshot.exists()) {
+                throw new FirebaseServiceException("User does not exist.");
+            }
+
+            Event event = eventSnapshot.toObject(Event.class);
+            User user = userSnapshot.toObject(User.class);
+
+            if (event == null || user == null) {
+                throw new FirebaseServiceException("Failed to parse Event or User data.");
+            }
+
+            // Check if the user is already a participant or on the waitlist
+            if (event.getParticipants().contains(userId)) {
+                throw new FirebaseServiceException("You are already a participant of this event.");
+            }
+
+            if (event.getWaitingList().contains(userId)) {
+                throw new FirebaseServiceException("You are already on the waitlist for this event.");
+            }
+
+            // Add user to the event's waiting list
+            transaction.update(eventRef, "waitingList", FieldValue.arrayUnion(userId));
+
+            // Add event to the user's eventsWaitlisted
+            transaction.update(userRef, "eventsWaitlisted", FieldValue.arrayUnion(eventId));
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "User successfully added to waitlist");
+            callback.onSuccess(null);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error adding user to waitlist", e);
+            callback.onFailure(e);
+        });
+    }
+
+    /**
      * Creates a new facility in Firestore.
      *
      * @author Graham Flokstra
@@ -679,47 +771,6 @@ public class FirebaseService {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    /**
-     * Draws entrants from the event's waitlist and adds them to the selected participants list.
-     * If the event has a capacity limit, the number of selected entrants should not exceed that limit.
-     *
-     * @param eventId The ID of the event.
-     * @param callback Callback for success or failure.
-     */
-    public void drawFromWaitlist(String eventId, FirebaseCallback<Void> callback) {
-        getEventById(eventId, new FirebaseCallback<Event>() {
-            @Override
-            public void onSuccess(Event event) {
-                if (event != null && event.getWaitingList() != null && !event.getWaitingList().isEmpty()) {
-                    int eventLimit = (event.getCapacity() != null) ? event.getCapacity() : Integer.MAX_VALUE;
-                    List<String> waitlist = new ArrayList<>(event.getWaitingList());
-                    Collections.shuffle(waitlist);
-
-                    int numToSelect = Math.min(eventLimit - event.getParticipants().size(), waitlist.size());
-
-                    if (numToSelect > 0) {
-                        List<String> selectedParticipants = waitlist.subList(0, numToSelect);
-
-                        for (String userId : selectedParticipants) {
-                            event.removeFromWaitingList(userId);
-                            event.addParticipant(userId);
-                        }
-
-                        updateEvent(event, callback);
-                    } else {
-                        callback.onFailure(new Exception("Event is already full or no participants to draw"));
-                    }
-                } else {
-                    callback.onFailure(new Exception("No users in the waitlist or event is not found"));
-                }
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
-            }
-        });
-      }
     /**
      * Deletes the user document and their associated profile image from Firestore.
      *
@@ -971,6 +1022,277 @@ public class FirebaseService {
                     }
                 })
                 .addOnFailureListener( e -> callback.onFailure(new Exception("Failed to retrieve event document.", e)));
+    }
+
+    /**
+     * Adds a user to an event's waitlist and updates the user's eventsWaitlisted list.
+     * Assumes that event existence and capacity have been validated beforehand.
+     *
+     * @param eventId  The ID of the event.
+     * @param userId   The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void addUserToWaitlist(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction(transaction -> {
+            // Retrieve the event and user documents
+            DocumentSnapshot eventSnapshot = transaction.get(eventRef);
+            DocumentSnapshot userSnapshot = transaction.get(userRef);
+
+            // Proceed only if both documents exist
+            if (eventSnapshot.exists() && userSnapshot.exists()) {
+                // Add user to event's waiting list
+                transaction.update(eventRef, "waitingList", FieldValue.arrayUnion(userId));
+
+                // Add event to user's eventsWaitlisted
+                transaction.update(userRef, "eventsWaitlisted", FieldValue.arrayUnion(eventId));
+            }
+            // If either document doesn't exist, do nothing
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "User successfully added to waitlist");
+            callback.onSuccess(null);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error adding user to waitlist", e);
+            callback.onFailure(e);
+        });
+    }
+
+    /**
+     * Removes a user from an event's waitlist and updates the user's eventsWaitlisted list.
+     * Assumes that event existence and user's waitlist status have been validated beforehand.
+     *
+     * @param eventId  The ID of the event.
+     * @param userId   The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void removeUserFromWaitlist(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction(transaction -> {
+            // Retrieve the event and user documents
+            DocumentSnapshot eventSnapshot = transaction.get(eventRef);
+            DocumentSnapshot userSnapshot = transaction.get(userRef);
+
+            // Proceed only if both documents exist
+            if (eventSnapshot.exists() && userSnapshot.exists()) {
+                // Remove user from event's waiting list
+                transaction.update(eventRef, "waitingList", FieldValue.arrayRemove(userId));
+
+                // Remove event from user's eventsWaitlisted
+                transaction.update(userRef, "eventsWaitlisted", FieldValue.arrayRemove(eventId));
+            }
+            // If either document doesn't exist, do nothing
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "User successfully removed from waitlist");
+            callback.onSuccess(null);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error removing user from waitlist", e);
+            callback.onFailure(e);
+        });
+    }
+
+    /**
+     * Moves a user from the waitlist to participants and updates both Event and User documents.
+     * Assumes that event is not full and user is on the waitlist.
+     *
+     * @param eventId  The ID of the event.
+     * @param userId   The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void moveUserFromWaitlistToParticipants(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction(transaction -> {
+            // Retrieve the event and user documents
+            DocumentSnapshot eventSnapshot = transaction.get(eventRef);
+            DocumentSnapshot userSnapshot = transaction.get(userRef);
+
+            // Proceed only if both documents exist
+            if (eventSnapshot.exists() && userSnapshot.exists()) {
+                // Move user from waitingList to participants
+                transaction.update(eventRef, "waitingList", FieldValue.arrayRemove(userId));
+                transaction.update(eventRef, "participants", FieldValue.arrayUnion(userId));
+
+                // Update user's lists
+                transaction.update(userRef, "eventsWaitlisted", FieldValue.arrayRemove(eventId));
+                transaction.update(userRef, "eventsParticipating", FieldValue.arrayUnion(eventId));
+            }
+            // If either document doesn't exist, do nothing
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "User successfully moved from waitlist to participants");
+            callback.onSuccess(null);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error moving user from waitlist to participants", e);
+            callback.onFailure(e);
+        });
+    }
+
+    /**
+     * Cancels a user's participation in an event, moving them to the cancelled list and updating User lists.
+     * Assumes that user is either a participant, selected participant, or waitlisted.
+     *
+     * @param eventId  The ID of the event.
+     * @param userId   The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void cancelUserParticipation(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction(transaction -> {
+            // Retrieve the event and user documents
+            DocumentSnapshot eventSnapshot = transaction.get(eventRef);
+            DocumentSnapshot userSnapshot = transaction.get(userRef);
+
+            // Proceed only if both documents exist
+            if (eventSnapshot.exists() && userSnapshot.exists()) {
+                // Remove user from all possible lists
+                transaction.update(eventRef, "participants", FieldValue.arrayRemove(userId));
+                transaction.update(eventRef, "selectedParticipants", FieldValue.arrayRemove(userId));
+                transaction.update(eventRef, "waitingList", FieldValue.arrayRemove(userId));
+
+                // Add user to cancelledList in Event
+                transaction.update(eventRef, "cancelledList", FieldValue.arrayUnion(userId));
+
+                // Add event to user's eventsCancelled
+                transaction.update(userRef, "eventsCancelled", FieldValue.arrayUnion(eventId));
+
+                // Remove event from user's other lists
+                transaction.update(userRef, "eventsParticipating", FieldValue.arrayRemove(eventId));
+                transaction.update(userRef, "eventsWaitlisted", FieldValue.arrayRemove(eventId));
+            }
+            // If either document doesn't exist, do nothing
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "User successfully cancelled participation");
+            callback.onSuccess(null);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error cancelling user participation", e);
+            callback.onFailure(e);
+        });
+    }
+
+    /**
+     * Updates both Event and User documents when a user accepts an invitation to participate.
+     * Assumes that event is not full and user is a selected participant.
+     *
+     * @param eventId  The ID of the event.
+     * @param userId   The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void acceptEventInvitation(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction(transaction -> {
+            // Retrieve the event and user documents
+            DocumentSnapshot eventSnapshot = transaction.get(eventRef);
+            DocumentSnapshot userSnapshot = transaction.get(userRef);
+
+            // Proceed only if both documents exist
+            if (eventSnapshot.exists() && userSnapshot.exists()) {
+                // Move user from selectedParticipants to participants
+                transaction.update(eventRef, "selectedParticipants", FieldValue.arrayRemove(userId));
+                transaction.update(eventRef, "participants", FieldValue.arrayUnion(userId));
+
+                // Update user's lists
+                transaction.update(userRef, "eventsWaitlisted", FieldValue.arrayRemove(eventId));
+                transaction.update(userRef, "eventsParticipating", FieldValue.arrayUnion(eventId));
+            }
+            // If either document doesn't exist, do nothing
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "User successfully accepted event invitation");
+            callback.onSuccess(null);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error accepting event invitation", e);
+            callback.onFailure(e);
+        });
+    }
+
+    /**
+     * Updates both Event and User documents when a user declines an invitation to participate.
+     * Assumes that user is a selected participant.
+     *
+     * @param eventId  The ID of the event.
+     * @param userId   The ID of the user.
+     * @param callback Callback for success or failure.
+     */
+    public void declineEventInvitation(String eventId, String userId, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        db.runTransaction(transaction -> {
+            // Retrieve the event and user documents
+            DocumentSnapshot eventSnapshot = transaction.get(eventRef);
+            DocumentSnapshot userSnapshot = transaction.get(userRef);
+
+            // Proceed only if both documents exist
+            if (eventSnapshot.exists() && userSnapshot.exists()) {
+                // Remove user from selectedParticipants and add to cancelledList
+                transaction.update(eventRef, "selectedParticipants", FieldValue.arrayRemove(userId));
+                transaction.update(eventRef, "cancelledList", FieldValue.arrayUnion(userId));
+
+                // Update user's lists
+                transaction.update(userRef, "eventsWaitlisted", FieldValue.arrayRemove(eventId));
+                transaction.update(userRef, "eventsCancelled", FieldValue.arrayUnion(eventId));
+            }
+            // If either document doesn't exist, do nothing
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "User successfully declined event invitation");
+            callback.onSuccess(null);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error declining event invitation", e);
+            callback.onFailure(e);
+        });
+    }
+    public void moveUsersToSelectedParticipants(String eventId, List<String> selectedUsers, FirebaseCallback<Void> callback) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+
+        db.runTransaction(transaction -> {
+            DocumentSnapshot snapshot = transaction.get(eventRef);
+
+            if (!snapshot.exists()) {
+                throw new FirebaseServiceException("Event not found.");
+            }
+
+            Event event = snapshot.toObject(Event.class);
+
+            if (event == null) {
+                throw new FirebaseServiceException("Failed to parse event data.");
+            }
+
+            List<String> selectedParticipants = event.getSelectedParticipants() != null ? new ArrayList<>(event.getSelectedParticipants()) : new ArrayList<>();
+            List<String> waitlist = event.getWaitingList() != null ? new ArrayList<>(event.getWaitingList()) : new ArrayList<>();
+
+            // Add selected users to selectedParticipants and remove from waitlist
+            for (String userId : selectedUsers) {
+                if (waitlist.contains(userId)) {
+                    selectedParticipants.add(userId);
+                    waitlist.remove(userId);
+                }
+            }
+
+            // Update Firestore document
+            transaction.update(eventRef, "selectedParticipants", selectedParticipants);
+            transaction.update(eventRef, "waitingList", waitlist);
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "Successfully moved users to selectedParticipants.");
+            callback.onSuccess(null);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error moving users to selectedParticipants.", e);
+            callback.onFailure(e);
+        });
     }
 
 }

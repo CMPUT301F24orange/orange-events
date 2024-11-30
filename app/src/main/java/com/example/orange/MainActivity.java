@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Sets the profile button in the top right corner of the app
+     * Sets the admin button in the top right corner of the app
      *
      * @param item
      * @return
