@@ -43,7 +43,7 @@ public class Event implements Parcelable {
     private List<String> cancelledList;
     private String eventImageId; // Changed from Blob to String ID
     private String facilityId;
-    private List<Map<String, Object>> location;
+    private Map<String, Map<String, Object>> location;
 
     /**
      * Default constructor required for Firestone
@@ -529,11 +529,11 @@ public class Event implements Parcelable {
     public void setWaitlistLimit(Integer waitlistLimit) { this.waitlistLimit = waitlistLimit; }
 
 
-    public List<Map<String, Object>> getLocation() {
+    public Map<String, Map<String, Object>> getLocation() {
         return location;
     }
 
-    public void setLocation(List<Map<String, Object>> location) {
+    public void setLocation(Map<String, Map<String, Object>> location) {
         this.location = location;
     }
 
