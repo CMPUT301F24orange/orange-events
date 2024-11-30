@@ -160,7 +160,6 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onSuccess(User organizer) {
                                                         entrantNotifications.sendToPhone(getApplicationContext(), "A user has accepted the offer to join your event", userId + " has accepted the offer.", organizer,notifications);
-                                                        event.fillSpotsFromWaitingList(getApplicationContext());
                                                         Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
                                                         firebaseService.createNotification(notification, new FirebaseCallback<String>() {
                                                             @Override
@@ -242,7 +241,6 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onSuccess(User organizer) {
                                                         entrantNotifications.sendToPhone(getApplicationContext(), "A user has declined the offer to join your event", userId + " has declined the offer.", organizer,notifications);
-                                                        event.fillSpotsFromWaitingList(getApplicationContext());
                                                         Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
                                                         firebaseService.createNotification(notification, new FirebaseCallback<String>() {
                                                             @Override
@@ -255,6 +253,9 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
                                                                 Log.d("ORANGE", "Failed to create notification");
                                                             }
                                                         });
+                                                        Notification notification1 = new Notification();
+                                                        notification1.setEventId(eventId);
+                                                        event.fillSpotsFromWaitingList(getApplicationContext(), notification1);
                                                     }
                                                     @Override
                                                     public void onFailure(Exception e) {

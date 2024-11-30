@@ -348,7 +348,9 @@ public class MyEventsFragment extends Fragment {
                                                     @Override
                                                     public void onSuccess(User organizer) {
                                                         entrantNotifications.sendToPhone(requireContext(), "A user has declined the offer to join your event", userId + " has declined the offer.", organizer,notifications);
-                                                        event.fillSpotsFromWaitingList(requireContext(), notifications);
+                                                        Notification notification1 = new Notification();
+                                                        notification1.setEventId(eventId);
+                                                        event.fillSpotsFromWaitingList(requireContext(), notification1);
                                                         Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
                                                         firebaseService.createNotification(notification, new FirebaseCallback<String>() {
                                                             @Override

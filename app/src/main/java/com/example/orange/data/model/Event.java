@@ -533,12 +533,24 @@ public class Event {
                 public void onSuccess(User user) {
                     Log.d(TAG, user.getFcmToken());
                     EntrantNotifications entrantNotifications = new EntrantNotifications();
-                    entrantNotifications.sendToPhone(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", user, notification);
+                    notification.setUserId(userId);
+                    notification.setType(NotificationType.SELECTED_TO_PARTICIPATE);
+                    firebaseService.createNotification(notification, new FirebaseCallback<String>() {
+                        @Override
+                        public void onSuccess(String result) {
+                            entrantNotifications.sendToPhone(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", user, notification);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.d(TAG, "Failed to create notification");
+                        }
+                    });
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-
+                    Log.d(TAG, "Failed to get user");
                 }
             });
             // TODO: Trigger notification to userId to accept or decline.
