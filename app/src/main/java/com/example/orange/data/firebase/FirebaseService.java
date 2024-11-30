@@ -146,7 +146,7 @@ public class FirebaseService {
      * @return String
      */
     private String generateUserId(String deviceId, UserType userType) {
-        return deviceId + "_" + userType.name();
+        return deviceId + "_" + userType.toString();
     }
 
     /**
