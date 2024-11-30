@@ -56,7 +56,6 @@ android {
 
 
 // Create Javadoc tasks for each variant
-
 android.applicationVariants.all {
     val variant = this
     tasks.register("generate${variant.name.capitalize()}Javadoc", Javadoc::class) {
@@ -74,7 +73,6 @@ android.applicationVariants.all {
         }
     }
 }
-
 // Create Javadoc tasks for each variant
 
 dependencies {
@@ -111,6 +109,8 @@ dependencies {
     androidTestImplementation("androidx.navigation:navigation-testing:2.5.3")
     testImplementation("org.mockito:mockito-android:4.0.0")
     androidTestImplementation(libs.junit.jupiter)
+
+    implementation ("androidx.recyclerview:recyclerview:1.2.1")
 
     // Added for Notifications
     implementation ("com.google.firebase:firebase-messaging:24.1.0")
