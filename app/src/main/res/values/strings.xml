@@ -7,6 +7,8 @@
     <string name="hint_event_title">Event Title</string>
     <string name="hint_event_description">Event Description</string>
     <string name="hint_event_capacity">Maximum Capacity (optional)</string>
+    <string name="remove_participant">Remove Participant</string>
+
     <string-array name="filter_options">
         <item>All</item>
         <item>Chosen</item>

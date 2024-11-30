@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 // Removed unused imports
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,10 +23,13 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
@@ -68,7 +72,9 @@ public class ViewMyEventsFragment extends Fragment {
 
     private Event selectedEvent; // To keep track of which event is being updated
     private Uri selectedImageUri;
-
+    // Add these new members
+    private SelectedParticipantsAdapter selectedParticipantsAdapter;
+    private List<String> currentSelectedParticipants;
     /**
      * Activity result launcher for handling image selection from device storage.
      * Launches the system's media picker and handles the selected image.
@@ -180,6 +186,17 @@ public class ViewMyEventsFragment extends Fragment {
      *
      * @param events List of Event objects created by the organizer.
      */
+    /**
+     * Dynamically displays each event in the organizer's events list.
+     * Creates and populates view elements for each event, including:
+     * - Event image
+     * - Title
+     * - Relevant dates (registration deadline, lottery draw, or event date)
+     * - Waitlist count
+     * - Action buttons for viewing waitlist and managing event image
+     *
+     * @param events List of Event objects created by the organizer.
+     */
     private void displayEvents(List<Event> events) {
         binding.organizerEventsContainer.removeAllViews();
 
@@ -192,14 +209,20 @@ public class ViewMyEventsFragment extends Fragment {
             View eventView = inflater.inflate(R.layout.item_view_organizer_event, binding.organizerEventsContainer, false);
 
             // Initialize views using findViewById for the inflated eventView
-            Button generateButton = eventView.findViewById(R.id.generate_QR_button);
+            AppCompatImageButton generateButton = eventView.findViewById(R.id.generate_QR_button);
             ImageView eventImage = eventView.findViewById(R.id.event_image);
             TextView eventTitle = eventView.findViewById(R.id.event_title);
             TextView eventDate = eventView.findViewById(R.id.event_date);
             TextView lotteryStatus = eventView.findViewById(R.id.lottery_status);
-            Button actionButton = eventView.findViewById(R.id.action_button);
-            Button changeImageButton = eventView.findViewById(R.id.change_image_button);
-            Button drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
+            ImageButton actionButton = eventView.findViewById(R.id.view_waitlist_button);
+            ImageButton changeImageButton = eventView.findViewById(R.id.change_image_button);
+            ImageButton drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
+
+            // New buttons
+            ImageButton viewSelectedParticipantsButton = eventView.findViewById(R.id.view_selected_participants_button);
+            ImageButton viewCancelledParticipantsButton = eventView.findViewById(R.id.view_cancelled_participants_button);
+            ImageButton viewParticipatingButton = eventView.findViewById(R.id.view_participating_button);
+            LinearLayout secondButtonRow = eventView.findViewById(R.id.second_button_row);
 
             // Set the data
             eventTitle.setText(event.getTitle());
@@ -247,7 +270,6 @@ public class ViewMyEventsFragment extends Fragment {
             lotteryStatus.setText("Waitlist Count: " + waitlistCount);
 
             // Set the actionButton text to "View Waitlist"
-            actionButton.setText("View Waitlist");
 
             // Set the click listener to show the waitlist
             actionButton.setOnClickListener(v -> showWaitlist(event));
@@ -263,6 +285,38 @@ public class ViewMyEventsFragment extends Fragment {
                 drawFromWaitlist(event);
             });
 
+            // Determine visibility of second button row based on list sizes
+            boolean hasSelectedParticipants = event.getSelectedParticipants() != null && !event.getSelectedParticipants().isEmpty();
+            boolean hasCancelledParticipants = event.getCancelledList() != null && !event.getCancelledList().isEmpty();
+            boolean hasParticipating = event.getParticipants() != null && !event.getParticipants().isEmpty();
+
+            if (hasSelectedParticipants || hasCancelledParticipants || hasParticipating) {
+                secondButtonRow.setVisibility(View.VISIBLE);
+                // Set click listeners for new buttons
+                if (hasSelectedParticipants) {
+                    viewSelectedParticipantsButton.setVisibility(View.VISIBLE);
+                    viewSelectedParticipantsButton.setOnClickListener(v -> showSelectedParticipants(event));
+                } else {
+                    viewSelectedParticipantsButton.setVisibility(View.GONE);
+                }
+
+                if (hasCancelledParticipants) {
+                    viewCancelledParticipantsButton.setVisibility(View.VISIBLE);
+                    viewCancelledParticipantsButton.setOnClickListener(v -> showCancelledParticipants(event));
+                } else {
+                    viewCancelledParticipantsButton.setVisibility(View.GONE);
+                }
+
+                if (hasParticipating) {
+                    viewParticipatingButton.setVisibility(View.VISIBLE);
+                    viewParticipatingButton.setOnClickListener(v -> showParticipating(event));
+                } else {
+                    viewParticipatingButton.setVisibility(View.GONE);
+                }
+            } else {
+                secondButtonRow.setVisibility(View.GONE);
+            }
+
             binding.organizerEventsContainer.addView(eventView);
         }
     }
@@ -270,7 +324,9 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Implements the participant drawing functionality.
      * Selects users from the waitlist randomly and moves them to the participants list.
+     * Additionally, creates notifications for both selected and unselected users.
      *
+     * @author Graham Flokstra
      * @param event The event from which to draw participants.
      */
     private void drawFromWaitlist(Event event) {
@@ -300,16 +356,33 @@ public class ViewMyEventsFragment extends Fragment {
                 // Shuffle the waitlist to ensure random selection
                 Collections.shuffle(waitlist);
 
-                // Limit the number of users to draw based on available slots
+                // Determine the number of users to draw
                 int usersToDraw = Math.min(slotsAvailable, waitlist.size());
                 List<String> selectedUsers = waitlist.subList(0, usersToDraw);
+                List<String> unselectedUsers = waitlist.subList(usersToDraw, waitlist.size());
 
                 // Perform Firestore transaction for atomic update
                 firebaseService.moveUsersToSelectedParticipants(event.getId(), selectedUsers, new FirebaseCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
+                        Log.d(TAG, "Participants drawn successfully.");
                         Toast.makeText(requireContext(), "Participants drawn successfully.", Toast.LENGTH_SHORT).show();
-                        loadOrganizerEvents(); // Refresh event data to reflect changes
+
+                        // Create notifications for both selected and unselected users
+                        firebaseService.createDrawNotifications(event.getId(), selectedUsers, unselectedUsers, new FirebaseCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                Log.d(TAG, "Notifications created successfully for drawn participants.");
+                                Toast.makeText(requireContext(), "Notifications sent to users.", Toast.LENGTH_SHORT).show();
+                                loadOrganizerEvents(); // Refresh event data to reflect changes
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Log.e(TAG, "Failed to create notifications.", e);
+                                Toast.makeText(requireContext(), "Failed to send notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
 
                     @Override
@@ -327,6 +400,7 @@ public class ViewMyEventsFragment extends Fragment {
             }
         });
     }
+
 
 
     /**
@@ -499,6 +573,121 @@ public class ViewMyEventsFragment extends Fragment {
                     .show();
         }
     }
+
+    /**
+     * Displays the selected participants for a specified event in a dialog with the ability to remove users.
+     *
+     * @param event Event object whose selected participants should be displayed.
+     */
+    private void showSelectedParticipants(Event event) {
+        currentSelectedParticipants = event.getSelectedParticipants();
+        if (currentSelectedParticipants == null || currentSelectedParticipants.isEmpty()) {
+            Toast.makeText(requireContext(), "No selected participants.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Inflate the custom dialog layout
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View dialogView = inflater.inflate(R.layout.dialog_selected_participants, null);
+
+        RecyclerView recyclerView = dialogView.findViewById(R.id.selected_participants_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        selectedParticipantsAdapter = new SelectedParticipantsAdapter(requireContext(), currentSelectedParticipants, userId -> {
+            // Handle participant removal
+            removeSelectedParticipant(event, userId);
+        });
+        recyclerView.setAdapter(selectedParticipantsAdapter);
+
+        // Build and show the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Selected Participants for Event: " + event.getTitle());
+        builder.setView(dialogView);
+        builder.setPositiveButton("Close", null);
+        builder.show();
+    }
+
+    /**
+     * Removes a participant from the selected participants list.
+     *
+     * @param event  The event from which to remove the participant.
+     * @param userId The ID of the user to remove.
+     */
+    private void removeSelectedParticipant(Event event, String userId) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Remove Participant")
+                .setMessage("Are you sure you want to remove this participant?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // Remove the user from selected participants in Firebase
+                    firebaseService.removeFromSelectedParticipants(event.getId(), userId, new FirebaseCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            Toast.makeText(requireContext(), "Participant removed successfully.", Toast.LENGTH_SHORT).show();
+                            // Update the local list and notify the adapter
+                            currentSelectedParticipants.remove(userId);
+                            selectedParticipantsAdapter.updateList(currentSelectedParticipants);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Toast.makeText(requireContext(), "Failed to remove participant: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    /**
+     * Displays the cancelled participants for a specified event in an AlertDialog.
+     *
+     * @param event Event object whose cancelled participants should be displayed.
+     */
+    private void showCancelledParticipants(Event event) {
+        List<String> cancelledParticipants = event.getCancelledList();
+        if (cancelledParticipants == null || cancelledParticipants.isEmpty()) {
+            Toast.makeText(requireContext(), "No cancelled participants.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a dialog to show the cancelled participants
+        StringBuilder cancelledStr = new StringBuilder("Cancelled Participants:\n");
+        for (String userId : cancelledParticipants) {
+            cancelledStr.append(userId).append("\n");
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Cancelled Participants for Event: " + event.getTitle())
+                .setMessage(cancelledStr.toString())
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    /**
+     * Displays the participating users for a specified event in an AlertDialog.
+     *
+     * @param event Event object whose participating users should be displayed.
+     */
+    private void showParticipating(Event event) {
+        List<String> participating = event.getParticipants();
+        if (participating == null || participating.isEmpty()) {
+            Toast.makeText(requireContext(), "No participants.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a dialog to show the participating users
+        StringBuilder participatingStr = new StringBuilder("Participants:\n");
+        for (String userId : participating) {
+            participatingStr.append(userId).append("\n");
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Participants for Event: " + event.getTitle())
+                .setMessage(participatingStr.toString())
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
 
     /**
      * Generates the QR code for each event that an organizer has.

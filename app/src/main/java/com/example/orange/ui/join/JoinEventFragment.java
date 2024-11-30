@@ -1,3 +1,5 @@
+// JoinEventFragment.java
+
 package com.example.orange.ui.join;
 
 import android.content.DialogInterface;
@@ -33,6 +35,7 @@ public class JoinEventFragment extends Fragment {
     private SessionManager sessionManager;
     private EventAdapter eventAdapter;
     private List<Event> eventList;
+    private static final String TAG = "JoinEventFragment";
 
     /**
      * Creates and returns the view hierarchy associated with the fragment.
@@ -77,7 +80,8 @@ public class JoinEventFragment extends Fragment {
 
     /**
      * Loads all events from Firebase that the user is eligible to join.
-     * Filters out events where the user is already a participant or on the waiting list.
+     * Filters out events where the user is already a participant, on the waiting list,
+     * or has declined the invitation.
      * Updates the RecyclerView with the filtered list of events.
      */
     private void loadEvents() {
@@ -90,31 +94,52 @@ public class JoinEventFragment extends Fragment {
         String userID = userSession.getUserId();
         String userType = userSession.getUserType().toString();
         String userId = userID + "_" + userType;
-        Log.d("JOIN_EVENT_FRAG", userId);
+        Log.d(TAG, "Loading events for user: " + userId);
 
-        firebaseService.getAllEvents(new FirebaseCallback<List<Event>>() {
+        firebaseService.getUserEvents(userId, new FirebaseCallback<List<Event>>() {
             @Override
-            public void onSuccess(List<Event> events) {
-                eventList.clear();
+            public void onSuccess(List<Event> userEvents) {
+                firebaseService.getAllEvents(new FirebaseCallback<List<Event>>() {
+                    @Override
+                    public void onSuccess(List<Event> allEvents) {
+                        eventList.clear();
 
-                // Filter events to only show those the user is not involved in
-                for (Event event : events) {
-                    List<String> participants = event.getParticipants() != null ? event.getParticipants() : new ArrayList<>();
-                    List<String> selectedParticipants = event.getSelectedParticipants() != null ? event.getSelectedParticipants() : new ArrayList<>();
-                    List<String> waitingList = event.getWaitingList() != null ? event.getWaitingList() : new ArrayList<>();
+                        // Iterate through all events and add those where the user is not involved
+                        for (Event event : allEvents) {
+                            List<String> participants = event.getParticipants() != null ? event.getParticipants() : new ArrayList<>();
+                            List<String> selectedParticipants = event.getSelectedParticipants() != null ? event.getSelectedParticipants() : new ArrayList<>();
+                            List<String> waitingList = event.getWaitingList() != null ? event.getWaitingList() : new ArrayList<>();
+                            List<String> cancelledList = event.getCancelledList() != null ? event.getCancelledList() : new ArrayList<>();
 
-                    if (!participants.contains(userId) && !selectedParticipants.contains(userId) && !waitingList.contains(userId)) {
-                        eventList.add(event);
+                            // User should not be in any of these lists to join
+                            if (!participants.contains(userId) &&
+                                    !selectedParticipants.contains(userId) &&
+                                    !waitingList.contains(userId) &&
+                                    !cancelledList.contains(userId)) {
+                                eventList.add(event);
+                            }
+                        }
+
+                        // Notify adapter to update the RecyclerView with the new list
+                        eventAdapter.notifyDataSetChanged();
+                        Log.d(TAG, "Available Events to Join: " + eventList.size());
+                        for (Event event : eventList) {
+                            Log.d(TAG, "Event ID: " + event.getId() + ", Title: " + event.getTitle());
+                        }
                     }
-                }
 
-                // Notify adapter to update the RecyclerView with the new list
-                eventAdapter.notifyDataSetChanged();
+                    @Override
+                    public void onFailure(Exception e) {
+                        Toast.makeText(requireContext(), "Failed to load all events: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Error loading all events", e);
+                    }
+                });
             }
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to load events: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Failed to load your events", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error loading user events", e);
             }
         });
     }
@@ -161,7 +186,7 @@ public class JoinEventFragment extends Fragment {
         String userID = userSession.getUserId();
         String userType = userSession.getUserType().toString();
         String userId = userID + "_" + userType;
-        Log.d("JoinEventFragment", "Attempting to add user with ID: " + userId + " to event: " + event.getId());
+        Log.d(TAG, "Attempting to add user with ID: " + userId + " to event: " + event.getId());
 
         firebaseService.joinEventWaitlist(event.getId(), userId, new FirebaseCallback<Void>() {
             @Override
@@ -175,26 +200,8 @@ public class JoinEventFragment extends Fragment {
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Failed to join waitlist: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("JoinEventFragment", "Failed to join waitlist", e);
+                Log.e(TAG, "Failed to join waitlist for event ID: " + event.getId(), e);
             }
         });
-    }
-
-    /**
-     * Returns the SessionManager instance associated with this fragment.
-     *
-     * @return The SessionManager instance
-     */
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
-
-    /**
-     * Returns the current list of events.
-     *
-     * @return List of Event objects
-     */
-    public List<Event> getEventList() {
-        return eventList;
     }
 }
