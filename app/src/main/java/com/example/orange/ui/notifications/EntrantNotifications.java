@@ -76,7 +76,7 @@ public class EntrantNotifications{
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, LOTTERY_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.app_logo)
+                .setSmallIcon(R.drawable.app_logo_orange)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -126,7 +126,7 @@ public class EntrantNotifications{
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, LOTTERY_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.app_logo)
+                .setSmallIcon(R.drawable.app_logo_orange)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         // Pass the eventId as a bundle
         if(notification.getType() == NotificationType.SELECTED_TO_PARTICIPATE){
