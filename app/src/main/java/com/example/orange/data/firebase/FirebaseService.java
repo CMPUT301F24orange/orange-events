@@ -4,6 +4,7 @@ import android.util.Log;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.Facility;
 import com.example.orange.data.model.ImageData;
+import com.example.orange.data.model.Notification;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.google.firebase.firestore.Blob;
@@ -1295,4 +1296,115 @@ public class FirebaseService {
         });
     }
 
+
+    /* --------------- Notifications ---------------- */
+
+
+
+    /**
+     * Creates a new notification in Firestore.
+     *
+     * @param notification The Notification object to be created.
+     * @param callback     A callback to handle the result of the operation.
+     */
+    public void createNotification(Notification notification, FirebaseCallback<String> callback) {
+        DocumentReference newNotificationRef = db.collection("notifications").document();
+        notification.setId(newNotificationRef.getId());
+        db.collection("notifications").document(notification.getId())
+                .set(notification)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Notification created successfully");
+                    callback.onSuccess(notification.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create notification", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Retrieves a notification by its ID.
+     *
+     * @param notificationId The ID of the notification.
+     * @param callback       A callback to handle the result of the operation.
+     */
+    public void getNotificationById(String notificationId, FirebaseCallback<Notification> callback) {
+        db.collection("notifications").document(notificationId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Notification notification = documentSnapshot.toObject(Notification.class);
+                        callback.onSuccess(notification);
+                    } else {
+                        callback.onSuccess(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to retrieve notification", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Retrieves all notifications for a specific user.
+     *
+     * @param userId   The ID of the user.
+     * @param callback A callback to handle the result of the operation.
+     */
+    public void getNotificationsForUser(String userId, FirebaseCallback<List<Notification>> callback) {
+        db.collection("notifications")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Notification> notifications = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        Notification notification = document.toObject(Notification.class);
+                        if (notification != null) {
+                            notifications.add(notification);
+                        }
+                    }
+                    callback.onSuccess(notifications);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to retrieve notifications for user", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Updates a notification in Firestore.
+     *
+     * @param notification The Notification object with updated data.
+     * @param callback     A callback to handle the result of the operation.
+     */
+    public void updateNotification(Notification notification, FirebaseCallback<Void> callback) {
+        db.collection("notifications").document(notification.getId())
+                .set(notification)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Notification updated successfully");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to update notification", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Deletes a notification from Firestore.
+     *
+     * @param notificationId The ID of the notification to delete.
+     * @param callback       A callback to handle the result of the operation.
+     */
+    public void deleteNotification(String notificationId, FirebaseCallback<Void> callback) {
+        db.collection("notifications").document(notificationId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Notification deleted successfully");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to delete notification", e);
+                    callback.onFailure(e);
+                });
+    }
 }
