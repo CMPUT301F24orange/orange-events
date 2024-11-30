@@ -5,9 +5,11 @@ import com.example.orange.data.model.Event;
 import com.example.orange.data.model.Facility;
 import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.Notification;
+import com.example.orange.data.model.NotificationType;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.google.firebase.firestore.Blob;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -15,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.example.orange.data.model.UserSession;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1407,4 +1410,51 @@ public class FirebaseService {
                     callback.onFailure(e);
                 });
     }
+
+    /**
+     * Creates notifications for selected and unselected users after drawing participants.
+     *
+     * @param eventId          The ID of the event.
+     * @param selectedUserIds  List of user IDs who were selected.
+     * @param unselectedUserIds List of user IDs who were not selected.
+     * @param callback         A callback to handle the result of the operation.
+     */
+    public void createDrawNotifications(String eventId, List<String> selectedUserIds, List<String> unselectedUserIds, FirebaseCallback<Void> callback) {
+        // Create a list to hold all notification creation tasks
+        List<Notification> notifications = new ArrayList<>();
+
+        // Create notifications for selected users
+        for (String userId : selectedUserIds) {
+            Notification notification = new Notification(eventId, userId, NotificationType.SELECTED_TO_PARTICIPATE);
+            notifications.add(notification);
+        }
+
+        // Create notifications for unselected users
+        for (String userId : unselectedUserIds) {
+            Notification notification = new Notification(eventId, userId, NotificationType.NOT_SELECTED);
+            notifications.add(notification);
+        }
+
+        // Batch write to Firestore
+        WriteBatch batch = db.batch();
+        CollectionReference notificationsRef = db.collection("notifications");
+
+        for (Notification notification : notifications) {
+            DocumentReference docRef = notificationsRef.document();
+            notification.setId(docRef.getId());
+            batch.set(docRef, notification);
+        }
+
+        // Commit the batch
+        batch.commit()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "All notifications created successfully.");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create notifications.", e);
+                    callback.onFailure(e);
+                });
+    }
+
 }

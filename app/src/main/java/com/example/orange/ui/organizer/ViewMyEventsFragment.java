@@ -271,6 +271,7 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Implements the participant drawing functionality.
      * Selects users from the waitlist randomly and moves them to the participants list.
+     * Additionally, creates notifications for both selected and unselected users.
      *
      * @param event The event from which to draw participants.
      */
@@ -301,16 +302,33 @@ public class ViewMyEventsFragment extends Fragment {
                 // Shuffle the waitlist to ensure random selection
                 Collections.shuffle(waitlist);
 
-                // Limit the number of users to draw based on available slots
+                // Determine the number of users to draw
                 int usersToDraw = Math.min(slotsAvailable, waitlist.size());
                 List<String> selectedUsers = waitlist.subList(0, usersToDraw);
+                List<String> unselectedUsers = waitlist.subList(usersToDraw, waitlist.size());
 
                 // Perform Firestore transaction for atomic update
                 firebaseService.moveUsersToSelectedParticipants(event.getId(), selectedUsers, new FirebaseCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
+                        Log.d(TAG, "Participants drawn successfully.");
                         Toast.makeText(requireContext(), "Participants drawn successfully.", Toast.LENGTH_SHORT).show();
-                        loadOrganizerEvents(); // Refresh event data to reflect changes
+
+                        // Create notifications for both selected and unselected users
+                        firebaseService.createDrawNotifications(event.getId(), selectedUsers, unselectedUsers, new FirebaseCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                Log.d(TAG, "Notifications created successfully for drawn participants.");
+                                Toast.makeText(requireContext(), "Notifications sent to users.", Toast.LENGTH_SHORT).show();
+                                loadOrganizerEvents(); // Refresh event data to reflect changes
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Log.e(TAG, "Failed to create notifications.", e);
+                                Toast.makeText(requireContext(), "Failed to send notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
 
                     @Override
@@ -328,6 +346,7 @@ public class ViewMyEventsFragment extends Fragment {
             }
         });
     }
+
 
 
     /**
