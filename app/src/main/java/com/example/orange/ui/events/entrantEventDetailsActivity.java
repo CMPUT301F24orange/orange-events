@@ -201,10 +201,6 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
                     }
                 });
                 Toast.makeText(entrantEventDetailsActivity.this, "Accepted the offer", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
             }
 
             @Override

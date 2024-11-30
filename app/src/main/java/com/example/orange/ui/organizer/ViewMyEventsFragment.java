@@ -428,7 +428,7 @@ public class ViewMyEventsFragment extends Fragment {
                                             @Override
                                             public void onSuccess(List<Notification> notifications) {
                                                 for(Notification notis : notifications) {
-                                                    if ((Objects.equals(notis.getEventId(), event.getId()) && notis.getType() == NotificationType.SELECTED_TO_PARTICIPATE)) {
+                                                    if ((Objects.equals(notis.getEventId(), event.getId()) && notis.getType() == NotificationType.NOT_SELECTED)) {
                                                         entrantNotifications.sendToPhone(getContext(),"Not your lucky day today :(", "You have not been selected to join "+event.getTitle(), user, notis);
                                                     }
                                                 }
