@@ -17,7 +17,7 @@
         <ImageView
             android:id="@+id/event_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="200dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             android:contentDescription="Event Image" />
@@ -49,6 +49,35 @@
             android:textSize="14sp"
             android:textColor="#555555"
             android:layout_marginTop="4dp" />
+
+        <!-- Action Buttons Layout -->
+        <LinearLayout
+            android:id="@+id/action_buttons_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"> <!-- Initially hidden -->
+
+            <Button
+                android:id="@+id/accept_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accept"
+                android:backgroundTint="@color/primary"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/decline_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Decline"
+                android:backgroundTint="@color/design_default_color_error"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:layout_marginStart="8dp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/action_button"

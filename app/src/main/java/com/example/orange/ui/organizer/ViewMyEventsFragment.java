@@ -185,6 +185,17 @@ public class ViewMyEventsFragment extends Fragment {
      *
      * @param events List of Event objects created by the organizer.
      */
+    /**
+     * Dynamically displays each event in the organizer's events list.
+     * Creates and populates view elements for each event, including:
+     * - Event image
+     * - Title
+     * - Relevant dates (registration deadline, lottery draw, or event date)
+     * - Waitlist count
+     * - Action buttons for viewing waitlist and managing event image
+     *
+     * @param events List of Event objects created by the organizer.
+     */
     private void displayEvents(List<Event> events) {
         binding.organizerEventsContainer.removeAllViews();
 
@@ -205,6 +216,12 @@ public class ViewMyEventsFragment extends Fragment {
             ImageButton actionButton = eventView.findViewById(R.id.view_waitlist_button);
             ImageButton changeImageButton = eventView.findViewById(R.id.change_image_button);
             ImageButton drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
+
+            // New buttons
+            ImageButton viewSelectedParticipantsButton = eventView.findViewById(R.id.view_selected_participants_button);
+            ImageButton viewCancelledParticipantsButton = eventView.findViewById(R.id.view_cancelled_participants_button);
+            ImageButton viewParticipatingButton = eventView.findViewById(R.id.view_participating_button);
+            LinearLayout secondButtonRow = eventView.findViewById(R.id.second_button_row);
 
             // Set the data
             eventTitle.setText(event.getTitle());
@@ -267,6 +284,38 @@ public class ViewMyEventsFragment extends Fragment {
                 drawFromWaitlist(event);
             });
 
+            // Determine visibility of second button row based on list sizes
+            boolean hasSelectedParticipants = event.getSelectedParticipants() != null && !event.getSelectedParticipants().isEmpty();
+            boolean hasCancelledParticipants = event.getCancelledList() != null && !event.getCancelledList().isEmpty();
+            boolean hasParticipating = event.getParticipants() != null && !event.getParticipants().isEmpty();
+
+            if (hasSelectedParticipants || hasCancelledParticipants || hasParticipating) {
+                secondButtonRow.setVisibility(View.VISIBLE);
+                // Set click listeners for new buttons
+                if (hasSelectedParticipants) {
+                    viewSelectedParticipantsButton.setVisibility(View.VISIBLE);
+                    viewSelectedParticipantsButton.setOnClickListener(v -> showSelectedParticipants(event));
+                } else {
+                    viewSelectedParticipantsButton.setVisibility(View.GONE);
+                }
+
+                if (hasCancelledParticipants) {
+                    viewCancelledParticipantsButton.setVisibility(View.VISIBLE);
+                    viewCancelledParticipantsButton.setOnClickListener(v -> showCancelledParticipants(event));
+                } else {
+                    viewCancelledParticipantsButton.setVisibility(View.GONE);
+                }
+
+                if (hasParticipating) {
+                    viewParticipatingButton.setVisibility(View.VISIBLE);
+                    viewParticipatingButton.setOnClickListener(v -> showParticipating(event));
+                } else {
+                    viewParticipatingButton.setVisibility(View.GONE);
+                }
+            } else {
+                secondButtonRow.setVisibility(View.GONE);
+            }
+
             binding.organizerEventsContainer.addView(eventView);
         }
     }
@@ -274,7 +323,9 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Implements the participant drawing functionality.
      * Selects users from the waitlist randomly and moves them to the participants list.
+     * Additionally, creates notifications for both selected and unselected users.
      *
+     * @author Graham Flokstra
      * @param event The event from which to draw participants.
      */
     private void drawFromWaitlist(Event event) {
@@ -304,16 +355,33 @@ public class ViewMyEventsFragment extends Fragment {
                 // Shuffle the waitlist to ensure random selection
                 Collections.shuffle(waitlist);
 
-                // Limit the number of users to draw based on available slots
+                // Determine the number of users to draw
                 int usersToDraw = Math.min(slotsAvailable, waitlist.size());
                 List<String> selectedUsers = waitlist.subList(0, usersToDraw);
+                List<String> unselectedUsers = waitlist.subList(usersToDraw, waitlist.size());
 
                 // Perform Firestore transaction for atomic update
                 firebaseService.moveUsersToSelectedParticipants(event.getId(), selectedUsers, new FirebaseCallback<Void>() {
                     @Override
                     public void onSuccess(Void result) {
+                        Log.d(TAG, "Participants drawn successfully.");
                         Toast.makeText(requireContext(), "Participants drawn successfully.", Toast.LENGTH_SHORT).show();
-                        loadOrganizerEvents(); // Refresh event data to reflect changes
+
+                        // Create notifications for both selected and unselected users
+                        firebaseService.createDrawNotifications(event.getId(), selectedUsers, unselectedUsers, new FirebaseCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                Log.d(TAG, "Notifications created successfully for drawn participants.");
+                                Toast.makeText(requireContext(), "Notifications sent to users.", Toast.LENGTH_SHORT).show();
+                                loadOrganizerEvents(); // Refresh event data to reflect changes
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Log.e(TAG, "Failed to create notifications.", e);
+                                Toast.makeText(requireContext(), "Failed to send notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
 
                     @Override
@@ -331,6 +399,7 @@ public class ViewMyEventsFragment extends Fragment {
             }
         });
     }
+
 
 
     /**
@@ -504,6 +573,82 @@ public class ViewMyEventsFragment extends Fragment {
                     .show();
         }
     }
+
+    /**
+     * Displays the selected participants for a specified event in an AlertDialog.
+     *
+     * @param event Event object whose selected participants should be displayed.
+     */
+    private void showSelectedParticipants(Event event) {
+        List<String> selectedParticipants = event.getSelectedParticipants();
+        if (selectedParticipants == null || selectedParticipants.isEmpty()) {
+            Toast.makeText(requireContext(), "No selected participants.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a dialog to show the selected participants
+        StringBuilder selectedStr = new StringBuilder("Selected Participants:\n");
+        for (String userId : selectedParticipants) {
+            selectedStr.append(userId).append("\n");
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Selected Participants for Event: " + event.getTitle())
+                .setMessage(selectedStr.toString())
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    /**
+     * Displays the cancelled participants for a specified event in an AlertDialog.
+     *
+     * @param event Event object whose cancelled participants should be displayed.
+     */
+    private void showCancelledParticipants(Event event) {
+        List<String> cancelledParticipants = event.getCancelledList();
+        if (cancelledParticipants == null || cancelledParticipants.isEmpty()) {
+            Toast.makeText(requireContext(), "No cancelled participants.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a dialog to show the cancelled participants
+        StringBuilder cancelledStr = new StringBuilder("Cancelled Participants:\n");
+        for (String userId : cancelledParticipants) {
+            cancelledStr.append(userId).append("\n");
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Cancelled Participants for Event: " + event.getTitle())
+                .setMessage(cancelledStr.toString())
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    /**
+     * Displays the participating users for a specified event in an AlertDialog.
+     *
+     * @param event Event object whose participating users should be displayed.
+     */
+    private void showParticipating(Event event) {
+        List<String> participating = event.getParticipants();
+        if (participating == null || participating.isEmpty()) {
+            Toast.makeText(requireContext(), "No participants.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a dialog to show the participating users
+        StringBuilder participatingStr = new StringBuilder("Participants:\n");
+        for (String userId : participating) {
+            participatingStr.append(userId).append("\n");
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Participants for Event: " + event.getTitle())
+                .setMessage(participatingStr.toString())
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
 
     /**
      * Generates the QR code for each event that an organizer has.
