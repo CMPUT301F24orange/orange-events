@@ -150,26 +150,47 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
                         for(Notification notifications : notis){
                             if(Objects.equals(notifications.getEventId(), eventId)){
                                 notifications.accept();
-                                firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
+                                firebaseService.updateNotification(notifications, new FirebaseCallback<Void>() {
                                     @Override
-                                    public void onSuccess(Event event) {
-                                        firebaseService.getUserById(event.getOrganizerId(), new FirebaseCallback<User>() {
+                                    public void onSuccess(Void result) {
+                                        firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
                                             @Override
-                                            public void onSuccess(User organizer) {
-                                                entrantNotifications.sendToPhone(getApplicationContext(), "A user has accepted the offer to join your event", userId + " has accepted the offer!", organizer,eventId);
-                                                Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
+                                            public void onSuccess(Event event) {
+                                                firebaseService.getUserById(event.getOrganizerId(), new FirebaseCallback<User>() {
+                                                    @Override
+                                                    public void onSuccess(User organizer) {
+                                                        entrantNotifications.sendToPhone(getApplicationContext(), "A user has accepted the offer to join your event", userId + " has accepted the offer.", organizer,notifications);
+                                                        event.fillSpotsFromWaitingList(getApplicationContext());
+                                                        Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
+                                                        firebaseService.createNotification(notification, new FirebaseCallback<String>() {
+                                                            @Override
+                                                            public void onSuccess(String result) {
+                                                                Log.d("ORANGE", "Notification created");
+                                                            }
 
+                                                            @Override
+                                                            public void onFailure(Exception e) {
+                                                                Log.d("ORANGE", "Failed to create notification");
+                                                            }
+                                                        });
+                                                    }
+                                                    @Override
+                                                    public void onFailure(Exception e) {
+                                                        Log.d("ORANGE", "Failed to get user");
+                                                    }
+                                                });
                                             }
+
                                             @Override
                                             public void onFailure(Exception e) {
-                                                Log.d("ORANGE", "Failed to get user");
+                                                Log.d("ORANGE", "Failed to get event");
                                             }
                                         });
                                     }
 
                                     @Override
                                     public void onFailure(Exception e) {
-                                        Log.d("ORANGE", "Failed to get event");
+                                        Log.d("ORANGE", "Failed to update notification");
                                     }
                                 });
                             }
@@ -211,26 +232,47 @@ public class entrantEventDetailsActivity extends AppCompatActivity {
                         for(Notification notifications : notis){
                             if(Objects.equals(notifications.getEventId(), eventId)){
                                 notifications.decline();
-                                firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
+                                firebaseService.updateNotification(notifications, new FirebaseCallback<Void>() {
                                     @Override
-                                    public void onSuccess(Event event) {
-                                        firebaseService.getUserById(event.getOrganizerId(), new FirebaseCallback<User>() {
+                                    public void onSuccess(Void result) {
+                                        firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
                                             @Override
-                                            public void onSuccess(User organizer) {
-                                                entrantNotifications.sendToPhone(getApplicationContext(), "A user has declined the offer to join your event", userId + " has declined the offer!", organizer,eventId);
-                                                Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
-                                                event.fillSpotsFromWaitingList(getApplicationContext());
+                                            public void onSuccess(Event event) {
+                                                firebaseService.getUserById(event.getOrganizerId(), new FirebaseCallback<User>() {
+                                                    @Override
+                                                    public void onSuccess(User organizer) {
+                                                        entrantNotifications.sendToPhone(getApplicationContext(), "A user has declined the offer to join your event", userId + " has declined the offer.", organizer,notifications);
+                                                        event.fillSpotsFromWaitingList(getApplicationContext());
+                                                        Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
+                                                        firebaseService.createNotification(notification, new FirebaseCallback<String>() {
+                                                            @Override
+                                                            public void onSuccess(String result) {
+                                                                Log.d("ORANGE", "Notification created");
+                                                            }
+
+                                                            @Override
+                                                            public void onFailure(Exception e) {
+                                                                Log.d("ORANGE", "Failed to create notification");
+                                                            }
+                                                        });
+                                                    }
+                                                    @Override
+                                                    public void onFailure(Exception e) {
+                                                        Log.d("ORANGE", "Failed to get user");
+                                                    }
+                                                });
                                             }
+
                                             @Override
                                             public void onFailure(Exception e) {
-                                                Log.d("ORANGE", "Failed to get user");
+                                                Log.d("ORANGE", "Failed to get event");
                                             }
                                         });
                                     }
 
                                     @Override
                                     public void onFailure(Exception e) {
-                                        Log.d("ORANGE", "Failed to get event");
+                                        Log.d("ORANGE", "Failed to update notification");
                                     }
                                 });
                             }

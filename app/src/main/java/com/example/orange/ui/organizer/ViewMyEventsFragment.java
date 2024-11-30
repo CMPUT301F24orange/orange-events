@@ -62,6 +62,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * ViewMyEventsFragment displays all events created by the current organizer.
@@ -370,39 +371,6 @@ public class ViewMyEventsFragment extends Fragment {
                         Toast.makeText(requireContext(), "Participants drawn successfully.", Toast.LENGTH_SHORT).show();
 
                         // Create notifications for both selected and unselected users
-                        EntrantNotifications entrantNotifications = new EntrantNotifications();
-                        if(!selectedUsers.isEmpty()){
-                            for (String userId : selectedUsers) {
-                                firebaseService.getUserById(userId, new FirebaseCallback<User>() {
-                                    @Override
-                                    public void onSuccess(User user) {
-                                        entrantNotifications.sendToPhone(getContext(),"You Have Won The Lottery!", "You have just been selected to join "+event.getTitle() +". Choose whether to accept to decline the offer.", user, event.getId());
-                                        Notification notification = new Notification(event.getId(), userId, NotificationType.SELECTED_TO_PARTICIPATE);
-                                    }
-
-                                    @Override
-                                    public void onFailure(Exception e) {
-                                        Log.d("Error", "Failed to get user");
-                                    }
-                                });
-                            }
-                        }
-                        if(!unselectedUsers.isEmpty()){
-                            for (String userId : unselectedUsers) {
-                                firebaseService.getUserById(userId, new FirebaseCallback<User>() {
-                                    @Override
-                                    public void onSuccess(User user) {
-                                        entrantNotifications.sendToPhone(getContext(),"Not your lucky day today :(", "You have not been selected to join "+event.getTitle(), user, event.getId());
-                                        Notification notification = new Notification(event.getId(), userId, NotificationType.NOT_SELECTED);
-                                    }
-
-                                    @Override
-                                    public void onFailure(Exception e) {
-                                        Log.d("Error", "Failed to get user");
-                                    }
-                                });
-                            }
-                        }
                         firebaseService.createDrawNotifications(event.getId(), selectedUsers, unselectedUsers, new FirebaseCallback<Void>() {
                             @Override
                             public void onSuccess(Void result) {
@@ -417,6 +385,66 @@ public class ViewMyEventsFragment extends Fragment {
                                 Toast.makeText(requireContext(), "Failed to send notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         });
+                        EntrantNotifications entrantNotifications = new EntrantNotifications();
+                        if(!selectedUsers.isEmpty()){
+                            for (String userId : selectedUsers) {
+                                firebaseService.getUserById(userId, new FirebaseCallback<User>() {
+                                    @Override
+                                    public void onSuccess(User user) {
+                                        firebaseService.getNotificationsForUser(userId, new FirebaseCallback<List<Notification>>() {
+                                            @Override
+                                            public void onSuccess(List<Notification> notifications) {
+                                                for(Notification notis : notifications) {
+                                                    if ((Objects.equals(notis.getEventId(), event.getId()) && notis.getType() == NotificationType.SELECTED_TO_PARTICIPATE)) {
+                                                        entrantNotifications.sendToPhone(getContext(),"You Have Won The Lottery!", "You have just been selected to join "+event.getTitle() +". Choose whether to accept to decline the offer.", user, notis);
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Exception e) {
+
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.d("Error", "Failed to get user");
+                                    }
+                                });
+                            }
+                        }
+                        if(!unselectedUsers.isEmpty()){
+                            for (String userId : unselectedUsers) {
+                                firebaseService.getUserById(userId, new FirebaseCallback<User>() {
+                                    @Override
+                                    public void onSuccess(User user) {
+                                        firebaseService.getNotificationsForUser(userId, new FirebaseCallback<List<Notification>>() {
+                                            @Override
+                                            public void onSuccess(List<Notification> notifications) {
+                                                for(Notification notis : notifications) {
+                                                    if ((Objects.equals(notis.getEventId(), event.getId()) && notis.getType() == NotificationType.SELECTED_TO_PARTICIPATE)) {
+                                                        entrantNotifications.sendToPhone(getContext(),"Not your lucky day today :(", "You have not been selected to join "+event.getTitle(), user, notis);
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Exception e) {
+
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.d("Error", "Failed to get user");
+                                    }
+                                });
+                            }
+                        }
+
                     }
 
                     @Override

@@ -509,7 +509,7 @@ public class Event {
      * Selects users randomly from the waiting list to be invited as participants.
      * @param number The number of users to select.
      */
-    public void selectParticipantsFromWaitingList(int number, Context context) {
+    public void selectParticipantsFromWaitingList(int number, Context context, Notification notification) {
         FirebaseService firebaseService = new FirebaseService();
         // Create a copy of the waiting list to avoid modifying the original list during iteration
         List<String> waitingListCopy = new ArrayList<>(waitingList);
@@ -533,7 +533,7 @@ public class Event {
                 public void onSuccess(User user) {
                     Log.d(TAG, user.getFcmToken());
                     EntrantNotifications entrantNotifications = new EntrantNotifications();
-                    entrantNotifications.sendToPhone(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", user, id);
+                    entrantNotifications.sendToPhone(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", user, notification);
                 }
 
                 @Override
@@ -578,11 +578,11 @@ public class Event {
     /**
      * Fills available spots by selecting new participants from the waiting list.
      */
-    public void fillSpotsFromWaitingList(Context context) {
+    public void fillSpotsFromWaitingList(Context context, Notification notification) {
         int totalConfirmed = participants.size() + selectedParticipants.size();
         int spotsNeeded = capacity - totalConfirmed;
         if (spotsNeeded > 0) {
-            selectParticipantsFromWaitingList(spotsNeeded, context);
+            selectParticipantsFromWaitingList(spotsNeeded, context, notification);
         }
     }
 

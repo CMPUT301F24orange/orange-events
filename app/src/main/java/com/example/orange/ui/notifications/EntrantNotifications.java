@@ -33,6 +33,8 @@ import com.example.orange.R;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.Notification;
+import com.example.orange.data.model.NotificationType;
 import com.example.orange.data.model.User;
 import com.example.orange.ui.events.entrantEventDetailsActivity;
 import com.example.orange.ui.events.entrantEventDetailsFragment;
@@ -83,7 +85,7 @@ public class EntrantNotifications{
         }
         manager.notify(4255,builder.build());
     }
-    public void sendToPhone(Context context, String title, String message, User user, String eventId){
+    public void sendToPhone(Context context, String title, String message, User user, Notification notification){
         FirebaseNotifications firebaseNotifications = new FirebaseNotifications();
         firebaseNotifications.onNewToken(user.getFcmToken());
         Log.d(TAG, context.toString());
@@ -127,10 +129,10 @@ public class EntrantNotifications{
                 .setSmallIcon(R.drawable.app_logo)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         // Pass the eventId as a bundle
-        if(!user.getEventsOrganizing().contains(eventId)){
+        if(notification.getType() == NotificationType.SELECTED_TO_PARTICIPATE){
             Intent intent = new Intent(context, entrantEventDetailsActivity.class);
             Bundle idBundle = new Bundle();
-            idBundle.putString("event_id", eventId);
+            idBundle.putString("event_id", notification.getEventId());
             intent.putExtras(idBundle);
             PendingIntent pendingIntent;
             pendingIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
