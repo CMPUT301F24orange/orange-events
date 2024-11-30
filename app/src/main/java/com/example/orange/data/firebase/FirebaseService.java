@@ -8,6 +8,8 @@ import com.example.orange.data.model.Notification;
 import com.example.orange.data.model.NotificationType;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -16,6 +18,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.example.orange.data.model.UserSession;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -402,29 +405,67 @@ public class FirebaseService {
     }
 
     /**
-     * Retrieves a list of events that the current user is participating in or is on the waitlist for.
-     *
+     * Retrieves all events associated with a user, whether they are in the waitlist,
+     * selected participants, or confirmed participants.     *
      * @author Graham Flokstra
      * @param userId   String representing the unique ID of the current user.
      * @param callback FirebaseCallback<List<Event>> to handle the result, providing a list of Event objects
      *                 the user is associated with (either in the participants or waiting list).
      */
+
     public void getUserEvents(String userId, FirebaseCallback<List<Event>> callback) {
-        db.collection("events")
-                .whereArrayContainsAny("waitingList", Collections.singletonList(userId))
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Event> events = new ArrayList<>();
-                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                        Event event = document.toObject(Event.class);
-                        if (event != null) {
-                            events.add(event);
+        List<Event> combinedEvents = new ArrayList<>();
+
+        // Query 1: Events where the user is in the waitingList
+        Task<QuerySnapshot> waitlistTask = db.collection("events")
+                .whereArrayContains("waitingList", userId)
+                .get();
+
+        // Query 2: Events where the user is in the selectedParticipants
+        Task<QuerySnapshot> selectedTask = db.collection("events")
+                .whereArrayContains("selectedParticipants", userId)
+                .get();
+
+        // Query 3: Events where the user is in the participants
+        Task<QuerySnapshot> participantsTask = db.collection("events")
+                .whereArrayContains("participants", userId)
+                .get();
+
+        // Execute all queries asynchronously
+        Tasks.whenAllComplete(waitlistTask, selectedTask, participantsTask)
+                .addOnSuccessListener(task -> {
+                    for (Task<?> individualTask : task) {
+                        if (individualTask.isSuccessful()) {
+                            QuerySnapshot snapshot = ((Task<QuerySnapshot>) individualTask).getResult();
+                            for (DocumentSnapshot document : snapshot.getDocuments()) {
+                                Event event = document.toObject(Event.class);
+                                if (event != null && !combinedEvents.contains(event)) {
+                                    combinedEvents.add(event);
+                                }
+                            }
+                        } else {
+                            // Log individual query failures but continue processing
+                            Log.e("FirebaseService", "Error fetching user events: " + individualTask.getException());
                         }
                     }
-                    callback.onSuccess(events);
+
+                    // Logging for debugging
+                    Log.d("FirebaseService", "Total Events Found: " + combinedEvents.size());
+                    for (Event event : combinedEvents) {
+                        Log.d("FirebaseService", "Event ID: " + event.getId());
+                        Log.d("FirebaseService", "Participants: " + event.getParticipants());
+                        Log.d("FirebaseService", "Selected Participants: " + event.getSelectedParticipants());
+                        Log.d("FirebaseService", "Waitlist: " + event.getWaitingList());
+                    }
+
+                    callback.onSuccess(combinedEvents);
                 })
-                .addOnFailureListener(callback::onFailure);
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseService", "Error fetching user events", e);
+                    callback.onFailure(e);
+                });
     }
+
 
     /**
      * Removes a specified user from the list of participants in a given event.
@@ -1196,11 +1237,9 @@ public class FirebaseService {
         DocumentReference userRef = db.collection("users").document(userId);
 
         db.runTransaction(transaction -> {
-            // Retrieve the event and user documents
             DocumentSnapshot eventSnapshot = transaction.get(eventRef);
             DocumentSnapshot userSnapshot = transaction.get(userRef);
 
-            // Proceed only if both documents exist
             if (eventSnapshot.exists() && userSnapshot.exists()) {
                 // Move user from selectedParticipants to participants
                 transaction.update(eventRef, "selectedParticipants", FieldValue.arrayRemove(userId));
@@ -1210,7 +1249,6 @@ public class FirebaseService {
                 transaction.update(userRef, "eventsWaitlisted", FieldValue.arrayRemove(eventId));
                 transaction.update(userRef, "eventsParticipating", FieldValue.arrayUnion(eventId));
             }
-            // If either document doesn't exist, do nothing
             return null;
         }).addOnSuccessListener(aVoid -> {
             Log.d(TAG, "User successfully accepted event invitation");
@@ -1220,6 +1258,7 @@ public class FirebaseService {
             callback.onFailure(e);
         });
     }
+
 
     /**
      * Updates both Event and User documents when a user declines an invitation to participate.
@@ -1456,5 +1495,8 @@ public class FirebaseService {
                     callback.onFailure(e);
                 });
     }
+
+
+
 
 }
