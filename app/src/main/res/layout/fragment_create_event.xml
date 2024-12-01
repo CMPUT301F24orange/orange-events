@@ -219,7 +219,8 @@
                 android:layout_weight="1"
                 android:hint="XX"
                 android:inputType="number"
-                android:gravity="center" />
+                android:gravity="center"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <!-- Event Limit -->
