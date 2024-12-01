@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 // Removed unused imports
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -70,6 +71,8 @@ import java.util.Objects;
  * ViewMyEventsFragment displays all events created by the current organizer.
  * Organizers can view each event and check its waitlist.
  *
+ * @author Graham, George, Brandon
+ *
  */
 public class ViewMyEventsFragment extends Fragment {
     private static final String TAG = "ViewMyEventsFragment";
@@ -79,9 +82,10 @@ public class ViewMyEventsFragment extends Fragment {
 
     private Event selectedEvent; // To keep track of which event is being updated
     private Uri selectedImageUri;
-    // Add these new members
+
     private SelectedParticipantsAdapter selectedParticipantsAdapter;
     private List<String> currentSelectedParticipants;
+
     /**
      * Activity result launcher for handling image selection from device storage.
      * Launches the system's media picker and handles the selected image.
@@ -133,6 +137,8 @@ public class ViewMyEventsFragment extends Fragment {
      * Loads events created by the current organizer from Firebase and displays them in the container.
      * Retrieves the current user session and fetches events associated with the organizer's ID.
      * Displays error messages if the session is invalid or if data retrieval fails.
+     *
+     * @author Graham Flokstra
      */
     private void loadOrganizerEvents() {
         UserSession userSession = sessionManager.getUserSession();
@@ -165,6 +171,7 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Retrieves and displays events for a specific organizer from Firebase.
      *
+     * @author Graham FLokstra
      * @param organizerId The unique identifier of the organizer whose events should be loaded
      */
     private void loadEventsForOrganizer(String organizerId) {
@@ -190,17 +197,7 @@ public class ViewMyEventsFragment extends Fragment {
      * - Waitlist count
      * - Action buttons for viewing waitlist and managing event image
      *
-     * @param events List of Event objects created by the organizer.
-     */
-    /**
-     * Dynamically displays each event in the organizer's events list.
-     * Creates and populates view elements for each event, including:
-     * - Event image
-     * - Title
-     * - Relevant dates (registration deadline, lottery draw, or event date)
-     * - Waitlist count
-     * - Action buttons for viewing waitlist and managing event image
-     *
+     * @author Graham Flokstra, George
      * @param events List of Event objects created by the organizer.
      */
     private void displayEvents(List<Event> events) {
@@ -326,6 +323,7 @@ public class ViewMyEventsFragment extends Fragment {
             binding.organizerEventsContainer.addView(eventView);
         }
     }
+
 
     /**
      * Implements the participant drawing functionality.
@@ -475,6 +473,8 @@ public class ViewMyEventsFragment extends Fragment {
      * - Change Image: Opens image picker
      * - Remove Image: Removes current event image
      * - Cancel: Dismisses the dialog
+     *
+     * @author Graham Flokstra
      */
     private void showImageOptions() {
         String[] options = {"Change Image", "Remove Image", "Cancel"};
@@ -499,6 +499,8 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Launches the system's image picker to select a new event image.
      * Uses ActivityResultContracts.PickVisualMedia to handle image selection.
+     *
+     * @author Graham Flokstra
      */
     private void openImagePicker() {
         pickMedia.launch(new PickVisualMediaRequest.Builder()
@@ -513,6 +515,7 @@ public class ViewMyEventsFragment extends Fragment {
      * - Checks if the resulting file size is within the 1MB limit
      * - Updates the event image in Firebase if all checks pass
      *
+     * @author Graha Flokstra
      * @param event The event whose image should be updated
      */
     private void processEventImage(Event event) {
@@ -579,6 +582,8 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Removes the current image from the selected event.
      * Updates Firebase and refreshes the event list upon successful removal.
+     *
+     * @author Graham Flokstra
      */
     private void removeEventImage() {
         String imageIdToDelete = selectedEvent.getEventImageId();
@@ -619,31 +624,41 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Displays the waitlist for a specified event in an AlertDialog.
      *
+     * @author George
      * @param event Event object whose waitlist should be displayed.
      */
     private void showWaitlist(Event event) {
         List<String> waitlist = event.getWaitingList();
         if (waitlist == null || waitlist.isEmpty()) {
             Toast.makeText(requireContext(), "No users on the waitlist", Toast.LENGTH_SHORT).show();
-        } else {
-            // Create a dialog to show the waitlist
-            StringBuilder waitlistStr = new StringBuilder("Waitlist:\n");
-            for (String userId : waitlist) {
-                waitlistStr.append(userId).append("\n");
-            }
-
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("Waitlist for Event: " + event.getTitle())
-                    .setMessage(waitlistStr.toString())
-                    .setPositiveButton("OK", null)
-                    .show();
+        return;
         }
-    }
+            // Inflate the custom dialog layout
+            LayoutInflater inflater = LayoutInflater.from(requireContext());
+            View dialogView = inflater.inflate(R.layout.dialog_participants, null); // Reuse the generic dialog layout
+
+            RecyclerView recyclerView = dialogView.findViewById(R.id.participants_recycler_view);
+            recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+            ParticipantsAdapter adapter = new ParticipantsAdapter(requireContext(), waitlist, null, false); // isRemovable = false
+            recyclerView.setAdapter(adapter);
+
+            // Handle Send Notification Button
+            Button sendNotificationButton = dialogView.findViewById(R.id.send_notification_button);
+            sendNotificationButton.setOnClickListener(v -> {
+                showSendNotificationDialog(event, waitlist, "Cancelled Participants");
+            });
+
+            // Build and show the dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Cancelled Participants for Event: " + event.getTitle());
+            builder.setView(dialogView);
+            builder.setPositiveButton("Close", null);
+            builder.show();
+        }
 
     /**
-     * Displays the selected participants for a specified event in a dialog with the ability to remove users.
-     *
-     * @param event Event object whose selected participants should be displayed.
+     * Displays the selected participants and allows sending notifications.
      */
     private void showSelectedParticipants(Event event) {
         currentSelectedParticipants = event.getSelectedParticipants();
@@ -654,16 +669,22 @@ public class ViewMyEventsFragment extends Fragment {
 
         // Inflate the custom dialog layout
         LayoutInflater inflater = LayoutInflater.from(requireContext());
-        View dialogView = inflater.inflate(R.layout.dialog_selected_participants, null);
+        View dialogView = inflater.inflate(R.layout.dialog_participants, null); // Reuse a generic dialog layout
 
-        RecyclerView recyclerView = dialogView.findViewById(R.id.selected_participants_recycler_view);
+        RecyclerView recyclerView = dialogView.findViewById(R.id.participants_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        selectedParticipantsAdapter = new SelectedParticipantsAdapter(requireContext(), currentSelectedParticipants, userId -> {
+        ParticipantsAdapter adapter = new ParticipantsAdapter(requireContext(), currentSelectedParticipants, userId -> {
             // Handle participant removal
             removeSelectedParticipant(event, userId);
+        }, true); // isRemovable = true for Selected Participants
+        recyclerView.setAdapter(adapter);
+
+        // Handle Send Notification Button
+        Button sendNotificationButton = dialogView.findViewById(R.id.send_notification_button);
+        sendNotificationButton.setOnClickListener(v -> {
+            showSendNotificationDialog(event, currentSelectedParticipants, "Selected Participants");
         });
-        recyclerView.setAdapter(selectedParticipantsAdapter);
 
         // Build and show the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -673,9 +694,98 @@ public class ViewMyEventsFragment extends Fragment {
         builder.show();
     }
 
+
+    /**
+     * Displays a dialog to input notification details and sends the notification to selected users.
+     *
+     * @author Graham Flokstra
+     * @param event      The event for which the notification is being sent.
+     * @param userIds    List of user IDs to send the notification to.
+     * @param listName   The name of the participant list (for context in the dialog).
+     */
+    private void showSendNotificationDialog(Event event, List<String> userIds, String listName) {
+        // Inflate the notification input layout
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View dialogView = inflater.inflate(R.layout.dialog_send_notification, null);
+
+        // Initialize input fields
+        TextView eventTitleTextView = dialogView.findViewById(R.id.notification_event_title);
+        EditText notificationMessageEditText = dialogView.findViewById(R.id.notification_message_edit_text);
+
+        eventTitleTextView.setText("Event: " + event.getTitle());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Send Notification to " + listName);
+        builder.setView(dialogView);
+        builder.setPositiveButton("Send", (dialog, which) -> {
+            String message = notificationMessageEditText.getText().toString().trim();
+            if (message.isEmpty()) {
+                Toast.makeText(requireContext(), "Message cannot be empty.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String title = "Update from " + event.getTitle();
+
+            sendNotificationToUsers(userIds, title, message, event);
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    /**
+     * Sends a notification to a list of users.
+     *
+     * @author Graham Flokstra
+     * @param userIds   List of user IDs to send the notification to.
+     * @param title     Notification title.
+     * @param message   Notification message.
+     * @param event     The event associated with the notification.
+     */
+    private void sendNotificationToUsers(List<String> userIds, String title, String message, Event event) {
+        if (userIds == null || userIds.isEmpty()) {
+            Toast.makeText(requireContext(), "No users to send notifications.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Initialize FirebaseService if not already done
+        if (firebaseService == null) {
+            firebaseService = new FirebaseService();
+        }
+
+        // Fetch user details and send notifications
+        for (String userId : userIds) {
+            firebaseService.getUserById(userId, new FirebaseCallback<User>() {
+                @Override
+                public void onSuccess(User user) {
+                    if (user != null && user.getFcmToken() != null) {
+                        // Create a Notification object
+                        Notification notification = new Notification();
+                        notification.setEventId(event.getId());
+                        notification.setType(NotificationType.ORGANIZER); // Or any appropriate type
+
+                        // Send notification using EntrantNotifications
+                        EntrantNotifications entrantNotifications = new EntrantNotifications();
+                        entrantNotifications.sendToPhone(getContext(), title, message, user, notification);
+                    } else {
+                        Log.e(TAG, "User or FCM token is null for userId: " + userId);
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e(TAG, "Failed to retrieve user with userId: " + userId, e);
+                }
+            });
+        }
+
+        Toast.makeText(requireContext(), "Notifications are being sent.", Toast.LENGTH_SHORT).show();
+    }
+
+
     /**
      * Removes a participant from the selected participants list.
      *
+     * @author Graham Flokstra
      * @param event  The event from which to remove the participant.
      * @param userId The ID of the user to remove.
      */
@@ -707,6 +817,7 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Displays the cancelled participants for a specified event in an AlertDialog.
      *
+     * @author Graham Flokstra
      * @param event Event object whose cancelled participants should be displayed.
      */
     private void showCancelledParticipants(Event event) {
@@ -716,22 +827,35 @@ public class ViewMyEventsFragment extends Fragment {
             return;
         }
 
-        // Create a dialog to show the cancelled participants
-        StringBuilder cancelledStr = new StringBuilder("Cancelled Participants:\n");
-        for (String userId : cancelledParticipants) {
-            cancelledStr.append(userId).append("\n");
-        }
+        // Inflate the custom dialog layout
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View dialogView = inflater.inflate(R.layout.dialog_participants, null); // Reuse the generic dialog layout
 
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Cancelled Participants for Event: " + event.getTitle())
-                .setMessage(cancelledStr.toString())
-                .setPositiveButton("OK", null)
-                .show();
+        RecyclerView recyclerView = dialogView.findViewById(R.id.participants_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        ParticipantsAdapter adapter = new ParticipantsAdapter(requireContext(), cancelledParticipants, null, false); // isRemovable = false
+        recyclerView.setAdapter(adapter);
+
+        // Handle Send Notification Button
+        Button sendNotificationButton = dialogView.findViewById(R.id.send_notification_button);
+        sendNotificationButton.setOnClickListener(v -> {
+            showSendNotificationDialog(event, cancelledParticipants, "Cancelled Participants");
+        });
+
+        // Build and show the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Cancelled Participants for Event: " + event.getTitle());
+        builder.setView(dialogView);
+        builder.setPositiveButton("Close", null);
+        builder.show();
     }
+
 
     /**
      * Displays the participating users for a specified event in an AlertDialog.
      *
+     * @author Graham Flokstra
      * @param event Event object whose participating users should be displayed.
      */
     private void showParticipating(Event event) {
@@ -741,23 +865,35 @@ public class ViewMyEventsFragment extends Fragment {
             return;
         }
 
-        // Create a dialog to show the participating users
-        StringBuilder participatingStr = new StringBuilder("Participants:\n");
-        for (String userId : participating) {
-            participatingStr.append(userId).append("\n");
-        }
+        // Inflate the custom dialog layout
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View dialogView = inflater.inflate(R.layout.dialog_participants, null); // Reuse the generic dialog layout
 
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Participants for Event: " + event.getTitle())
-                .setMessage(participatingStr.toString())
-                .setPositiveButton("OK", null)
-                .show();
+        RecyclerView recyclerView = dialogView.findViewById(R.id.participants_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        ParticipantsAdapter adapter = new ParticipantsAdapter(requireContext(), participating, null, false); // isRemovable = false
+        recyclerView.setAdapter(adapter);
+
+        // Handle Send Notification Button
+        Button sendNotificationButton = dialogView.findViewById(R.id.send_notification_button);
+        sendNotificationButton.setOnClickListener(v -> {
+            showSendNotificationDialog(event, participating, "Participants");
+        });
+
+        // Build and show the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Participants for Event: " + event.getTitle());
+        builder.setView(dialogView);
+        builder.setPositiveButton("Close", null);
+        builder.show();
     }
 
 
     /**
      * Generates the QR code for each event that an organizer has.
      *
+     * @author Brandon
      * @param event current event being passed
      */
     public void generateQR(Event event) {
@@ -796,6 +932,7 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Generates the hash data for each QR code then places into Firebase
      *
+     * @author Brandon
      * @param data qr info
      */
     private String generateHash(String data) {
@@ -818,6 +955,7 @@ public class ViewMyEventsFragment extends Fragment {
     /**
      * Turns the QR code generated into a PNG file to save space and not have to transfer a large file
      *
+     * @author Brandon
      * @param qrBitmap the bitmap of the QR code
      */
     private Uri saveQRToCache(Bitmap qrBitmap) {
