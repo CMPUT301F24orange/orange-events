@@ -23,7 +23,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -34,12 +33,8 @@ import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.example.orange.data.model.UserSession;
-import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.Blob;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -185,9 +180,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onSuccess(User user) {
                 if (user != null) {
-                    currentUser = user;
                     loadUserData(user.getId());
-                    updateFCMToken(user.getId());
                 } else {
                     Log.e(TAG, "User not found in Firebase");
                     navigateToHome("User not found");
@@ -200,32 +193,6 @@ public class ProfileFragment extends Fragment {
                 navigateToHome("Error verifying user");
             }
         });
-    }
-    /**
-     * Updates the user's FCM token in Firebase.
-     *
-     * @param userId The ID of the user whose FCM token is being updated
-     */
-    private void updateFCMToken(String userId) {
-        FirebaseMessaging.getInstance().getToken()
-                .addOnSuccessListener(token -> {
-                    if (currentUser != null && token != null && !token.isEmpty()) {
-                        currentUser.setFcmToken(token);
-
-                        firebaseService.updateUser(currentUser, new FirebaseCallback<Void>() {
-                            @Override
-                            public void onSuccess(Void result) {
-                                Log.d(TAG, "FCM token updated successfully for user: " + userId);
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                Log.e(TAG, "Failed to update FCM token for user: " + userId, e);
-                            }
-                        });
-                    }
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Failed to retrieve FCM token", e));
     }
 
     /**
@@ -362,11 +329,9 @@ public class ProfileFragment extends Fragment {
      * Updates user fields from UI input.
      */
     private void updateUserFields() {
-
-        currentUser.setUsername(editTextName.getText().toString().trim());
         currentUser.setDeviceId(userSession.getdeviceId());
         currentUser.setUserType(userSession.getUserType());
-
+        currentUser.setUsername(editTextName.getText().toString().trim());
         currentUser.setEmail(editTextEmail.getText().toString().trim());
         currentUser.setPhone(editTextPhone.getText().toString().trim());
 
