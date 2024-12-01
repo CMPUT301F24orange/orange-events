@@ -21,10 +21,24 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * The Geolocation class that handles the google maps API. Takes the location of users for a certain
+ * event waitlist and adds markers for where users are joining from on google maps.
+ *
+ * @author Viral Bhavsar
+ */
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap googleMap;
     private Event event;  // Event that contains user locations
 
+    /**
+     * Gets the event object that was passed as the argument
+     *
+     * @author Viral Bhavsar
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +49,22 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     *
+     * Creates the view for the fragment and initializes the map fragment
+     *
+     * @author Viral Bhavsar
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -49,6 +79,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         return view;
     }
 
+    /**
+     *
+     * Initializes the google maps API.
+     *
+     * @author Viral Bhavsar
+     *
+     * @param map
+     */
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
@@ -61,6 +99,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     /**
      * Add markers for all users on the map based on the event's location data.
+     *
+     * @author Viral Bhavsar
+     *
+     * @param locationMap
      */
     private void addMarkersForUsers(Map<String, Map<String, Object>> locationMap) {
         if (googleMap != null && locationMap != null) {

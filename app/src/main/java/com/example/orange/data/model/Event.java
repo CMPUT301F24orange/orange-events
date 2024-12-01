@@ -21,6 +21,10 @@ import java.util.Map;
  * This class defines an Event
  *
  * @author Graham Flokstra
+ *
+ * @Update Implements Parcelable to create event bundles to pass to fragments as an argument
+ *
+ * @author Radhe Patel
  */
 public class Event implements Parcelable {
     @DocumentId // Helps auto populate document id with firestore
@@ -79,6 +83,16 @@ public class Event implements Parcelable {
     }
 
 
+    /**
+     * Writes the Event object to a Parcel, allowing it to be passed between activities or fragments.
+     * This method is required by the Parcelable interface and serializes the Event object's data
+     * into the given Parcel for storage or transmission.
+     *
+     *
+     * @param dest The Parcel to which the Event data is written.
+     * @param flags Additional flags about how the object should be written, typically
+     *              0 or {@link Parcelable#PARCELABLE_WRITE_RETURN_VALUE}.
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
@@ -123,7 +137,7 @@ public class Event implements Parcelable {
         dest.writeString(eventImageId);
         dest.writeString(facilityId);
 
-        // Handle location map by writing it as a Bundle (or HashMap)
+        // Handle location map by writing it as a Bundle
         if (location != null) {
             dest.writeBundle(convertLocationToBundle(location));
         } else {
@@ -131,6 +145,17 @@ public class Event implements Parcelable {
         }
     }
 
+    /**
+     * Converts a nested Map representing location data into a Bundle.
+     * This method iterates over the outer map and its inner map,
+     * converting the key-value pairs into a Bundle format for passing
+     * as arguments or saving data.
+     *
+     * @param location A Map containing location data in the format
+     *                 Map<String, Map<String, Object>>.
+     * @return A Bundle containing the location data, with nested Bundles
+     *         for each location.
+     */
     private Bundle convertLocationToBundle(Map<String, Map<String, Object>> location) {
         Bundle bundle = new Bundle();
         for (Map.Entry<String, Map<String, Object>> entry : location.entrySet()) {
@@ -149,6 +174,10 @@ public class Event implements Parcelable {
         return bundle;
     }
 
+    /**
+     * Creator for the Event class. This is used for parceling and
+     * unparceling the Event object when it is passed between activities or fragments.
+     */
     public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
         @Override
         public Event createFromParcel(Parcel in) {
@@ -161,6 +190,13 @@ public class Event implements Parcelable {
         }
     };
 
+    /**
+     * Constructor to create an Event object from a Parcel. This is used
+     * when an Event is passed between activities/fragments, as part of
+     * Android's Parcelable mechanism.
+     *
+     * @param in The Parcel containing the serialized Event data.
+     */
     public Event(Parcel in) {
         id = in.readString();
         title = in.readString();
@@ -208,6 +244,14 @@ public class Event implements Parcelable {
         }
     }
 
+    /**
+     * Converts a Bundle back into a nested Map representing location data.
+     * This method reverses the conversion done by the convertLocationToBundle method,
+     * reconstructing the Map structure from the Bundle data.
+     *
+     * @param bundle The Bundle containing the location data.
+     * @return A Map<String, Map<String, Object>> representing the location data.
+     */
     private Map<String, Map<String, Object>> convertBundleToLocation(Bundle bundle) {
         Map<String, Map<String, Object>> locationMap = new HashMap<>();
 
@@ -242,7 +286,14 @@ public class Event implements Parcelable {
         return locationMap;
     }
 
-
+    /**
+     * Describes the contents of the Parcelable object.
+     * This method is required as part of the Parcelable interface,
+     * but is not used to describe any additional special objects in this case.
+     *
+     * @return An integer representing any special object types that should be
+     *         marshaled with the object (0 in this case, as there are no special objects).
+     */
     @Override
     public int describeContents() {
         return 0;
@@ -444,7 +495,6 @@ public class Event implements Parcelable {
         }
     }
 
-
     /**
      * This function checks if the participants list is at capacity.
      *
@@ -604,10 +654,18 @@ public class Event implements Parcelable {
     public void setWaitlistLimit(Integer waitlistLimit) { this.waitlistLimit = waitlistLimit; }
 
 
+    /**
+     * Retrieves the locations for the users in the events waitlist.
+     *
+     * @return Map<String, Map<String, Object>> representing the locations of all the users.
+     */
     public Map<String, Map<String, Object>> getLocation() {
         return location;
     }
 
+    /**
+     * Sets the locations for the users in the events waitlist.
+     */
     public void setLocation(Map<String, Map<String, Object>> location) {
         this.location = location;
     }
@@ -759,7 +817,4 @@ public class Event implements Parcelable {
                 ", participants=" + participants.size() +
                 '}';
     }
-
-
-
 }

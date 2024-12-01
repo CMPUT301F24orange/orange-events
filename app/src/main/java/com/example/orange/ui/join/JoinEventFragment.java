@@ -225,7 +225,14 @@ public class JoinEventFragment extends Fragment {
         });
     }
 
-    // Method to get the user's location and update Firebase
+    /**
+     * Method goes through the users that have joined the waitlist and finds their location at the time
+     * of joining the waitlist. It then adds the latitude and longitude of their location to the database.
+     *
+     * @author Radhe Patel
+     *
+     * @param eventId
+     */
     private void getLocation(String eventId) {
         LocationManager locationManager = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
 
@@ -242,10 +249,7 @@ public class JoinEventFragment extends Fragment {
 
         // Request location updates
         locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                1000, // Minimum time interval between updates in milliseconds
-                1,    // Minimum distance between updates in meters
-                new android.location.LocationListener() {
+                LocationManager.GPS_PROVIDER, 1000, 1, new android.location.LocationListener() {
                     @Override
                     public void onLocationChanged(@NonNull Location location) {
                         double latitude = location.getLatitude();
@@ -276,9 +280,19 @@ public class JoinEventFragment extends Fragment {
         );
     }
 
+    /**
+     * Adds the location of the given user in the database
+     *
+     * @author Radhe Patel
+     *
+     * @param eventId
+     * @param userId
+     * @param latitude
+     * @param longitude
+     */
     private void updateLocationInFirebase(String eventId, String userId, double latitude, double longitude) {
         Map<String, Object> userLocation = new HashMap<>();
-        userLocation.put("ID", userId);
+        userLocation.put("userId", userId);
         userLocation.put("latitude", latitude);
         userLocation.put("longitude", longitude);
 
@@ -289,7 +303,18 @@ public class JoinEventFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to update location", e));
     }
 
-    // Handle the result of permission requests
+    /**
+     *
+     * Handles permission results for location permissions based on whether the user denied or
+     * allowed location services.
+     *
+     * @param requestCode The request code passed in {@link #requestPermissions(String[], int)}.
+     * @param permissions The requested permissions. Never null.
+     * @param grantResults The grant results for the corresponding permissions
+     *     which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
+     *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
+     *
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
