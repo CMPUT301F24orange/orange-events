@@ -105,8 +105,8 @@ dependencies {
     // Added for QR scanning
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.3.3")
-    testImplementation("org.mockito:mockito-core:4.5.1")
-    androidTestImplementation("org.mockito:mockito-android:4.5.1")
+    testImplementation("org.mockito:mockito-core:4.6.1")
+    androidTestImplementation("org.mockito:mockito-android:4.6.1")
     androidTestImplementation("androidx.navigation:navigation-testing:2.5.3")
     testImplementation("org.mockito:mockito-android:4.0.0")
     androidTestImplementation(libs.junit.jupiter)
@@ -117,4 +117,5 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
+    androidTestImplementation("com.google.android.gms:play-services-maps:18.2.0")
 }

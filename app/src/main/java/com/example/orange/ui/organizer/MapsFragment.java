@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap googleMap;
-    private Event event;  // Event that contains user locations
+    public Event event;  // Event that contains user locations
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,7 +62,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     /**
      * Add markers for all users on the map based on the event's location data.
      */
-    private void addMarkersForUsers(Map<String, Map<String, Object>> locationMap) {
+    public void addMarkersForUsers(Map<String, Map<String, Object>> locationMap) {
         if (googleMap != null && locationMap != null) {
             for (Map.Entry<String, Map<String, Object>> entry : locationMap.entrySet()) {
                 String userId = entry.getKey();
