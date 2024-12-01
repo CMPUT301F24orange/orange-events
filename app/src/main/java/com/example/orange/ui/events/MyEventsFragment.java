@@ -22,6 +22,10 @@ import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
 import com.example.orange.data.model.ImageData;
+import com.example.orange.data.model.Notification;
+import com.example.orange.data.model.NotificationType;
+import com.example.orange.data.model.User;
+import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
 
 import java.text.SimpleDateFormat;
@@ -29,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * MyEventsFragment is responsible for displaying a list of events
@@ -39,6 +44,7 @@ import java.util.Locale;
 public class MyEventsFragment extends Fragment {
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
+    private EntrantNotifications entrantNotifications;
     private LinearLayout eventsContainer;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
 
@@ -57,6 +63,9 @@ public class MyEventsFragment extends Fragment {
         // Initialize Firebase service and session manager
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(requireContext());
+
+        // Initialize notifications
+        entrantNotifications = new EntrantNotifications();
 
         // Set up the container for displaying events
         eventsContainer = view.findViewById(R.id.events_container);
@@ -257,6 +266,63 @@ public class MyEventsFragment extends Fragment {
         firebaseService.acceptEventInvitation(eventId, userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
+                firebaseService.getNotificationsForUser(userId, new FirebaseCallback<List<Notification>>() {
+                    @Override
+                    public void onSuccess(List<Notification> notis) {
+                        for(Notification notifications : notis){
+                            if((Objects.equals(notifications.getEventId(), eventId ) && notifications.getType() == NotificationType.SELECTED_TO_PARTICIPATE)){
+                                notifications.accept();
+                                firebaseService.updateNotification(notifications, new FirebaseCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
+                                            @Override
+                                            public void onSuccess(Event event) {
+                                                firebaseService.getUserById(event.getOrganizerId(), new FirebaseCallback<User>() {
+                                                    @Override
+                                                    public void onSuccess(User organizer) {
+                                                        entrantNotifications.sendToPhone(requireContext(), "A user has accepted the offer to join your event", userId + " has accepted the offer!", organizer,notifications);
+                                                        Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
+                                                        firebaseService.createNotification(notification, new FirebaseCallback<String>() {
+                                                            @Override
+                                                            public void onSuccess(String result) {
+                                                                Log.d("ORANGE", "Notification created");
+                                                            }
+
+                                                            @Override
+                                                            public void onFailure(Exception e) {
+                                                                Log.d("ORANGE", "Failed to create notification");
+                                                            }
+                                                        });
+                                                    }
+                                                    @Override
+                                                    public void onFailure(Exception e) {
+                                                        Log.d("ORANGE", "Failed to get user");
+                                                    }
+                                                });
+                                            }
+
+                                            @Override
+                                            public void onFailure(Exception e) {
+                                                Log.d("ORANGE", "Failed to get event");
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.d("ORANGE", "Failed to update notification");
+                                    }
+                                });
+
+                            }
+                        }
+                    }
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d("Notifications", "Failed to grab notifications");
+                    }
+                });
                 Toast.makeText(requireContext(), "You have accepted the invitation.", Toast.LENGTH_SHORT).show();
                 loadUserEvents(); // Refresh the events list
             }
@@ -279,6 +345,65 @@ public class MyEventsFragment extends Fragment {
         firebaseService.declineEventInvitation(eventId, userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
+                firebaseService.getNotificationsForUser(userId, new FirebaseCallback<List<Notification>>() {
+                    @Override
+                    public void onSuccess(List<Notification> notis) {
+                        for(Notification notifications : notis){
+                            if(Objects.equals(notifications.getEventId(), eventId)){
+                                notifications.decline();
+                                firebaseService.updateNotification(notifications, new FirebaseCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        firebaseService.getEventById(eventId, new FirebaseCallback<Event>() {
+                                            @Override
+                                            public void onSuccess(Event event) {
+                                                firebaseService.getUserById(event.getOrganizerId(), new FirebaseCallback<User>() {
+                                                    @Override
+                                                    public void onSuccess(User organizer) {
+                                                        entrantNotifications.sendToPhone(requireContext(), "A user has declined the offer to join your event", userId + " has declined the offer.", organizer,notifications);
+                                                        Notification notification1 = new Notification();
+                                                        notification1.setEventId(eventId);
+                                                        event.fillSpotsFromWaitingList(requireContext(), notification1);
+                                                        Notification notification = new Notification(eventId, organizer.getId(), NotificationType.ORGANIZER);
+                                                        firebaseService.createNotification(notification, new FirebaseCallback<String>() {
+                                                            @Override
+                                                            public void onSuccess(String result) {
+                                                                Log.d("ORANGE", "Notification created");
+                                                            }
+
+                                                            @Override
+                                                            public void onFailure(Exception e) {
+                                                                Log.d("ORANGE", "Failed to create notification");
+                                                            }
+                                                        });
+                                                    }
+                                                    @Override
+                                                    public void onFailure(Exception e) {
+                                                        Log.d("ORANGE", "Failed to get user");
+                                                    }
+                                                });
+                                            }
+
+                                            @Override
+                                            public void onFailure(Exception e) {
+                                                Log.d("ORANGE", "Failed to get event");
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.d("ORANGE", "Failed to update notification");
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d("Notifications", "Failed to grab notifications");
+                    }
+                });
                 Toast.makeText(requireContext(), "You have declined the invitation.", Toast.LENGTH_SHORT).show();
                 loadUserEvents(); // Refresh the events list
             }

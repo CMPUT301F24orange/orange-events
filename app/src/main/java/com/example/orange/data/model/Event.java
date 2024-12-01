@@ -6,6 +6,16 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+
+import android.content.Context;
+import android.util.Log;
+
+import com.example.orange.MainActivity;
+import com.example.orange.data.firebase.FirebaseCallback;
+import com.example.orange.data.firebase.FirebaseService;
+import com.example.orange.ui.notifications.EntrantNotifications;
+import com.example.orange.ui.notifications.FirebaseNotifications;
+import com.example.orange.utils.SessionManager;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentId;
@@ -46,6 +56,7 @@ public class Event implements Parcelable {
     private String eventImageId; // Changed from Blob to String ID
     private String facilityId;
     private Map<String, Map<String, Object>> location;
+    Context context;
 
     /**
      * Default constructor required for Firestone
@@ -680,7 +691,8 @@ public class Event implements Parcelable {
      * Selects users randomly from the waiting list to be invited as participants.
      * @param number The number of users to select.
      */
-    public void selectParticipantsFromWaitingList(int number) {
+    public void selectParticipantsFromWaitingList(int number, Context context, Notification notification) {
+        FirebaseService firebaseService = new FirebaseService();
         // Create a copy of the waiting list to avoid modifying the original list during iteration
         List<String> waitingListCopy = new ArrayList<>(waitingList);
 
@@ -697,7 +709,34 @@ public class Event implements Parcelable {
                 break;
             }
             selectedParticipants.add(userId);
+            Log.d("ORANGE", userId);
+            firebaseService.getUserById(userId, new FirebaseCallback<User>() {
+                @Override
+                public void onSuccess(User user) {
+                    Log.d("EntrantNotifications", user.getFcmToken());
+                    EntrantNotifications entrantNotifications = new EntrantNotifications();
+                    notification.setUserId(userId);
+                    notification.setType(NotificationType.SELECTED_TO_PARTICIPATE);
+                    firebaseService.createNotification(notification, new FirebaseCallback<String>() {
+                        @Override
+                        public void onSuccess(String result) {
+                            entrantNotifications.sendToPhone(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", user, notification);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.d("EntrantNotifications", "Failed to create notification");
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.d("EntrantNotifications", "Failed to get user");
+                }
+            });
             // TODO: Trigger notification to userId to accept or decline.
+
             slotsAvailable--;
         }
     }
@@ -733,11 +772,11 @@ public class Event implements Parcelable {
     /**
      * Fills available spots by selecting new participants from the waiting list.
      */
-    public void fillSpotsFromWaitingList() {
+    public void fillSpotsFromWaitingList(Context context, Notification notification) {
         int totalConfirmed = participants.size() + selectedParticipants.size();
         int spotsNeeded = capacity - totalConfirmed;
         if (spotsNeeded > 0) {
-            selectParticipantsFromWaitingList(spotsNeeded);
+            selectParticipantsFromWaitingList(spotsNeeded, context, notification);
         }
     }
 

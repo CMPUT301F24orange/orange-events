@@ -23,7 +23,6 @@ public class ViewEventWaitlistFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_view_event_waitlist, container, false);
         firebaseService = new FirebaseService();
-
         if (getArguments() != null) {
             eventId = getArguments().getString("eventId");
         }
