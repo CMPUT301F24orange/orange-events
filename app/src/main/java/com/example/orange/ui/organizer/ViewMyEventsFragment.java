@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,9 +64,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
+
 
 /**
  * ViewMyEventsFragment displays all events created by the current organizer.
@@ -83,7 +87,7 @@ public class ViewMyEventsFragment extends Fragment {
     private Event selectedEvent; // To keep track of which event is being updated
     private Uri selectedImageUri;
 
-    private SelectedParticipantsAdapter selectedParticipantsAdapter;
+    private ParticipantsAdapter selectedParticipantsAdapter;
     private List<String> currentSelectedParticipants;
 
     /**
@@ -631,31 +635,32 @@ public class ViewMyEventsFragment extends Fragment {
         List<String> waitlist = event.getWaitingList();
         if (waitlist == null || waitlist.isEmpty()) {
             Toast.makeText(requireContext(), "No users on the waitlist", Toast.LENGTH_SHORT).show();
-        return;
+            return;
         }
-            // Inflate the custom dialog layout
-            LayoutInflater inflater = LayoutInflater.from(requireContext());
-            View dialogView = inflater.inflate(R.layout.dialog_participants, null); // Reuse the generic dialog layout
+        // Inflate the custom dialog layout
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View dialogView = inflater.inflate(R.layout.dialog_participants, null); // Reuse the generic dialog layout
 
-            RecyclerView recyclerView = dialogView.findViewById(R.id.participants_recycler_view);
-            recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        RecyclerView recyclerView = dialogView.findViewById(R.id.participants_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-            ParticipantsAdapter adapter = new ParticipantsAdapter(requireContext(), waitlist, null, false); // isRemovable = false
-            recyclerView.setAdapter(adapter);
+        ParticipantsAdapter adapter = new ParticipantsAdapter(requireContext(), waitlist, null, false); // isRemovable = false
+        recyclerView.setAdapter(adapter);
 
-            // Handle Send Notification Button
-            Button sendNotificationButton = dialogView.findViewById(R.id.send_notification_button);
-            sendNotificationButton.setOnClickListener(v -> {
-                showSendNotificationDialog(event, waitlist, "Cancelled Participants");
-            });
+        // Handle Send Notification Button
+        Button sendNotificationButton = dialogView.findViewById(R.id.send_notification_button);
+        sendNotificationButton.setOnClickListener(v -> {
+            showSendNotificationDialog(event, waitlist, "Waitlist");
+        });
 
-            // Build and show the dialog
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setTitle("Cancelled Participants for Event: " + event.getTitle());
-            builder.setView(dialogView);
-            builder.setPositiveButton("Close", null);
-            builder.show();
-        }
+        // Build and show the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Waitlist for Event: " + event.getTitle());
+        builder.setView(dialogView);
+        builder.setPositiveButton("Close", null);
+        builder.show();
+    }
+
 
     /**
      * Displays the selected participants and allows sending notifications.
@@ -674,11 +679,12 @@ public class ViewMyEventsFragment extends Fragment {
         RecyclerView recyclerView = dialogView.findViewById(R.id.participants_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        ParticipantsAdapter adapter = new ParticipantsAdapter(requireContext(), currentSelectedParticipants, userId -> {
+        // Assign the adapter to the class member
+        selectedParticipantsAdapter = new ParticipantsAdapter(requireContext(), currentSelectedParticipants, userId -> {
             // Handle participant removal
             removeSelectedParticipant(event, userId);
         }, true); // isRemovable = true for Selected Participants
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(selectedParticipantsAdapter);
 
         // Handle Send Notification Button
         Button sendNotificationButton = dialogView.findViewById(R.id.send_notification_button);
@@ -693,6 +699,7 @@ public class ViewMyEventsFragment extends Fragment {
         builder.setPositiveButton("Close", null);
         builder.show();
     }
+
 
 
     /**
@@ -747,13 +754,11 @@ public class ViewMyEventsFragment extends Fragment {
             return;
         }
 
-        // Initialize FirebaseService if not already done
-        if (firebaseService == null) {
-            firebaseService = new FirebaseService();
-        }
+        // Convert List to Set to prevent duplicates
+        Set<String> uniqueUserIds = new HashSet<>(userIds);
+        Log.d(TAG, "Sending notifications to user IDs: " + uniqueUserIds.toString());
 
-        // Fetch user details and send notifications
-        for (String userId : userIds) {
+        for (String userId : uniqueUserIds) {
             firebaseService.getUserById(userId, new FirebaseCallback<User>() {
                 @Override
                 public void onSuccess(User user) {
@@ -761,7 +766,7 @@ public class ViewMyEventsFragment extends Fragment {
                         // Create a Notification object
                         Notification notification = new Notification();
                         notification.setEventId(event.getId());
-                        notification.setType(NotificationType.ORGANIZER); // Or any appropriate type
+                        notification.setType(NotificationType.ORGANIZER); // Adjust based on notification type
 
                         // Send notification using EntrantNotifications
                         EntrantNotifications entrantNotifications = new EntrantNotifications();
@@ -780,6 +785,9 @@ public class ViewMyEventsFragment extends Fragment {
 
         Toast.makeText(requireContext(), "Notifications are being sent.", Toast.LENGTH_SHORT).show();
     }
+
+
+
 
 
     /**
