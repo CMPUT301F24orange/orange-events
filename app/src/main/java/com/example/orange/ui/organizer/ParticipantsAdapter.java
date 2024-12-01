@@ -61,7 +61,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
             @Override
             public void onSuccess(User user) {
                 if (user != null) {
-                    holder.participantNameTextView.setText(user.getId()); // Assuming User has getName()
+                    holder.participantNameTextView.setText(user.getId()); // Use getName() if available
                 } else {
                     holder.participantNameTextView.setText("Unknown User");
                 }
@@ -85,6 +85,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
             holder.removeButton.setVisibility(View.GONE);
         }
     }
+
 
     @Override
     public int getItemCount() {
