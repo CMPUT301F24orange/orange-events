@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -91,8 +92,8 @@ public class AdminProfilesFragment extends Fragment {
             TextView userName = userView.findViewById(R.id.profile_name);
             TextView userEmail = userView.findViewById(R.id.profile_email);
             TextView userPhone = userView.findViewById(R.id.profile_phone);
-            Button deleteButton = userView.findViewById(R.id.profile_delete_button);
-            Button deletePicButton = userView.findViewById(R.id.profile_pic_delete_button);
+            ImageButton deleteButton = userView.findViewById(R.id.profile_delete_button);
+            ImageButton deletePicButton = userView.findViewById(R.id.profile_pic_delete_button);
 
             String profileImageId = user.getProfileImageId();
             if (profileImageId != null) {

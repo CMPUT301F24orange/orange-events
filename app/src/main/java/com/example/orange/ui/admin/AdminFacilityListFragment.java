@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -91,7 +92,7 @@ public class AdminFacilityListFragment extends Fragment {
 
             TextView facilityName = facilityView.findViewById(R.id.facility_name);
             TextView facilityAddress = facilityView.findViewById(R.id.facility_address);
-            Button deleteButton = facilityView.findViewById(R.id.facility_remove_button);
+            ImageButton deleteButton = facilityView.findViewById(R.id.facility_remove_button);
 
             facilityName.setText(facility.getName());
 

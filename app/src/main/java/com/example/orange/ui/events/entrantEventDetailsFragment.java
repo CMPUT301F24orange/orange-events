@@ -59,9 +59,7 @@ public class entrantEventDetailsFragment extends Fragment {
         }
 
         joinEventButton = view.findViewById(R.id.joinWaitlistButton);
-        leaveEventButton = view.findViewById(R.id.leaveWaitlistButton);
         joinEventButton.setOnClickListener(v -> joinEvent(eventId));
-        leaveEventButton.setOnClickListener(v -> leaveEvent(eventId));
 
         return view;
     }
@@ -140,26 +138,6 @@ public class entrantEventDetailsFragment extends Fragment {
             @Override
             public void onFailure(Exception e) {
                 Toast.makeText(requireContext(), "Failed to add to waitlist", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    /**
-     * Removes the user from the event waitlist.
-     *
-     * @param eventId The ID of the event to leave
-     */
-    public void leaveEvent(String eventId) {
-        String userId = sessionManager.getUserSession().getUserId();
-        firebaseService.removeFromEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                Toast.makeText(requireContext(), "Removed from waitlist", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to remove from waitlist", Toast.LENGTH_SHORT).show();
             }
         });
     }

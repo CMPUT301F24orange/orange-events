@@ -1,61 +1,68 @@
+// JoinEventFragment.java
+
 package com.example.orange.ui.join;
 
 import android.content.DialogInterface;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
+import com.example.orange.data.model.Notification;
+import com.example.orange.data.model.NotificationType;
+import com.example.orange.data.model.User;
 import com.example.orange.databinding.FragmentJoinEventBinding;
+import com.example.orange.data.model.UserSession;
+import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * JoinEventFragment displays a list of events that the user is eligible to join.
  * Users can join the waitlist for events they are not already participating in.
- *
- * @author Graham Flokstra, George
  */
 public class JoinEventFragment extends Fragment {
     private FragmentJoinEventBinding binding;
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
     private EventAdapter eventAdapter;
+    private EntrantNotifications entrantNotifications;
     private List<Event> eventList;
+    private static final String TAG = "JoinEventFragment";
 
-
-    // Setter methods for dependency injection
-    public void setFirebaseService(FirebaseService firebaseService) {
-        this.firebaseService = firebaseService;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
     /**
      * Creates and returns the view hierarchy associated with the fragment.
      * Initializes Firebase service, session manager, and sets up the RecyclerView
      * to display available events.
      *
-     * @param inflater The LayoutInflater object that can be used to inflate views
-     * @param container If non-null, this is the parent view that the fragment's UI should be attached to
+     * @param inflater           The LayoutInflater object that can be used to inflate views
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to
      * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state
      * @return The View for the fragment's UI
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentJoinEventBinding.inflate(inflater, container, false);
+
+        // Initialize FirebaseService and SessionManager
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(requireContext());
 
+        // Initialize the notifications
+        entrantNotifications = new EntrantNotifications();
         // Initialize the event list and adapter
         eventList = new ArrayList<>();
         eventAdapter = new EventAdapter(eventList, requireContext(), this);
@@ -81,30 +88,66 @@ public class JoinEventFragment extends Fragment {
 
     /**
      * Loads all events from Firebase that the user is eligible to join.
-     * Filters out events where the user is already a participant or on the waiting list.
+     * Filters out events where the user is already a participant, on the waiting list,
+     * or has declined the invitation.
      * Updates the RecyclerView with the filtered list of events.
      */
     private void loadEvents() {
-        String userId = sessionManager.getUserSession().getUserId();
+        UserSession userSession = sessionManager.getUserSession();
+        if (userSession == null) {
+            Toast.makeText(requireContext(), "No active session. Please log in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        firebaseService.getAllEvents(new FirebaseCallback<List<Event>>() {
+        String userID = userSession.getUserId();
+        String userType = userSession.getUserType().toString();
+        String userId = userID + "_" + userType;
+        Log.d(TAG, "Loading events for user: " + userId);
+
+        firebaseService.getUserEvents(userId, new FirebaseCallback<List<Event>>() {
             @Override
-            public void onSuccess(List<Event> events) {
-                eventList.clear();
+            public void onSuccess(List<Event> userEvents) {
+                firebaseService.getAllEvents(new FirebaseCallback<List<Event>>() {
+                    @Override
+                    public void onSuccess(List<Event> allEvents) {
+                        eventList.clear();
 
-                // Filter events to only show those the user is not involved in
-                for (Event event : events) {
-                    if (!event.getParticipants().contains(userId) && !event.getWaitingList().contains(userId)) {
-                        eventList.add(event);
+                        // Iterate through all events and add those where the user is not involved
+                        for (Event event : allEvents) {
+                            List<String> participants = event.getParticipants() != null ? event.getParticipants() : new ArrayList<>();
+                            List<String> selectedParticipants = event.getSelectedParticipants() != null ? event.getSelectedParticipants() : new ArrayList<>();
+                            List<String> waitingList = event.getWaitingList() != null ? event.getWaitingList() : new ArrayList<>();
+                            List<String> cancelledList = event.getCancelledList() != null ? event.getCancelledList() : new ArrayList<>();
+
+                            // User should not be in any of these lists to join
+                            if (!participants.contains(userId) &&
+                                    !selectedParticipants.contains(userId) &&
+                                    !waitingList.contains(userId) &&
+                                    !cancelledList.contains(userId)) {
+                                eventList.add(event);
+                            }
+                        }
+
+                        // Notify adapter to update the RecyclerView with the new list
+                        eventAdapter.notifyDataSetChanged();
+                        Log.d(TAG, "Available Events to Join: " + eventList.size());
+                        for (Event event : eventList) {
+                            Log.d(TAG, "Event ID: " + event.getId() + ", Title: " + event.getTitle());
+                        }
                     }
-                }
-                // Notify adapter to update the RecyclerView with the new list
-                eventAdapter.notifyDataSetChanged();
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Toast.makeText(requireContext(), "Failed to load all events: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Error loading all events", e);
+                    }
+                });
             }
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to load events", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Failed to load your events", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error loading user events", e);
             }
         });
     }
@@ -124,69 +167,72 @@ public class JoinEventFragment extends Fragment {
                     .setPositiveButton("Join Waitlist", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // User confirmed to join waitlist
-                            addEntrantToWaitlist(event);
+                            addUserToWaitlist(event);
                         }
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
         } else {
             // Proceed to join the waitlist directly
-            addEntrantToWaitlist(event);
+            addUserToWaitlist(event);
         }
     }
 
     /**
      * Adds the current user to the waitlist of a specified event in Firebase.
+     * Utilizes the enhanced FirebaseService to ensure both Event and User documents are updated.
      *
      * @param event Event object the user wants to join the waitlist for.
      */
-    private void addEntrantToWaitlist(Event event) {
-        String userId = sessionManager.getUserSession().getUserId();
-        firebaseService.addToEventWaitlist(event.getId(), userId, new FirebaseCallback<Void>() {
+    private void addUserToWaitlist(Event event) {
+        UserSession userSession = sessionManager.getUserSession();
+        if (userSession == null) {
+            Toast.makeText(requireContext(), "No active session. Please log in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userID = userSession.getUserId();
+        String userType = userSession.getUserType().toString();
+        String userId = userID + "_" + userType;
+        Log.d(TAG, "Attempting to add user with ID: " + userId + " to event: " + event.getId());
+
+        firebaseService.joinEventWaitlist(event.getId(), userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Toast.makeText(requireContext(), "Added to waitlist", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Successfully added to waitlist", Toast.LENGTH_SHORT).show();
+                // Optionally, remove the event from the local list to reflect the change
+                firebaseService.getUserById(userId, new FirebaseCallback<User>() {
+                    @Override
+                    public void onSuccess(User user) {
+                        Notification notification = new Notification(event.getId(), userId, NotificationType.WAITLIST);
+                        firebaseService.createNotification(notification, new FirebaseCallback<String>() {
+                            @Override
+                            public void onSuccess(String result) {
+                                entrantNotifications.sendToPhone(requireContext(), "Added to the waitlist", "You have just been added to the " +event.getTitle() + " event waitlist", user, notification);
+                                Log.d(TAG, "Notification created");
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Log.d(TAG, "Failed to create notification");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d(TAG, "failed to get user" + userId);
+                    }
+                });
+                eventList.remove(event);
+                eventAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to add to waitlist", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Failed to join waitlist: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Failed to join waitlist for event ID: " + event.getId(), e);
             }
         });
-    }
-
-    /**
-     * Removes the current user from the waitlist of a specified event.
-     * Reloads the events list after successful removal to update the UI.
-     *
-     * @param event Event object from which to remove the user from the waitlist
-     */
-    public void leaveWaitlist(Event event) {
-        String userId = sessionManager.getUserSession().getUserId();
-
-        firebaseService.removeFromEventWaitlist(event.getId(), userId, new FirebaseCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                Toast.makeText(requireContext(), "Removed from waitlist", Toast.LENGTH_SHORT).show();
-                loadEvents(); // Reload events to reflect changes
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Toast.makeText(requireContext(), "Failed to remove from waitlist", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    /**
-     * Returns the SessionManager instance associated with this fragment.
-     *
-     * @return The SessionManager instance
-     */
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
-    public List<Event> getEventList() {
-        return eventList;
     }
 }

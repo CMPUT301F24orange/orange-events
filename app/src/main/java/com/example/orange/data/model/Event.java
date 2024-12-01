@@ -1,16 +1,24 @@
 package com.example.orange.data.model;
 
+
+
+import android.content.Context;
+import android.util.Log;
+
+import com.example.orange.MainActivity;
+import com.example.orange.data.firebase.FirebaseCallback;
+import com.example.orange.data.firebase.FirebaseService;
+import com.example.orange.ui.notifications.EntrantNotifications;
+import com.example.orange.ui.notifications.FirebaseNotifications;
+import com.example.orange.utils.SessionManager;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentId;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-/* Todo:
- *    Add in event image functionality
- *   Complete overall functionality
- */
 
 /**
  * This class defines an Event
@@ -37,8 +45,11 @@ public class Event {
     private List<String> waitingList;
     private List<String> participants;
     private List<String> selectedParticipants;
+    private List<String> cancelledList;
     private String eventImageId; // Changed from Blob to String ID
     private String facilityId;
+    Context context;
+
 
     /**
      * Default constructor required for Firestone
@@ -49,7 +60,7 @@ public class Event {
         waitingList = new ArrayList<>();
         participants = new ArrayList<>();
         selectedParticipants = new ArrayList<>();
-
+        cancelledList = new ArrayList<>();
     }
 
     /**
@@ -483,6 +494,109 @@ public class Event {
     public void setGeolocationEvent(Boolean geolocationEvent) {
         this.geolocationEvent = geolocationEvent;
     }
+
+    // Getter and Setter for cancelledList
+    public List<String> getCancelledList() {
+        return cancelledList;
+    }
+
+    public void setCancelledList(List<String> cancelledList) {
+        this.cancelledList = cancelledList;
+    }
+
+    /**
+     * Selects users randomly from the waiting list to be invited as participants.
+     * @param number The number of users to select.
+     */
+    public void selectParticipantsFromWaitingList(int number, Context context, Notification notification) {
+        FirebaseService firebaseService = new FirebaseService();
+        // Create a copy of the waiting list to avoid modifying the original list during iteration
+        List<String> waitingListCopy = new ArrayList<>(waitingList);
+
+        // Remove users who are already selected or have cancelled
+        waitingListCopy.removeAll(selectedParticipants);
+        waitingListCopy.removeAll(cancelledList);
+
+        // Shuffle the list to randomize the selection
+        Collections.shuffle(waitingListCopy);
+
+        int slotsAvailable = number;
+        for (String userId : waitingListCopy) {
+            if (slotsAvailable == 0) {
+                break;
+            }
+            selectedParticipants.add(userId);
+            Log.d("ORANGE", userId);
+            firebaseService.getUserById(userId, new FirebaseCallback<User>() {
+                @Override
+                public void onSuccess(User user) {
+                    Log.d("EntrantNotifications", user.getFcmToken());
+                    EntrantNotifications entrantNotifications = new EntrantNotifications();
+                    notification.setUserId(userId);
+                    notification.setType(NotificationType.SELECTED_TO_PARTICIPATE);
+                    firebaseService.createNotification(notification, new FirebaseCallback<String>() {
+                        @Override
+                        public void onSuccess(String result) {
+                            entrantNotifications.sendToPhone(context, "You Have Won The Lottery!", "You have just been selected to join "+title +". Choose whether to accept to decline the offer.", user, notification);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.d("EntrantNotifications", "Failed to create notification");
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.d("EntrantNotifications", "Failed to get user");
+                }
+            });
+            // TODO: Trigger notification to userId to accept or decline.
+
+            slotsAvailable--;
+        }
+    }
+
+    /**
+     * Handles the acceptance of an invitation by a user.
+     * @param userId The ID of the user who accepted.
+     */
+    public void acceptInvitation(String userId) {
+        if (selectedParticipants.contains(userId)) {
+            selectedParticipants.remove(userId);
+            participants.add(userId);
+            // Optionally, update the User object.
+            // TODO: Update user's eventsParticipating list.
+        }
+    }
+
+    /**
+     * Handles the decline of an invitation by a user.
+     * @param userId The ID of the user who declined.
+     */
+    public void declineInvitation(String userId) {
+        if (selectedParticipants.contains(userId)) {
+            selectedParticipants.remove(userId);
+            waitingList.remove(userId);
+            cancelledList.add(userId);
+            // Optionally, update the User object.
+            // TODO: Update user's eventsParticipating list.
+        }
+    }
+
+
+    /**
+     * Fills available spots by selecting new participants from the waiting list.
+     */
+    public void fillSpotsFromWaitingList(Context context, Notification notification) {
+        int totalConfirmed = participants.size() + selectedParticipants.size();
+        int spotsNeeded = capacity - totalConfirmed;
+        if (spotsNeeded > 0) {
+            selectParticipantsFromWaitingList(spotsNeeded, context, notification);
+        }
+    }
+
 
     /**
      * Function to return specific string for an object of type Event

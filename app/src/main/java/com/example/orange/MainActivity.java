@@ -1,27 +1,48 @@
 package com.example.orange;
 
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import android.Manifest;
+
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.firebase.FirebaseCallback;
+import com.example.orange.data.model.User;
+import com.example.orange.data.model.UserSession;
 import com.example.orange.data.model.UserType;
+import com.example.orange.ui.notifications.AccessToken;
+import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import com.example.orange.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
+
 
 /**
  * The main activity
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private static final int RC_NOTIFICATION  = 99 ;
     private ActivityMainBinding binding;
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
@@ -34,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        //Allow Notifications
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, RC_NOTIFICATION);
+        }
         // Setup Toolbar
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
@@ -56,6 +81,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == RC_NOTIFICATION){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "ALLOWED", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this, "DENIED", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     /**
      * Creates the option menu at the top of the page.
      *
@@ -75,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Sets the profile button in the top right corner of the app
+     * Sets the admin button in the top right corner of the app
      *
      * @param item
      * @return

@@ -43,9 +43,10 @@
                 <ImageView
                     android:id="@+id/eventImage"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginTop="12dp"
-                    android:scaleType="centerCrop" />
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:layout_marginTop="12dp" />
 
                 <!-- Event Details -->
                 <LinearLayout
@@ -287,14 +288,6 @@
                 android:backgroundTint="@color/primary"
                 android:textColor="#000000" />
 
-            <Button
-                android:id="@+id/leaveWaitlistButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Leave Waitlist"
-                android:backgroundTint="@color/primary"
-                android:textColor="#000000" />
         </LinearLayout>
     </RelativeLayout>
 
