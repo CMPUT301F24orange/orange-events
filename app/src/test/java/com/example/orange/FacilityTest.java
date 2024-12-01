@@ -1,21 +1,19 @@
 package com.example.orange;
 
-//package com.example.orange.data.model;
-
 import static org.junit.Assert.*;
-
 import com.example.orange.data.model.Facility;
-
 import org.junit.Test;
 
 /**
  * Unit tests for the Facility class, ensuring correct handling of properties.
+ * @author Viral Bhavsar, Dhairya Prajapati
  */
 public class FacilityTest {
 
     /**
      * Tests the default constructor of the Facility class.
      * Verifies that all fields are null upon initialization.
+     * @author Dhairya Prajapati
      */
     @Test
     public void testDefaultConstructor() {
@@ -34,6 +32,7 @@ public class FacilityTest {
     /**
      * Tests the parameterized constructor of the Facility class.
      * Verifies that name and address are set correctly.
+     * @author Viral Bhavsar
      */
     @Test
     public void testParameterizedConstructor() {
@@ -56,6 +55,7 @@ public class FacilityTest {
 
     /**
      * Tests the ID getter and setter methods.
+     * @author Dhairya Prajapati
      */
     @Test
     public void testIdGetterSetter() {
@@ -70,6 +70,7 @@ public class FacilityTest {
 
     /**
      * Tests the name getter and setter methods.
+     * @author Viral Bhavsar
      */
     @Test
     public void testNameGetterSetter() {
@@ -84,6 +85,7 @@ public class FacilityTest {
 
     /**
      * Tests the address getter and setter methods.
+     * @author Dhairya Prajapati
      */
     @Test
     public void testAddressGetterSetter() {
@@ -99,6 +101,7 @@ public class FacilityTest {
     /**
      * Tests the equality of two Facility objects.
      * Assumes that equals() is overridden to compare based on ID.
+     * @author Viral Bhavsar
      */
     @Test
     public void testFacilityEquality() {
@@ -118,6 +121,7 @@ public class FacilityTest {
 
     /**
      * Tests that two Facilities with different IDs are not equal.
+     * @author Viral Bhavsar
      */
     @Test
     public void testFacilityInequality() {
