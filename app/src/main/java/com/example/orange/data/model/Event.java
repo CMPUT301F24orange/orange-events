@@ -1,9 +1,11 @@
 package com.example.orange.data.model;
 
+
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
+
 import static com.example.orange.ui.notifications.EntrantNotifications.TAG;
 
 import android.content.Context;
@@ -770,7 +772,7 @@ public class Event implements Parcelable {
             firebaseService.getUserById(userId, new FirebaseCallback<User>() {
                 @Override
                 public void onSuccess(User user) {
-                    Log.d("EntrantNotifications", user.getFcmToken());
+                    Log.d(TAG, user.getFcmToken());
                     EntrantNotifications entrantNotifications = new EntrantNotifications();
                     notification.setUserId(userId);
                     notification.setType(NotificationType.SELECTED_TO_PARTICIPATE);
@@ -782,14 +784,14 @@ public class Event implements Parcelable {
 
                         @Override
                         public void onFailure(Exception e) {
-                            Log.d("EntrantNotifications", "Failed to create notification");
+                            Log.d(TAG, "Failed to create notification");
                         }
                     });
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-                    Log.d("EntrantNotifications", "Failed to get user");
+                    Log.d(TAG, "Failed to get user");
                 }
             });
             // TODO: Trigger notification to userId to accept or decline.
