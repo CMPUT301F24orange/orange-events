@@ -113,22 +113,8 @@ dependencies {
 
     implementation ("androidx.recyclerview:recyclerview:1.2.1")
 
-
     // Geolocation dependencies
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
-
-    // Added for Notifications
-    implementation ("com.google.firebase:firebase-messaging:24.1.0")
-    implementation ("com.google.firebase:firebase-messaging")
-    implementation("com.google.firebase:firebase-analytics")
-    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
-    implementation ("com.google.code.gson:gson:2.10.1")
-    implementation ("com.google.code.gson:gson:2.10.1")
-    implementation ("com.google.guava:guava:27.0.1-android")
-    implementation ("com.google.guava:guava:32.1.2-jre") // or the latest version
-    implementation ("com.android.volley:volley:1.2.1")
-    implementation ("com.google.auth:google-auth-library-oauth2-http:1.19.0")
-
 }

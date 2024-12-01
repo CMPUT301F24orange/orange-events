@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,12 +24,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
-import com.example.orange.data.model.Notification;
-import com.example.orange.data.model.NotificationType;
-import com.example.orange.data.model.User;
 import com.example.orange.databinding.FragmentJoinEventBinding;
 import com.example.orange.data.model.UserSession;
-import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -50,7 +45,6 @@ public class JoinEventFragment extends Fragment {
     private FirebaseService firebaseService;
     private SessionManager sessionManager;
     private EventAdapter eventAdapter;
-    private EntrantNotifications entrantNotifications;
     private List<Event> eventList;
     private static final String TAG = "JoinEventFragment";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
@@ -73,8 +67,6 @@ public class JoinEventFragment extends Fragment {
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(requireContext());
 
-        // Initialize the notifications
-        entrantNotifications = new EntrantNotifications();
         // Initialize the event list and adapter
         eventList = new ArrayList<>();
         eventAdapter = new EventAdapter(eventList, requireContext(), this);
@@ -221,29 +213,6 @@ public class JoinEventFragment extends Fragment {
             public void onSuccess(Void result) {
                 Toast.makeText(requireContext(), "Successfully added to waitlist", Toast.LENGTH_SHORT).show();
                 // Optionally, remove the event from the local list to reflect the change
-                firebaseService.getUserById(userId, new FirebaseCallback<User>() {
-                    @Override
-                    public void onSuccess(User user) {
-                        Notification notification = new Notification(event.getId(), userId, NotificationType.WAITLIST);
-                        firebaseService.createNotification(notification, new FirebaseCallback<String>() {
-                            @Override
-                            public void onSuccess(String result) {
-                                entrantNotifications.sendToPhone(requireContext(), "Added to the waitlist", "You have just been added to the " +event.getTitle() + " event waitlist", user, notification);
-                                Log.d(TAG, "Notification created");
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                Log.d(TAG, "Failed to create notification");
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        Log.d(TAG, "failed to get user" + userId);
-                    }
-                });
                 eventList.remove(event);
                 eventAdapter.notifyDataSetChanged();
             }

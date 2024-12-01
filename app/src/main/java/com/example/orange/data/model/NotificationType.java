@@ -7,6 +7,5 @@ public enum NotificationType {
     SELECTED_TO_PARTICIPATE,
     NOT_SELECTED,
     CANCELLED_LIST,
-    WAITLIST,
-    ORGANIZER
+    WAITLIST
 }
