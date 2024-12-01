@@ -3,7 +3,6 @@ import org.gradle.external.javadoc.JavadocMemberLevel
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
-    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
