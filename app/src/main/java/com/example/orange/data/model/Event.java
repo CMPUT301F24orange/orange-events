@@ -1,5 +1,6 @@
 package com.example.orange.data.model;
 
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -11,6 +12,7 @@ import com.google.firebase.firestore.DocumentId;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,27 +91,31 @@ public class Event implements Parcelable {
         dest.writeParcelable(registrationDeadline, flags);
         dest.writeParcelable(lotteryDrawDate, flags);
         dest.writeParcelable(eventDate, flags);
+
         if (price == null) {
             dest.writeByte((byte) 0);
         } else {
             dest.writeByte((byte) 1);
             dest.writeDouble(price);
         }
+
         if (capacity == null) {
             dest.writeByte((byte) 0);
         } else {
             dest.writeByte((byte) 1);
             dest.writeInt(capacity);
         }
+
         if (waitlistLimit == null) {
             dest.writeByte((byte) 0);
         } else {
             dest.writeByte((byte) 1);
             dest.writeInt(waitlistLimit);
         }
+
         dest.writeString(organizerId);
         dest.writeString(qr_hash);
-        dest.writeValue(geolocationEvent); // Can write Boolean as a nullable value
+        dest.writeValue(geolocationEvent);
         dest.writeStringList(waitingList);
         dest.writeStringList(participants);
         dest.writeStringList(selectedParticipants);
@@ -117,6 +123,30 @@ public class Event implements Parcelable {
         dest.writeString(eventImageId);
         dest.writeString(facilityId);
 
+        // Handle location map by writing it as a Bundle (or HashMap)
+        if (location != null) {
+            dest.writeBundle(convertLocationToBundle(location));
+        } else {
+            dest.writeBundle(null);
+        }
+    }
+
+    private Bundle convertLocationToBundle(Map<String, Map<String, Object>> location) {
+        Bundle bundle = new Bundle();
+        for (Map.Entry<String, Map<String, Object>> entry : location.entrySet()) {
+            Bundle innerBundle = new Bundle();
+            for (Map.Entry<String, Object> innerEntry : entry.getValue().entrySet()) {
+                // Assuming Object can be cast to a type, otherwise handle it accordingly
+                if (innerEntry.getValue() instanceof Double) {
+                    innerBundle.putDouble(innerEntry.getKey(), (Double) innerEntry.getValue());
+                } else if (innerEntry.getValue() instanceof String) {
+                    innerBundle.putString(innerEntry.getKey(), (String) innerEntry.getValue());
+                }
+                // Handle other types as needed
+            }
+            bundle.putBundle(entry.getKey(), innerBundle);
+        }
+        return bundle;
     }
 
     public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
@@ -142,21 +172,25 @@ public class Event implements Parcelable {
         registrationDeadline = in.readParcelable(Timestamp.class.getClassLoader());
         lotteryDrawDate = in.readParcelable(Timestamp.class.getClassLoader());
         eventDate = in.readParcelable(Timestamp.class.getClassLoader());
+
         if (in.readByte() == 0) {
             price = null;
         } else {
             price = in.readDouble();
         }
+
         if (in.readByte() == 0) {
             capacity = null;
         } else {
             capacity = in.readInt();
         }
+
         if (in.readByte() == 0) {
             waitlistLimit = null;
         } else {
             waitlistLimit = in.readInt();
         }
+
         organizerId = in.readString();
         qr_hash = in.readString();
         geolocationEvent = (Boolean) in.readValue(Boolean.class.getClassLoader());
@@ -166,7 +200,48 @@ public class Event implements Parcelable {
         cancelledList = in.createStringArrayList();
         eventImageId = in.readString();
         facilityId = in.readString();
+
+        // Read the location bundle and convert it back to a Map
+        Bundle locationBundle = in.readBundle(getClass().getClassLoader());
+        if (locationBundle != null) {
+            location = convertBundleToLocation(locationBundle);
+        }
     }
+
+    private Map<String, Map<String, Object>> convertBundleToLocation(Bundle bundle) {
+        Map<String, Map<String, Object>> locationMap = new HashMap<>();
+
+        // Iterate over the keys in the bundle
+        for (String key : bundle.keySet()) {
+            // Get the inner bundle for this key
+            Bundle innerBundle = bundle.getBundle(key);
+
+            if (innerBundle != null) {
+                Map<String, Object> innerMap = new HashMap<>();
+
+                // Iterate over the inner bundle's keys and add them to the inner map
+                for (String innerKey : innerBundle.keySet()) {
+                    Object value = null;
+
+                    // Retrieve the appropriate type of value
+                    if (innerBundle.containsKey(innerKey)) {
+                        value = innerBundle.get(innerKey); // Can be Double, String, etc.
+                    }
+
+                    // Add the value to the inner map
+                    if (value != null) {
+                        innerMap.put(innerKey, value);
+                    }
+                }
+
+                // Add the inner map to the outer map
+                locationMap.put(key, innerMap);
+            }
+        }
+
+        return locationMap;
+    }
+
 
     @Override
     public int describeContents() {
