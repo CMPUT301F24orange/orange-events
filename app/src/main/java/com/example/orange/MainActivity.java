@@ -380,7 +380,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Method to check if the device ID is in the admins collection
+    /**
+     * Method to check if the device ID is in the admins collection
+     *
+     * @author Radhe Patel
+     *
+     * @param deviceId
+     */
     private void checkIfAdmin(String deviceId) {
         db = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
@@ -406,16 +412,6 @@ public class MainActivity extends AppCompatActivity {
                     // Clear the menu in case of failure
                     binding.toolbar.getMenu().clear();
                 });
-    }
-
-
-
-    // Method to navigate to admin view
-    private void navigateToAdminView() {
-        Log.d(TAG, "Navigating to Admin View");
-        binding.navView.getMenu().clear();
-        getMenuInflater().inflate(R.menu.toolbar_admin_button, binding.navView.getMenu());
-        navController.navigate(R.id.navigation_admin);
     }
 }
 
