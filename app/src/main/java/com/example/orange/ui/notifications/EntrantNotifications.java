@@ -9,6 +9,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -40,6 +41,7 @@ import com.example.orange.ui.events.entrantEventDetailsActivity;
 import com.example.orange.ui.events.entrantEventDetailsFragment;
 import com.example.orange.ui.profile.ProfileFragment;
 import com.example.orange.utils.SessionManager;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -219,4 +221,7 @@ public class EntrantNotifications {
         }
         manager.notify(new Random().nextInt(), builder.build());
     }
+
+
+
 }

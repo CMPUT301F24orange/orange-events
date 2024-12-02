@@ -55,10 +55,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //Allow Notifications
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, RC_NOTIFICATION);
-        }
+
         // Setup Toolbar
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
@@ -81,18 +78,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if(requestCode == RC_NOTIFICATION){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(this, "ALLOWED", Toast.LENGTH_SHORT).show();
-            }else{
-                Toast.makeText(this, "DENIED", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
     /**
      * Creates the option menu at the top of the page.

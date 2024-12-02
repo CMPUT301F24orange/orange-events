@@ -1,5 +1,8 @@
 package com.example.orange.ui.profile;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -8,6 +11,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +28,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -56,7 +61,7 @@ import java.io.InputStream;
 public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
-
+    private static final int RC_NOTIFICATION  = 99 ;
     private EditText editTextName;
     private EditText editTextEmail;
     private EditText editTextPhone;
@@ -164,6 +169,10 @@ public class ProfileFragment extends Fragment {
         logoutButton.setOnClickListener(v -> handleLogout());
         facilityButton.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_navigation_profile_to_facilityProfileFragment));
+        receiveNotificationsCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+
+        });
+
     }
 
     /**
