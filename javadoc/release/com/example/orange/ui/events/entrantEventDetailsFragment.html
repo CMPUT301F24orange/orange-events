@@ -83,6 +83,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">entrantEventDetailsFragment</span>
 <span class="extends-implements">extends androidx.fragment.app.Fragment</span></div>
+<div class="block">This fragment displays details of an event and allows a user to join or leave the event's waitlist.
+ This class is called only after the QR code has been scanned, being linked by the eventId.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -110,12 +112,9 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code>android.widget.Button</code></div>
 <div class="col-second odd-row-color"><code><a href="#joinEventButton" class="member-name-link">joinEventButton</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>android.widget.Button</code></div>
-<div class="col-second even-row-color"><code><a href="#leaveEventButton" class="member-name-link">leaveEventButton</a></code></div>
+<div class="col-first even-row-color"><code><a href="../../utils/SessionManager.html" title="class in com.example.orange.utils">SessionManager</a></code></div>
+<div class="col-second even-row-color"><code><a href="#sessionManager" class="member-name-link">sessionManager</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code><a href="../../utils/SessionManager.html" title="class in com.example.orange.utils">SessionManager</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#sessionManager" class="member-name-link">sessionManager</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-androidx.fragment.app.Fragment">Fields inherited from class&nbsp;androidx.fragment.app.Fragment</h3>
@@ -148,19 +147,22 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#joinEvent(java.lang.String)" class="member-name-link">joinEvent</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds the user to the event waitlist.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#leaveEvent(java.lang.String)" class="member-name-link">leaveEvent</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#loadEventDetails(java.lang.String,android.view.View)" class="member-name-link">loadEventDetails</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#loadEventDetails(java.lang.String,android.view.View)" class="member-name-link">loadEventDetails</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  android.view.View&nbsp;view)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>android.view.View</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)" class="member-name-link">onCreateView</a><wbr>(android.view.LayoutInflater&nbsp;inflater,
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Loads event details from Firebase and updates the UI.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>android.view.View</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle)" class="member-name-link">onCreateView</a><wbr>(android.view.LayoutInflater&nbsp;inflater,
  android.view.ViewGroup&nbsp;container,
  android.os.Bundle&nbsp;savedInstanceState)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Called when the fragment is created.</div>
+</div>
 </div>
 </div>
 </div>
@@ -185,12 +187,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="joinEventButton">
 <h3>joinEventButton</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">android.widget.Button</span>&nbsp;<span class="element-name">joinEventButton</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="leaveEventButton">
-<h3>leaveEventButton</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">android.widget.Button</span>&nbsp;<span class="element-name">leaveEventButton</span></div>
 </section>
 </li>
 <li>
@@ -236,6 +232,7 @@ loadScripts(document, 'script');</script>
  android.view.ViewGroup&nbsp;container,
  @Nullable
  android.os.Bundle&nbsp;savedInstanceState)</span></div>
+<div class="block">Called when the fragment is created. Sets up the fragment's UI and loads event details.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreateView</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.Fragment</code></dd>
@@ -247,18 +244,23 @@ loadScripts(document, 'script');</script>
 <h3>loadEventDetails</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">loadEventDetails</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  android.view.View&nbsp;view)</span></div>
+<div class="block">Loads event details from Firebase and updates the UI.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event to load</dd>
+<dd><code>view</code> - The view to update with event details</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="joinEvent(java.lang.String)">
 <h3>joinEvent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">joinEvent</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="leaveEvent(java.lang.String)">
-<h3>leaveEvent</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">leaveEvent</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId)</span></div>
+<div class="block">Adds the user to the event waitlist.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event to join</dd>
+</dl>
 </section>
 </li>
 </ul>

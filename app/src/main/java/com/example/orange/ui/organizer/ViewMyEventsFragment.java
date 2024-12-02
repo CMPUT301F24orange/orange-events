@@ -31,6 +31,7 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -224,6 +225,7 @@ public class ViewMyEventsFragment extends Fragment {
             ImageButton actionButton = eventView.findViewById(R.id.view_waitlist_button);
             ImageButton changeImageButton = eventView.findViewById(R.id.change_image_button);
             ImageButton drawParticipantsButton = eventView.findViewById(R.id.draw_participants_button);
+            ImageButton mapButton = eventView.findViewById(R.id.map_button);
 
             // New buttons
             ImageButton viewSelectedParticipantsButton = eventView.findViewById(R.id.view_selected_participants_button);
@@ -325,6 +327,26 @@ public class ViewMyEventsFragment extends Fragment {
             }
 
             binding.organizerEventsContainer.addView(eventView);
+
+            // Setting Up Geolocation button for the events that have it enabled
+            boolean hasGeolocation = event.getGeolocationEvent();
+            if (hasGeolocation) {
+                mapButton.setVisibility(View.VISIBLE);
+                // Set click listener for mapButton
+                mapButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Bundle args = new Bundle();
+                        args.putParcelable("event", event);
+                        try {
+                            NavHostFragment.findNavController(ViewMyEventsFragment.this)
+                                    .navigate(R.id.action_view_my_events_to_map_fragment, args);
+                        } catch(Exception e) {
+                            Log.e("maps", Log.getStackTraceString(e));
+                        }
+                    }
+                });
+            }
         }
     }
 

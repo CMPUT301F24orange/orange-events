@@ -200,7 +200,7 @@ public class MyEventsFragment extends Fragment {
     }
 
     /**
-     * Removes the current user from an event's waitlist.
+     * Removes the current user from an event's waitlist and deletes their location.
      *
      * @param eventId Unique ID of the event.
      * @param userId  Unique ID of the user.
@@ -209,8 +209,20 @@ public class MyEventsFragment extends Fragment {
         firebaseService.removeFromEventWaitlist(eventId, userId, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Toast.makeText(requireContext(), "You have left the queue.", Toast.LENGTH_SHORT).show();
-                loadUserEvents();  // Refresh the events list
+                // Remove user's location after successfully leaving the waitlist
+                firebaseService.removeUserFromEventLocation(eventId, userId, new FirebaseCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        Toast.makeText(requireContext(), "You have left the queue, and your location has been removed.", Toast.LENGTH_SHORT).show();
+                        loadUserEvents();  // Refresh the events list
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Toast.makeText(requireContext(), "Failed to remove your location, but you left the queue.", Toast.LENGTH_SHORT).show();
+                        Log.e("MyEventsFragment", "Error removing user location", e);
+                    }
+                });
             }
 
             @Override
@@ -220,6 +232,7 @@ public class MyEventsFragment extends Fragment {
             }
         });
     }
+
 
     /**
      * Removes the current user from the list of participants for an event.
