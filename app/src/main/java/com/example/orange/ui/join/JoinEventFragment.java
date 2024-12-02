@@ -2,7 +2,12 @@
 
 package com.example.orange.ui.join;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -26,9 +32,14 @@ import com.example.orange.databinding.FragmentJoinEventBinding;
 import com.example.orange.data.model.UserSession;
 import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * JoinEventFragment displays a list of events that the user is eligible to join.
@@ -42,6 +53,7 @@ public class JoinEventFragment extends Fragment {
     private EntrantNotifications entrantNotifications;
     private List<Event> eventList;
     private static final String TAG = "JoinEventFragment";
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     /**
      * Creates and returns the view hierarchy associated with the fragment.
@@ -166,8 +178,16 @@ public class JoinEventFragment extends Fragment {
                     .setMessage("This event requires geolocation. Do you want to join the waitlist?")
                     .setPositiveButton("Join Waitlist", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // User confirmed to join waitlist
-                            addUserToWaitlist(event);
+
+                            // Check location permissions
+                            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                                    ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+                            } else {
+                                // Permissions are granted, proceed to get location
+                                addUserToWaitlist(event);
+                                getLocation(event.getId());
+                            }
                         }
                     })
                     .setNegativeButton("Cancel", null)
@@ -235,4 +255,82 @@ public class JoinEventFragment extends Fragment {
             }
         });
     }
+
+    // Method to get the user's location and update Firebase
+    private void getLocation(String eventId) {
+        LocationManager locationManager = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
+
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Toast.makeText(requireContext(), "Please enable location services", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(requireContext(), "Location permissions not granted", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Request location updates
+        locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                1000, // Minimum time interval between updates in milliseconds
+                1,    // Minimum distance between updates in meters
+                new android.location.LocationListener() {
+                    @Override
+                    public void onLocationChanged(@NonNull Location location) {
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+
+                        Log.d(TAG, "Latitude: " + latitude + ", Longitude: " + longitude);
+
+                        // Update Firebase
+                        UserSession userSession = sessionManager.getUserSession();
+                        if (userSession != null) {
+                            String userID = userSession.getUserId();
+                            String userType = userSession.getUserType().toString();
+                            String userId = userID + "_" + userType;
+
+                            updateLocationInFirebase(eventId, userId, latitude, longitude);
+                        }
+                    }
+
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+                    @Override
+                    public void onProviderEnabled(@NonNull String provider) {}
+
+                    @Override
+                    public void onProviderDisabled(@NonNull String provider) {}
+                }
+        );
+    }
+
+    private void updateLocationInFirebase(String eventId, String userId, double latitude, double longitude) {
+        Map<String, Object> userLocation = new HashMap<>();
+        userLocation.put("ID", userId);
+        userLocation.put("latitude", latitude);
+        userLocation.put("longitude", longitude);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("events").document(eventId)
+                .update("location." + userId, userLocation)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Location updated successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to update location", e));
+    }
+
+    // Handle the result of permission requests
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(requireContext(), "Location permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 }

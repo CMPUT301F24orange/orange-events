@@ -1558,7 +1558,79 @@ public class FirebaseService {
                 });
     }
 
+    /**
+     * Removes the user's location entry entirely from the event's location field in Firestore.
+     *
+     * @param eventId Unique ID of the event.
+     * @param userId  Unique ID of the user.
+     * @param callback Callback to handle success or failure.
+     */
+    public void removeUserFromEventLocation(String eventId, String userId, FirebaseCallback<Void> callback) {
+        db.collection("events")
+                .document(eventId)
+                .update("location." + userId, FieldValue.delete()) // Delete the user's location entry
+                .addOnSuccessListener(unused -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
 
 
+    /**
+     * Updates only the receiveNotifications field for a user.
+     *
+     * @param userId                The ID of the user.
+     * @param receiveNotifications  The new notification preference.
+     * @param callback              A callback to handle the result of the operation.
+     */
+    public void updateUserReceiveNotifications(String userId, boolean receiveNotifications, FirebaseCallback<Void> callback) {
+        db.collection("users").document(userId)
+                .update("receiveNotifications", receiveNotifications)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User receiveNotifications updated successfully");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to update user receiveNotifications", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Updates the user's FCM token in Firestore.
+     *
+     * @param userId  The ID of the user.
+     * @param token   The FCM token to set.
+     * @param callback A callback to handle success or failure.
+     */
+    public void setUserFCMToken(String userId, String token, FirebaseCallback<Void> callback) {
+        db.collection("users").document(userId)
+                .update("fcmToken", token)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User FCM token updated successfully");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to update user FCM token", e);
+                    callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Removes the user's FCM token from Firestore.
+     *
+     * @param userId  The ID of the user.
+     * @param callback A callback to handle success or failure.
+     */
+    public void removeUserFCMToken(String userId, FirebaseCallback<Void> callback) {
+        db.collection("users").document(userId)
+                .update("fcmToken", FieldValue.delete())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User FCM token removed successfully");
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to remove user FCM token", e);
+                    callback.onFailure(e);
+                });
+    }
 
 }

@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,10 +17,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.Toast;
-
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.Manifest;
+import android.os.Build;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -34,10 +36,7 @@ import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.example.orange.data.model.UserSession;
-import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.Blob;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -47,9 +46,6 @@ import java.io.InputStream;
 
 /**
  * ProfileFragment manages user profile functionality within the Orange application.
- * This fragment handles the display and editing of user information, including profile
- * images, personal details, and type-specific features for different user roles
- * (Entrant vs Organizer).
  *
  * @author Graham Flokstra
  */
@@ -78,11 +74,8 @@ public class ProfileFragment extends Fragment {
     private User currentUser;
 
     private Uri selectedImageUri;
-
     /**
-     * Activity result launcher for handling image selection from the device's media store.
-     * When an image is selected, it updates the profile image view and stores the URI
-     * for later processing.
+     * Launcher to handle image picking using the new Activity Result API.
      */
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia = registerForActivityResult(
             new ActivityResultContracts.PickVisualMedia(),
@@ -95,12 +88,54 @@ public class ProfileFragment extends Fragment {
     );
 
     /**
-     * Creates and returns the view hierarchy associated with the fragment.
+     * Listener for changes in the receiveNotificationsCheckbox state.
+     * It handles enabling or disabling notifications based on the checkbox state.
+     */
+    private CompoundButton.OnCheckedChangeListener notificationsListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (currentUser != null && userSession != null) {
+                if (isChecked) {
+                    // Request notification permission
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                    } else {
+                        // Permissions are granted at install time for lower SDK versions
+                        enableNotifications();
+                    }
+                } else {
+                    // Disable notifications
+                    disableNotifications();
+                }
+            }
+        }
+    };
+
+    /**
+     * Launcher to handle the result of the notification permission request.
+     * It enables notifications if permission is granted, or reverts the checkbox state if denied.
+     */
+    private ActivityResultLauncher<String> requestNotificationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission granted, proceed to enable notifications
+                    enableNotifications();
+                } else {
+                    // Permission denied, revert checkbox and inform the user
+                    Toast.makeText(getContext(), "Notification permission denied", Toast.LENGTH_SHORT).show();
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
+                    receiveNotificationsCheckbox.setChecked(false);
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
+                }
+            });
+
+    /**
+     * Called to have the fragment instantiate its user interface view.
      *
-     * @param inflater           LayoutInflater object to inflate views
-     * @param container          If non-null, parent view that the fragment's UI should be attached to
-     * @param savedInstanceState If non-null, fragment is being re-constructed from previous saved state
-     * @return The View for the fragment's UI
+     * @param inflater           The LayoutInflater object that can be used to inflate any views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state as given here.
+     * @return Return the View for the fragment's UI.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -115,7 +150,7 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Initializes Firebase and session management services.
+     * Initializes the FirebaseService and SessionManager instances.
      */
     private void initializeServices() {
         firebaseService = new FirebaseService();
@@ -123,10 +158,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Initializes all view components and sets up their click listeners.
-     * Also handles initial visibility states based on user type.
+     * Initializes all view components and sets up their initial states and listeners.
      *
-     * @param view The root view of the fragment
+     * @param view The root view of the fragment's layout.
      */
     private void initializeViews(View view) {
         // Initialize view references
@@ -150,10 +184,13 @@ public class ProfileFragment extends Fragment {
 
         // Set up click listeners
         setupClickListeners();
+
+        // Set up the checkbox listener
+        receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
     }
 
     /**
-     * Sets up click listeners for all interactive elements in the fragment.
+     * Sets up click listeners for various buttons within the fragment.
      */
     private void setupClickListeners() {
         saveButton.setOnClickListener(v -> saveUserProfile(selectedImageUri));
@@ -167,8 +204,8 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Verifies the current user session and loads user data if session is valid.
-     * Navigates to home screen if session is invalid.
+     * Verifies the user session and loads user data from Firebase Firestore.
+     * If no session is found or user data cannot be loaded, navigates back to the home screen.
      */
     private void verifySessionAndLoadData() {
         userSession = sessionManager.getUserSession();
@@ -187,7 +224,10 @@ public class ProfileFragment extends Fragment {
                 if (user != null) {
                     currentUser = user;
                     loadUserData(user.getId());
-                    updateFCMToken(user.getId());
+                    // Only update FCM token if notifications are enabled
+                    if (currentUser.isReceiveNotifications()) {
+                        updateFCMToken(user.getId());
+                    }
                 } else {
                     Log.e(TAG, "User not found in Firebase");
                     navigateToHome("User not found");
@@ -201,18 +241,18 @@ public class ProfileFragment extends Fragment {
             }
         });
     }
+
     /**
-     * Updates the user's FCM token in Firebase.
+     * Updates the Firebase Cloud Messaging (FCM) token for the user in Firestore.
      *
-     * @param userId The ID of the user whose FCM token is being updated
+     * @param userId The unique identifier of the user.
      */
     private void updateFCMToken(String userId) {
         FirebaseMessaging.getInstance().getToken()
                 .addOnSuccessListener(token -> {
                     if (currentUser != null && token != null && !token.isEmpty()) {
                         currentUser.setFcmToken(token);
-
-                        firebaseService.updateUser(currentUser, new FirebaseCallback<Void>() {
+                        firebaseService.setUserFCMToken(userId, token, new FirebaseCallback<Void>() {
                             @Override
                             public void onSuccess(Void result) {
                                 Log.d(TAG, "FCM token updated successfully for user: " + userId);
@@ -229,9 +269,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Enables or disables interactive buttons based on user data availability.
+     * Enables or disables buttons based on the provided state.
      *
-     * @param enabled true to enable buttons, false to disable
+     * @param enabled If true, buttons are enabled; otherwise, they are disabled.
      */
     private void setButtonsEnabled(boolean enabled) {
         saveButton.setEnabled(enabled);
@@ -240,10 +280,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Loads user data from Firebase and populates the UI.
-     * Handles different UI configurations based on user type.
+     * Loads the user's data from Firestore and populates the UI components.
      *
-     * @param userId The ID of the user whose data should be loaded
+     * @param userId The unique identifier of the user.
      */
     private void loadUserData(String userId) {
         firebaseService.getUserById(userId, new FirebaseCallback<User>() {
@@ -271,9 +310,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Populates the user interface with the provided user data.
+     * Populates the user interface with the user's data.
      *
-     * @param user The user whose data should be displayed
+     * @param user The User object containing user data.
      */
     private void populateUserInterface(User user) {
         editTextName.setText(user.getUsername());
@@ -307,9 +346,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Configures UI elements specific to user type (Entrant or Organizer).
+     * Configures UI elements based on the user's type (ENTRANT or ORGANIZER).
      *
-     * @param user The user whose type determines the UI configuration
+     * @param user The User object containing user data.
      */
     private void configureUserTypeSpecificUI(User user) {
         if (user.getUserType() == UserType.ENTRANT) {
@@ -323,9 +362,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Navigates to the home screen with a toast message.
+     * Navigates the user back to the home screen with an optional message.
      *
-     * @param message Message to display in toast
+     * @param message The message to display to the user before navigation.
      */
     private void navigateToHome(String message) {
         if (getActivity() != null) {
@@ -337,9 +376,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Saves the user profile with updated information and optional new profile image.
+     * Saves the user's profile information, including handling image uploads and notification preferences.
      *
-     * @param imageUri URI of the new profile image, if one was selected
+     * @param imageUri The URI of the selected profile image, if any.
      */
     private void saveUserProfile(Uri imageUri) {
         if (currentUser == null || userSession == null) {
@@ -347,6 +386,7 @@ public class ProfileFragment extends Fragment {
             return;
         }
 
+        // Update other user fields
         updateUserFields();
 
         if (imageUri != null) {
@@ -356,13 +396,15 @@ public class ProfileFragment extends Fragment {
             // No new image, update the user profile
             updateUserProfile();
         }
+
+        // Handle notification preferences after other updates
+        handleNotificationPreferences();
     }
 
     /**
-     * Updates user fields from UI input.
+     * Updates the user's basic information fields based on the input fields.
      */
     private void updateUserFields() {
-
         currentUser.setUsername(editTextName.getText().toString().trim());
         currentUser.setDeviceId(userSession.getdeviceId());
         currentUser.setUserType(userSession.getUserType());
@@ -371,14 +413,15 @@ public class ProfileFragment extends Fragment {
         currentUser.setPhone(editTextPhone.getText().toString().trim());
 
         if (currentUser.getUserType() == UserType.ENTRANT) {
-            currentUser.setReceiveNotifications(receiveNotificationsCheckbox.isChecked());
+            // Notifications are handled separately; no need to set here
+            // currentUser.setReceiveNotifications(receiveNotificationsCheckbox.isChecked());
         }
     }
 
     /**
-     * Processes and uploads the profile image.
+     * Processes the selected profile image by resizing and compressing it before uploading to Firebase.
      *
-     * @param imageUri URI of the image to process
+     * @param imageUri The URI of the selected image.
      */
     private void processAndUploadProfileImage(Uri imageUri) {
         try {
@@ -397,7 +440,7 @@ public class ProfileFragment extends Fragment {
             resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
             byte[] imageData = baos.toByteArray();
 
-            if (imageData.length > 1048576) {
+            if (imageData.length > 1048576) { // 1MB
                 Toast.makeText(getContext(), "Image is too large to upload", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -426,7 +469,7 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Updates the user profile in Firebase.
+     * Updates the user's profile information in Firestore.
      */
     private void updateUserProfile() {
         firebaseService.updateUser(currentUser, new FirebaseCallback<Void>() {
@@ -451,7 +494,7 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Deletes the user's profile image and updates UI accordingly.
+     * Deletes the user's current profile image from Firebase and updates the UI accordingly.
      */
     private void deleteProfileImage() {
         if (currentUser != null && userSession != null) {
@@ -506,7 +549,7 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Handles user logout by navigating to the home screen and clearing the session.
+     * Handles the logout process by clearing the session and navigating to the home screen.
      */
     private void handleLogout() {
         firebaseService.logOut();
@@ -517,11 +560,10 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Creates a bitmap containing the user's initials in a circular background.
-     * This is used as a default profile picture when no image is uploaded.
+     * Creates a bitmap image with the user's initials, used as a placeholder when no profile image is available.
      *
-     * @param name The user's full name from which to extract initials
-     * @return Bitmap containing the user's initials in a styled format
+     * @param name The full name of the user.
+     * @return A Bitmap containing the user's initials.
      */
     private Bitmap createInitialsBitmap(String name) {
         int size = 120;
@@ -547,11 +589,10 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
-     * Extracts initials from a user's name. Takes the first letter of each word
-     * in the name, up to a maximum of two letters.
+     * Extracts the initials from the user's full name.
      *
-     * @param name The full name to extract initials from
-     * @return String containing the user's initials (max 2 characters)
+     * @param name The full name of the user.
+     * @return A string containing up to two uppercase initials.
      */
     private String getInitials(String name) {
         String[] words = name.trim().split("\\s+");
@@ -562,5 +603,113 @@ public class ProfileFragment extends Fragment {
             }
         }
         return initials.length() > 2 ? initials.substring(0, 2) : initials.toString();
+    }
+
+    /**
+     * Handles enabling notifications by updating the FCM token and the user's notification preference in Firestore.
+     * If enabling fails, it reverts the checkbox state and notifies the user.
+     */
+    private void enableNotifications() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnSuccessListener(token -> {
+                    if (currentUser != null && token != null && !token.isEmpty()) {
+                        currentUser.setFcmToken(token);
+                        currentUser.setReceiveNotifications(true);
+                        firebaseService.setUserFCMToken(currentUser.getId(), token, new FirebaseCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                Toast.makeText(getContext(), "Notifications enabled", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Toast.makeText(getContext(), "Failed to enable notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                // Revert the checkbox state without triggering listeners
+                                receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
+                                receiveNotificationsCheckbox.setChecked(false);
+                                receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
+                            }
+                        });
+                        // Also update the receiveNotifications field in Firestore
+                        firebaseService.updateUserReceiveNotifications(currentUser.getId(), true, new FirebaseCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                // Successfully updated receiveNotifications in Firestore
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Toast.makeText(getContext(), "Failed to update notification preference: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to retrieve FCM token", Toast.LENGTH_SHORT).show();
+                    // Revert the checkbox state without triggering listeners
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
+                    receiveNotificationsCheckbox.setChecked(false);
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
+                });
+    }
+
+    /**
+     * Handles disabling notifications by removing the FCM token and updating the user's notification preference in Firestore.
+     * If disabling fails, it reverts the checkbox state and notifies the user.
+     */
+    private void disableNotifications() {
+        if (currentUser != null) {
+            currentUser.setFcmToken(null);
+            currentUser.setReceiveNotifications(false);
+            firebaseService.removeUserFCMToken(currentUser.getId(), new FirebaseCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    Toast.makeText(getContext(), "Notifications disabled", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Failed to disable notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    // Revert the checkbox state without triggering listeners
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
+                    receiveNotificationsCheckbox.setChecked(true);
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
+                }
+            });
+            // Also update the receiveNotifications field in Firestore
+            firebaseService.updateUserReceiveNotifications(currentUser.getId(), false, new FirebaseCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    // Successfully updated receiveNotifications in Firestore
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Failed to update notification preference: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    /**
+     * Handles the process of updating notification preferences based on the checkbox state.
+     * It either enables or disables notifications accordingly.
+     */
+    private void handleNotificationPreferences() {
+        boolean wantsNotifications = receiveNotificationsCheckbox.isChecked();
+
+        if (wantsNotifications) {
+            // User wants to enable notifications
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                // Request notification permission
+                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                // Permissions are granted at install time for lower SDK versions
+                enableNotifications();
+            }
+        } else {
+            // User wants to disable notifications
+            disableNotifications();
+        }
     }
 }

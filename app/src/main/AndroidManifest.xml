@@ -11,6 +11,10 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -49,6 +53,9 @@
                 android:name="com.google.firebase.messaging.default.notifications_channel_id"
                 android:value="lottery_channel"/>
         </provider>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCDtUXlX8PBcH8GXmbCkGJHYkBi4ciXs-s"/>
         <service
             android:name=".ui.notifications.FirebaseNotifications"
             android:exported="false"
