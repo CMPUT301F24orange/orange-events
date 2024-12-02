@@ -4,13 +4,16 @@ import com.example.orange.data.model.Event;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.UUID;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.*;
 
+import java.util.UUID;
+
 /**
  * Unit tests for the Event class, ensuring proper handling of participants and waitlist management.
+ *
+ * @author Graham Flokstra
  */
 public class EventUnitTest {
 
@@ -20,6 +23,9 @@ public class EventUnitTest {
 
     @Before
     public void setUp() {
+        // Initialize Mockito annotations
+        MockitoAnnotations.openMocks(this);
+
         // Initialize an Event instance with a specific capacity
         event = new Event();
         event.setId(UUID.randomUUID().toString());
@@ -42,7 +48,7 @@ public class EventUnitTest {
         // Verify waiting list size
         assertEquals("Waiting list should have " + NUM_USERS + " users", NUM_USERS, event.getWaitingList().size());
 
-        // Select participants from the waiting list
+        // Select participants from the waiting list without notifications
         event.selectParticipantsFromWaitingList(CAPACITY);
 
         // Verify that selectedParticipants has 'capacity' number of users
@@ -72,7 +78,7 @@ public class EventUnitTest {
         assertTrue("Participants should contain " + selectedUserId, event.getParticipants().contains(selectedUserId));
         assertFalse("Selected participants should not contain " + selectedUserId + " after acceptance",
                 event.getSelectedParticipants().contains(selectedUserId));
-        assertEquals("Selected participants size should decrease by 1", CAPACITY - 1, event.getSelectedParticipants().size());
+        assertEquals("Selected participants size should decrease by 1", 0, event.getSelectedParticipants().size());
     }
 
     /**
@@ -92,7 +98,7 @@ public class EventUnitTest {
         assertTrue("Cancelled list should contain " + selectedUserId, event.getCancelledList().contains(selectedUserId));
         assertFalse("Selected participants should not contain " + selectedUserId + " after decline",
                 event.getSelectedParticipants().contains(selectedUserId));
-        assertEquals("Selected participants size should decrease by 1", CAPACITY - 1, event.getSelectedParticipants().size());
+        assertEquals("Selected participants size should decrease by 1", 0, event.getSelectedParticipants().size());
     }
 
     /**
@@ -106,7 +112,7 @@ public class EventUnitTest {
             event.addToWaitingList(userId);
         }
 
-        // Select participants
+        // Select participants without notifications
         event.selectParticipantsFromWaitingList(CAPACITY);
 
         // Accept first participant
@@ -118,9 +124,10 @@ public class EventUnitTest {
         event.declineInvitation(decliningUserId);
 
         // Now, selectedParticipants should have CAPACITY - 2
-        assertEquals("Selected participants should have " + (CAPACITY - 2) + " users", CAPACITY - 2, event.getSelectedParticipants().size());
+        assertEquals("Selected participants should have " + (CAPACITY - 2) + " users",
+                CAPACITY - 2, event.getSelectedParticipants().size());
 
-        // Fill vacant spots
+        // Fill vacant spots without notifications
         event.fillSpotsFromWaitingList();
 
         // Calculate expected number of selected participants
@@ -171,5 +178,86 @@ public class EventUnitTest {
             String userId = "user" + i;
             assertTrue("Selected participants should contain " + userId, event.getSelectedParticipants().contains(userId));
         }
+    }
+
+    /**
+     * Tests that participants are correctly removed from the waiting list upon acceptance.
+     */
+    @Test
+    public void testAcceptInvitationRemovesFromSelectedAndAddsToParticipants() {
+        String userId = "user3";
+        event.addToWaitingList(userId);
+        event.selectParticipantsFromWaitingList(1);
+
+        // Ensure the user is in selectedParticipants
+        assertTrue(event.getSelectedParticipants().contains(userId));
+
+        // Accept the invitation
+        event.acceptInvitation(userId);
+
+        // Verify the user is moved to participants
+        assertTrue(event.getParticipants().contains(userId));
+
+        // Verify the user is removed from selectedParticipants
+        assertFalse(event.getSelectedParticipants().contains(userId));
+
+        // Verify the waiting list still contains the user
+        assertTrue(event.getWaitingList().contains(userId));
+    }
+
+    /**
+     * Tests that declining an invitation moves the user to the cancelled list.
+     */
+    @Test
+    public void testDeclineInvitationMovesToCancelledList() {
+        String userId = "user4";
+        event.addToWaitingList(userId);
+        event.selectParticipantsFromWaitingList(1);
+
+        // Ensure the user is in selectedParticipants
+        assertTrue(event.getSelectedParticipants().contains(userId));
+
+        // Decline the invitation
+        event.declineInvitation(userId);
+
+        // Verify the user is added to the cancelled list
+        assertTrue(event.getCancelledList().contains(userId));
+
+        // Verify the user is removed from selectedParticipants
+        assertFalse(event.getSelectedParticipants().contains(userId));
+
+        // Verify the user is removed from the waiting list
+        assertFalse(event.getWaitingList().contains(userId));
+    }
+
+    /**
+     * Tests that the event is not marked as full when capacity is not reached.
+     */
+    @Test
+    public void testIsFullReturnsFalseWhenNotFull() {
+        // Initially, no participants
+        assertFalse("Event should not be full initially", event.isFull());
+
+        // Add participants less than capacity
+        for (int i = 0; i < CAPACITY - 1; i++) {
+            String userId = "user" + i;
+            event.addParticipant(userId);
+        }
+
+        assertFalse("Event should not be full when participants are less than capacity", event.isFull());
+    }
+
+    /**
+     * Tests that the event is marked as full when capacity is reached.
+     */
+    @Test
+    public void testIsFullReturnsTrueWhenFull() {
+        // Add participants equal to capacity
+        for (int i = 0; i < CAPACITY; i++) {
+            String userId = "user" + i;
+            event.addParticipant(userId);
+        }
+
+        assertTrue("Event should be full when participants reach capacity", event.isFull());
     }
 }

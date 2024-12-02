@@ -689,6 +689,8 @@ public class Event implements Parcelable {
 
     /**
      * Selects users randomly from the waiting list to be invited as participants.
+     *
+     * @author Graham Flokstra
      * @param number The number of users to select.
      */
     public void selectParticipantsFromWaitingList(int number, Context context, Notification notification) {
@@ -742,7 +744,48 @@ public class Event implements Parcelable {
     }
 
     /**
+     * Selects users randomly from the waiting list to be invited as participants.
+     * This method excludes notification logic for testing purposes.
+     *
+     * @author Graham Flokstra
+     * @param number The number of users to select.
+     */
+    public void selectParticipantsFromWaitingList(int number) {
+        selectParticipantsFromWaitingListInternal(number);
+    }
+
+    /**
+     * Internal method that contains the core selection logic.
+     *
+     * @author Graham Flokstra
+     * @param number The number of users to select.
+     * @return List of newly selected user IDs.
+     */
+    private List<String> selectParticipantsFromWaitingListInternal(int number) {
+        List<String> selectedUsers = new ArrayList<>();
+        List<String> waitingListCopy = new ArrayList<>(waitingList);
+
+        waitingListCopy.removeAll(selectedParticipants);
+        waitingListCopy.removeAll(cancelledList);
+
+        Collections.shuffle(waitingListCopy);
+
+        int slotsAvailable = number;
+        for (String userId : waitingListCopy) {
+            if (slotsAvailable == 0) {
+                break;
+            }
+            selectedParticipants.add(userId);
+            selectedUsers.add(userId);
+            slotsAvailable--;
+        }
+        return selectedUsers;
+    }
+
+    /**
      * Handles the acceptance of an invitation by a user.
+     *
+     * @author Graham Flokstra
      * @param userId The ID of the user who accepted.
      */
     public void acceptInvitation(String userId) {
@@ -771,6 +814,10 @@ public class Event implements Parcelable {
 
     /**
      * Fills available spots by selecting new participants from the waiting list.
+     *
+     * @author Graham Flokstra
+     * @param context
+     * @param notification
      */
     public void fillSpotsFromWaitingList(Context context, Notification notification) {
         int totalConfirmed = participants.size() + selectedParticipants.size();
@@ -780,6 +827,30 @@ public class Event implements Parcelable {
         }
     }
 
+
+    /**
+     * Fills available spots by selecting new participants from the waiting list.
+     * This method excludes notification logic for testing purposes.
+     *
+     * @author Graham Flokstra
+     */
+    public void fillSpotsFromWaitingList() {
+        fillSpotsFromWaitingListInternal();
+    }
+
+
+    /**
+     * Internal method that contains the core logic to fill spots.
+     *
+     * @author Graham Flokstra
+     */
+    private void fillSpotsFromWaitingListInternal() {
+        int totalConfirmed = participants.size() + selectedParticipants.size();
+        int spotsNeeded = capacity - totalConfirmed;
+        if (spotsNeeded > 0) {
+            selectParticipantsFromWaitingList(spotsNeeded);
+        }
+    }
 
     /**
      * Function to return specific string for an object of type Event
