@@ -127,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             binding.toolbar.getMenu().clear();
             String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-            System.out.println(deviceId);
             checkIfAdmin(deviceId);
         }
         return super.onCreateOptionsMenu(menu);
