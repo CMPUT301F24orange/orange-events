@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,11 +17,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.Toast;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
-
+import android.Manifest;
+import android.os.Build;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -35,10 +36,7 @@ import com.example.orange.data.model.ImageData;
 import com.example.orange.data.model.User;
 import com.example.orange.data.model.UserType;
 import com.example.orange.data.model.UserSession;
-import com.example.orange.ui.notifications.EntrantNotifications;
 import com.example.orange.utils.SessionManager;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.Blob;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -85,76 +83,43 @@ public class ProfileFragment extends Fragment {
             }
     );
 
+
+
     // Define the listener as a class-level variable for reusability
     private CompoundButton.OnCheckedChangeListener notificationsListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (currentUser != null && userSession != null) {
-                // Disable the listener to prevent infinite loops during programmatic changes
-                receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
-
                 if (isChecked) {
-                    // User wants to receive notifications
-                    FirebaseMessaging.getInstance().getToken()
-                            .addOnSuccessListener(token -> {
-                                if (token != null && !token.isEmpty()) {
-                                    currentUser.setFcmToken(token);
-                                    firebaseService.setUserFCMToken(currentUser.getId(), token, new FirebaseCallback<Void>() {
-                                        @Override
-                                        public void onSuccess(Void result) {
-                                            Toast.makeText(getContext(), "Notifications enabled", Toast.LENGTH_SHORT).show();
-                                            // Re-enable the listener
-                                            receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
-                                        }
-
-                                        @Override
-                                        public void onFailure(Exception e) {
-                                            Toast.makeText(getContext(), "Failed to enable notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            // Revert the checkbox state
-                                            receiveNotificationsCheckbox.setChecked(false);
-                                            // Re-enable the listener
-                                            receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
-                                        }
-                                    });
-                                } else {
-                                    Toast.makeText(getContext(), "Failed to retrieve FCM token", Toast.LENGTH_SHORT).show();
-                                    // Revert the checkbox state
-                                    receiveNotificationsCheckbox.setChecked(false);
-                                    // Re-enable the listener
-                                    receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
-                                }
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(getContext(), "Failed to retrieve FCM token", Toast.LENGTH_SHORT).show();
-                                // Revert the checkbox state
-                                receiveNotificationsCheckbox.setChecked(false);
-                                // Re-enable the listener
-                                receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
-                            });
+                    // Request notification permission
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                    } else {
+                        // Permissions are granted at install time for lower SDK versions
+                        enableNotifications();
+                    }
                 } else {
-                    // User does not want to receive notifications
-                    currentUser.setFcmToken(null);
-                    firebaseService.removeUserFCMToken(currentUser.getId(), new FirebaseCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void result) {
-                            Toast.makeText(getContext(), "Notifications disabled", Toast.LENGTH_SHORT).show();
-                            // Re-enable the listener
-                            receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            Toast.makeText(getContext(), "Failed to disable notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            // Revert the checkbox state
-                            receiveNotificationsCheckbox.setChecked(true);
-                            // Re-enable the listener
-                            receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
-                        }
-                    });
+                    // Disable notifications
+                    disableNotifications();
                 }
             }
         }
     };
+
+    // Define an ActivityResultLauncher for notification permission
+    private ActivityResultLauncher<String> requestNotificationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission granted, proceed to enable notifications
+                    enableNotifications();
+                } else {
+                    // Permission denied, revert checkbox and inform the user
+                    Toast.makeText(getContext(), "Notification permission denied", Toast.LENGTH_SHORT).show();
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
+                    receiveNotificationsCheckbox.setChecked(false);
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
+                }
+            });
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -539,5 +504,67 @@ public class ProfileFragment extends Fragment {
             }
         }
         return initials.length() > 2 ? initials.substring(0, 2) : initials.toString();
+    }
+
+    /**
+     * Enables notifications by setting the FCM token.
+     */
+    private void enableNotifications() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnSuccessListener(token -> {
+                    if (token != null && !token.isEmpty()) {
+                        currentUser.setFcmToken(token);
+                        firebaseService.setUserFCMToken(currentUser.getId(), token, new FirebaseCallback<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                Toast.makeText(getContext(), "Notifications enabled", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Toast.makeText(getContext(), "Failed to enable notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                // Revert the checkbox state
+                                receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
+                                receiveNotificationsCheckbox.setChecked(false);
+                                receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
+                            }
+                        });
+                    } else {
+                        Toast.makeText(getContext(), "Failed to retrieve FCM token", Toast.LENGTH_SHORT).show();
+                        // Revert the checkbox state
+                        receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
+                        receiveNotificationsCheckbox.setChecked(false);
+                        receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to retrieve FCM token", Toast.LENGTH_SHORT).show();
+                    // Revert the checkbox state
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
+                    receiveNotificationsCheckbox.setChecked(false);
+                    receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
+                });
+    }
+
+    /**
+     * Disables notifications by removing the FCM token.
+     */
+    private void disableNotifications() {
+        currentUser.setFcmToken(null);
+        firebaseService.removeUserFCMToken(currentUser.getId(), new FirebaseCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Toast.makeText(getContext(), "Notifications disabled", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(getContext(), "Failed to disable notifications: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                // Revert the checkbox state
+                receiveNotificationsCheckbox.setOnCheckedChangeListener(null);
+                receiveNotificationsCheckbox.setChecked(true);
+                receiveNotificationsCheckbox.setOnCheckedChangeListener(notificationsListener);
+            }
+        });
     }
 }
