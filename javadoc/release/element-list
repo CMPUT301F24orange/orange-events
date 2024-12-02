@@ -9,6 +9,7 @@ com.example.orange.ui.events
 com.example.orange.ui.facility
 com.example.orange.ui.home
 com.example.orange.ui.join
+com.example.orange.ui.notifications
 com.example.orange.ui.organizer
 com.example.orange.ui.profile
 com.example.orange.utils

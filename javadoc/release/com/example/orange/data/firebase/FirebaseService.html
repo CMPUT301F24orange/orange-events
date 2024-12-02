@@ -43,7 +43,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -82,6 +82,23 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="FirebaseService.FirebaseServiceException.html" class="type-name-link" title="class in com.example.orange.data.firebase">FirebaseService.FirebaseServiceException</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Custom exception class for FirebaseService-related errors.</div>
+</div>
+</div>
+</section>
+</li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <li>
 <section class="constructor-summary" id="constructor-summary">
@@ -109,24 +126,54 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addToEventWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">addToEventWaitlist</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#acceptEventInvitation(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">acceptEventInvitation</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Adds a user to the waitlist of an event.</div>
+<div class="block">Updates both Event and User documents when a user accepts an invitation to participate.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addToSelectedParticipants(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">addToSelectedParticipants</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addToEventWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">addToEventWaitlist</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Adds a specified user to the selected participants list for an event.</div>
+<div class="block">Adds a user to the waitlist of an event.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createEvent(com.example.orange.data.model.Event,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">createEvent</a><wbr>(<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&nbsp;event,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addToSelectedParticipants(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">addToSelectedParticipants</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds a specified user to the selected participants list for an event.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addUserToWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">addUserToWaitlist</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds a user to an event's waitlist and updates the user's eventsWaitlisted list.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancelUserParticipation(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">cancelUserParticipation</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Cancels a user's participation in an event, moving them to the cancelled list and updating User lists.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createDrawNotifications(java.lang.String,java.util.List,java.util.List,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">createDrawNotifications</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;selectedUserIds,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;unselectedUserIds,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Creates notifications for selected and unselected users after drawing participants.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createEvent(com.example.orange.data.model.Event,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">createEvent</a><wbr>(<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&nbsp;event,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Creates a new event in Firestore.</div>
+<div class="block">Creates a new event in Firestore and updates the organizer's eventsOrganizing list atomically.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createFacility(com.example.orange.data.model.Facility,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">createFacility</a><wbr>(<a href="../model/Facility.html" title="class in com.example.orange.data.model">Facility</a>&nbsp;facility,
@@ -135,31 +182,83 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates a new facility in Firestore.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createImage(com.google.firebase.firestore.Blob,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">createImage</a><wbr>(com.google.firebase.firestore.Blob&nbsp;imageData,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Creates a new image in Firestore.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createNotification(com.example.orange.data.model.Notification,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">createNotification</a><wbr>(<a href="../model/Notification.html" title="class in com.example.orange.data.model">Notification</a>&nbsp;notification,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Creates a new notification in Firestore.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createUser(com.example.orange.data.model.User,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">createUser</a><wbr>(<a href="../model/User.html" title="class in com.example.orange.data.model">User</a>&nbsp;user,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Creates a new user in Firestore.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteEvent(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteEvent</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#declineEventInvitation(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">declineEventInvitation</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Deletes an event from Firestore based on its ID.</div>
+<div class="block">Updates both Event and User documents when a user declines an invitation to participate.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteFacility(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteFacility</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;facilityId,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteEvent(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteEvent</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Deletes a facility from Firestore based on its ID.</div>
+<div class="block">Deletes an event from Firestore based on its ID.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteFacilityAndRelatedEvents(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteFacilityAndRelatedEvents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;facilityId,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteFacility(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteFacility</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;facilityId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Deletes a facility from Firestore based on its ID.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteUserAndRelatedFacilities(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteUserAndRelatedFacilities</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteFacilityAndRelatedEvents(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteFacilityAndRelatedEvents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;facilityId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteImage(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteImage</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;imageId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Deletes an image from Firestore based on its ID.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteNotification(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteNotification</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;notificationId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Deletes a notification from Firestore.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deletePosterAdmin(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deletePosterAdmin</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Deletes an event poster from the database based on the event ID</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteQR(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteQR</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Deletes an event QR hashed data from the database based on the event ID</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteUserAndRelatedFacilities(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteUserAndRelatedFacilities</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Removes the User from the database, if it has a facility and events associated with it,
+ it also deletes those.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deleteUserProfilePicture(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">deleteUserProfilePicture</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Deletes a users profile picture from the database based on the user ID</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAllEvents(com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getAllEvents</a><wbr>(<a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&gt;&gt;&nbsp;callback)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -171,22 +270,45 @@ loadScripts(document, 'script');</script>
 <div class="block">Retrieves all facilities from Firestore.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEventById(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getEventById</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
- <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&gt;&nbsp;callback)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAllUsers(com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getAllUsers</a><wbr>(<a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/User.html" title="class in com.example.orange.data.model">User</a>&gt;&gt;&nbsp;callback)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Retrieves an event from Firestore based on its ID.</div>
+<div class="block">Retrieves all users from Firestore.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEventWaitlist(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getEventWaitlist</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
- <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;&nbsp;callback)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEventById(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getEventById</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Retrieves a list of entrants on the waiting list for a specific event.</div>
+<div class="block">Retrieves an event from Firestore based on its ID.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFacilityById(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getFacilityById</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;facilityId,
- <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="../model/Facility.html" title="class in com.example.orange.data.model">Facility</a>&gt;&nbsp;callback)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEventWaitlist(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getEventWaitlist</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;&nbsp;callback)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Retrieves a list of entrants on the waiting list for a specific event.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFacilityById(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getFacilityById</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;facilityId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="../model/Facility.html" title="class in com.example.orange.data.model">Facility</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Retrieves a facility from Firestore based on its ID.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getImageById(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getImageById</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;imageId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="../model/ImageData.html" title="class in com.example.orange.data.model">ImageData</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Retrieves an image by its ID from Firestore.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getNotificationById(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getNotificationById</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;notificationId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="../model/Notification.html" title="class in com.example.orange.data.model">Notification</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Retrieves a notification by its ID.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getNotificationsForUser(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getNotificationsForUser</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/Notification.html" title="class in com.example.orange.data.model">Notification</a>&gt;&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Retrieves all notifications for a specific user.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOrganizerEvents(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getOrganizerEvents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;organizerId,
@@ -211,7 +333,22 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUserEvents(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getUserEvents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&gt;&gt;&nbsp;callback)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Retrieves a list of events that the current user is participating in or is on the waitlist for.</div>
+<div class="block">Retrieves all events associated with a user, whether they are in the waitlist,
+ selected participants, or confirmed participants.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUserEventsWithoutCancelled(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">getUserEventsWithoutCancelled</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&gt;&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Retrieves all events associated with a user, whether they are in the waitlist,
+ selected participants, or confirmed participants.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#joinEventWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">joinEventWaitlist</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds a user to the waitlist of an event and updates the user's waitlisted events.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logOut()" class="member-name-link">logOut</a>()</code></div>
@@ -225,55 +362,81 @@ loadScripts(document, 'script');</script>
 <div class="block">Moves the first user from the waitlist to participants if the event is not full.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeEventImage(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeEventImage</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
- <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Removes the event image from Firestore.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeFromEventParticipants(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeFromEventParticipants</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
- <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Removes a specified user from the list of participants in a given event.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeFromEventWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeFromEventWaitlist</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#moveUserFromWaitlistToParticipants(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">moveUserFromWaitlistToParticipants</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Removes a user from the waitlist of an event.</div>
+<div class="block">Moves a user from the waitlist to participants and updates both Event and User documents.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeFromSelectedParticipants(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeFromSelectedParticipants</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#moveUsersToSelectedParticipants(java.lang.String,java.util.List,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">moveUsersToSelectedParticipants</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;selectedUsers,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Removes a specified user from the selected participants list for an event.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#signInUser(java.lang.String,com.example.orange.data.model.UserType,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">signInUser</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;deviceId,
- <a href="../model/UserType.html" title="enum class in com.example.orange.data.model">UserType</a>&nbsp;userType,
- <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a>&gt;&nbsp;callback)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Signs in a user or organizer.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#storeEventHash(java.lang.String,java.lang.String)" class="member-name-link">storeEventHash</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;hash)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateEvent(com.example.orange.data.model.Event,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">updateEvent</a><wbr>(<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&nbsp;event,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeFromEventParticipants(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeFromEventParticipants</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Updates an existing event in Firestore.</div>
+<div class="block">Removes a specified user from the list of participants in a given event.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateEventImage(java.lang.String,byte%5B%5D,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">updateEventImage</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
- byte[]&nbsp;imageData,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeFromEventWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeFromEventWaitlist</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Updates the event image in Firestore.</div>
+<div class="block">Removes a user from the waitlist of an event.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeFromSelectedParticipants(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeFromSelectedParticipants</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Removes a specified user from the selected participants list for an event.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeUserFCMToken(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeUserFCMToken</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Removes the user's FCM token from Firestore.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeUserFromEventLocation(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeUserFromEventLocation</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Removes the user's location entry entirely from the event's location field in Firestore.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeUserFromWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">removeUserFromWaitlist</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Removes a user from an event's waitlist and updates the user's eventsWaitlisted list.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUserFCMToken(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">setUserFCMToken</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;token,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates the user's FCM token in Firestore.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#signInUser(java.lang.String,com.example.orange.data.model.UserType,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">signInUser</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;deviceId,
+ <a href="../model/UserType.html" title="enum class in com.example.orange.data.model">UserType</a>&nbsp;userType,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Signs in a user or organizer.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#storeEventHash(java.lang.String,java.lang.String)" class="member-name-link">storeEventHash</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;hash)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateEvent(com.example.orange.data.model.Event,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">updateEvent</a><wbr>(<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&nbsp;event,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates an existing event in Firestore.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateFacility(com.example.orange.data.model.Facility,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">updateFacility</a><wbr>(<a href="../model/Facility.html" title="class in com.example.orange.data.model">Facility</a>&nbsp;facility,
@@ -282,10 +445,23 @@ loadScripts(document, 'script');</script>
 <div class="block">Updates an existing facility in Firestore.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateUser(com.example.orange.data.model.User,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">updateUser</a><wbr>(<a href="../model/User.html" title="class in com.example.orange.data.model">User</a>&nbsp;user,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateNotification(com.example.orange.data.model.Notification,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">updateNotification</a><wbr>(<a href="../model/Notification.html" title="class in com.example.orange.data.model">Notification</a>&nbsp;notification,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates a notification in Firestore.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateUser(com.example.orange.data.model.User,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">updateUser</a><wbr>(<a href="../model/User.html" title="class in com.example.orange.data.model">User</a>&nbsp;user,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Updates an existing user in Firestore.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateUserReceiveNotifications(java.lang.String,boolean,com.example.orange.data.firebase.FirebaseCallback)" class="member-name-link">updateUserReceiveNotifications</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ boolean&nbsp;receiveNotifications,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates only the receiveNotifications field for a user.</div>
 </div>
 </div>
 </div>
@@ -398,14 +574,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="createEvent(com.example.orange.data.model.Event,com.example.orange.data.firebase.FirebaseCallback)">
+<section class="detail" id="createEvent(com.example.orange.data.model.Event,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
 <h3>createEvent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">createEvent</span><wbr><span class="parameters">(<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&nbsp;event,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;callback)</span></div>
-<div class="block">Creates a new event in Firestore.</div>
+<div class="block">Creates a new event in Firestore and updates the organizer's eventsOrganizing list atomically.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>event</code> - The Event object to be created in Firestore.</dd>
+<dd><code>userId</code> - The ID of the organizer creating the event.</dd>
 <dd><code>callback</code> - A callback to handle the result of the operation.</dd>
 </dl>
 </section>
@@ -508,7 +686,23 @@ loadScripts(document, 'script');</script>
 <h3>getUserEvents</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">getUserEvents</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&gt;&gt;&nbsp;callback)</span></div>
-<div class="block">Retrieves a list of events that the current user is participating in or is on the waitlist for.</div>
+<div class="block">Retrieves all events associated with a user, whether they are in the waitlist,
+ selected participants, or confirmed participants.     *</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>userId</code> - String representing the unique ID of the current user.</dd>
+<dd><code>callback</code> - FirebaseCallback&lt;List<Event>> to handle the result, providing a list of Event objects
+                 the user is associated with (either in the participants or waiting list).</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getUserEventsWithoutCancelled(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>getUserEventsWithoutCancelled</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">getUserEventsWithoutCancelled</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/Event.html" title="class in com.example.orange.data.model">Event</a>&gt;&gt;&nbsp;callback)</span></div>
+<div class="block">Retrieves all events associated with a user, whether they are in the waitlist,
+ selected participants, or confirmed participants.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>userId</code> - String representing the unique ID of the current user.</dd>
@@ -599,6 +793,21 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="joinEventWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>joinEventWaitlist</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">joinEventWaitlist</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Adds a user to the waitlist of an event and updates the user's waitlisted events.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event to join.</dd>
+<dd><code>userId</code> - The ID of the user joining the event.</dd>
+<dd><code>callback</code> - A callback to handle success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="createFacility(com.example.orange.data.model.Facility,com.example.orange.data.firebase.FirebaseCallback)">
 <h3>createFacility</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">createFacility</span><wbr><span class="parameters">(<a href="../model/Facility.html" title="class in com.example.orange.data.model">Facility</a>&nbsp;facility,
@@ -669,30 +878,13 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="updateEventImage(java.lang.String,byte[],com.example.orange.data.firebase.FirebaseCallback)">
-<h3>updateEventImage</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">updateEventImage</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
- byte[]&nbsp;imageData,
- <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
-<div class="block">Updates the event image in Firestore.</div>
+<section class="detail" id="getAllUsers(com.example.orange.data.firebase.FirebaseCallback)">
+<h3>getAllUsers</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">getAllUsers</span><wbr><span class="parameters">(<a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/User.html" title="class in com.example.orange.data.model">User</a>&gt;&gt;&nbsp;callback)</span></div>
+<div class="block">Retrieves all users from Firestore.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>eventId</code> - The ID of the event to update.</dd>
-<dd><code>imageData</code> - Byte array representing the image data.</dd>
-<dd><code>callback</code> - Callback to handle success or failure.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="removeEventImage(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
-<h3>removeEventImage</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeEventImage</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
- <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
-<div class="block">Removes the event image from Firestore.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>eventId</code> - The ID of the event to update.</dd>
-<dd><code>callback</code> - Callback to handle success or failure.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
 </dl>
 </section>
 </li>
@@ -701,6 +893,335 @@ loadScripts(document, 'script');</script>
 <h3>deleteUserAndRelatedFacilities</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">deleteUserAndRelatedFacilities</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
  <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Removes the User from the database, if it has a facility and events associated with it,
+ it also deletes those.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>userId</code> - The ID of the user to delete.</dd>
+<dd><code>callback</code> - Callback to handle success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createImage(com.google.firebase.firestore.Blob,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>createImage</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">createImage</span><wbr><span class="parameters">(com.google.firebase.firestore.Blob&nbsp;imageData,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Creates a new image in Firestore.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>imageData</code> - The image data as a Blob.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getImageById(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>getImageById</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">getImageById</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;imageId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="../model/ImageData.html" title="class in com.example.orange.data.model">ImageData</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Retrieves an image by its ID from Firestore.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>imageId</code> - The ID of the image to retrieve.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="deleteImage(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>deleteImage</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">deleteImage</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;imageId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Deletes an image from Firestore based on its ID.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>imageId</code> - The ID of the image to delete.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="deleteUserProfilePicture(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>deleteUserProfilePicture</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">deleteUserProfilePicture</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Deletes a users profile picture from the database based on the user ID</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>userId</code> - The unique user Id</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="deletePosterAdmin(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>deletePosterAdmin</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">deletePosterAdmin</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Deletes an event poster from the database based on the event ID</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The unique event Id</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="deleteQR(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>deleteQR</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">deleteQR</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Deletes an event QR hashed data from the database based on the event ID</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The unique event Id</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="addUserToWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>addUserToWaitlist</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addUserToWaitlist</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Adds a user to an event's waitlist and updates the user's eventsWaitlisted list.
+ Assumes that event existence and capacity have been validated beforehand.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event.</dd>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>callback</code> - Callback for success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="removeUserFromWaitlist(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>removeUserFromWaitlist</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeUserFromWaitlist</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Removes a user from an event's waitlist and updates the user's eventsWaitlisted list.
+ Assumes that event existence and user's waitlist status have been validated beforehand.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event.</dd>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>callback</code> - Callback for success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="moveUserFromWaitlistToParticipants(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>moveUserFromWaitlistToParticipants</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">moveUserFromWaitlistToParticipants</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Moves a user from the waitlist to participants and updates both Event and User documents.
+ Assumes that event is not full and user is on the waitlist.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event.</dd>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>callback</code> - Callback for success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="cancelUserParticipation(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>cancelUserParticipation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelUserParticipation</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Cancels a user's participation in an event, moving them to the cancelled list and updating User lists.
+ Assumes that user is either a participant, selected participant, or waitlisted.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event.</dd>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>callback</code> - Callback for success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="acceptEventInvitation(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>acceptEventInvitation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">acceptEventInvitation</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Updates both Event and User documents when a user accepts an invitation to participate.
+ Assumes that event is not full and user is a selected participant.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event.</dd>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>callback</code> - Callback for success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="declineEventInvitation(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>declineEventInvitation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">declineEventInvitation</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Updates both Event and User documents when a user declines an invitation to participate.
+ Assumes that user is a selected participant.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event.</dd>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>callback</code> - Callback for success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="moveUsersToSelectedParticipants(java.lang.String,java.util.List,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>moveUsersToSelectedParticipants</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">moveUsersToSelectedParticipants</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;selectedUsers,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="createNotification(com.example.orange.data.model.Notification,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>createNotification</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">createNotification</span><wbr><span class="parameters">(<a href="../model/Notification.html" title="class in com.example.orange.data.model">Notification</a>&nbsp;notification,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Creates a new notification in Firestore.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>notification</code> - The Notification object to be created.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getNotificationById(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>getNotificationById</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">getNotificationById</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;notificationId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="../model/Notification.html" title="class in com.example.orange.data.model">Notification</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Retrieves a notification by its ID.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>notificationId</code> - The ID of the notification.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getNotificationsForUser(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>getNotificationsForUser</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">getNotificationsForUser</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/Notification.html" title="class in com.example.orange.data.model">Notification</a>&gt;&gt;&nbsp;callback)</span></div>
+<div class="block">Retrieves all notifications for a specific user.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="updateNotification(com.example.orange.data.model.Notification,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>updateNotification</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">updateNotification</span><wbr><span class="parameters">(<a href="../model/Notification.html" title="class in com.example.orange.data.model">Notification</a>&nbsp;notification,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Updates a notification in Firestore.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>notification</code> - The Notification object with updated data.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="deleteNotification(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>deleteNotification</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">deleteNotification</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;notificationId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Deletes a notification from Firestore.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>notificationId</code> - The ID of the notification to delete.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createDrawNotifications(java.lang.String,java.util.List,java.util.List,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>createDrawNotifications</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">createDrawNotifications</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;selectedUserIds,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;unselectedUserIds,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Creates notifications for selected and unselected users after drawing participants.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - The ID of the event.</dd>
+<dd><code>selectedUserIds</code> - List of user IDs who were selected.</dd>
+<dd><code>unselectedUserIds</code> - List of user IDs who were not selected.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="removeUserFromEventLocation(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>removeUserFromEventLocation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeUserFromEventLocation</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Removes the user's location entry entirely from the event's location field in Firestore.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>eventId</code> - Unique ID of the event.</dd>
+<dd><code>userId</code> - Unique ID of the user.</dd>
+<dd><code>callback</code> - Callback to handle success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="updateUserReceiveNotifications(java.lang.String,boolean,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>updateUserReceiveNotifications</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">updateUserReceiveNotifications</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ boolean&nbsp;receiveNotifications,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Updates only the receiveNotifications field for a user.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>receiveNotifications</code> - The new notification preference.</dd>
+<dd><code>callback</code> - A callback to handle the result of the operation.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setUserFCMToken(java.lang.String,java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>setUserFCMToken</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setUserFCMToken</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;token,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Updates the user's FCM token in Firestore.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>token</code> - The FCM token to set.</dd>
+<dd><code>callback</code> - A callback to handle success or failure.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="removeUserFCMToken(java.lang.String,com.example.orange.data.firebase.FirebaseCallback)">
+<h3>removeUserFCMToken</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeUserFCMToken</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;userId,
+ <a href="FirebaseCallback.html" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&nbsp;callback)</span></div>
+<div class="block">Removes the user's FCM token from Firestore.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>userId</code> - The ID of the user.</dd>
+<dd><code>callback</code> - A callback to handle success or failure.</dd>
+</dl>
 </section>
 </li>
 </ul>
