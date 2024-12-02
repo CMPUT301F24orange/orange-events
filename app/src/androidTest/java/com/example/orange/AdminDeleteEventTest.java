@@ -4,6 +4,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+
 import com.example.orange.data.firebase.FirebaseCallback;
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.model.Event;
@@ -30,12 +31,17 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static java.lang.Thread.sleep;
 
+import android.provider.Settings;
+
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Intent Test for the delete event functionality in the app.
  * Updated to align with new FirebaseService methods and UI IDs.
+ *
+ * @author Radhe Patel
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -59,6 +65,31 @@ public class AdminDeleteEventTest {
         firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
         firestore.setFirestoreSettings(settings);
+
+        // Get the device ID of the current user and add it to the admins in the Firestore
+        activityRule.getScenario().onActivity(activity -> {
+            String deviceId = Settings.Secure.getString(
+                    activity.getContentResolver(),
+                    Settings.Secure.ANDROID_ID
+            );
+
+            firestore.collection("admins").document(deviceId).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (!documentSnapshot.exists()) {
+                            // Add the device ID to the 'admins' collection if it doesn't exist
+                            firestore.collection("admins").document(deviceId)
+                                    .set(new HashMap<>()) // Add an empty document for this device ID
+                                    .addOnSuccessListener(aVoid -> System.out.println("Device ID added to admins collection"))
+                                    .addOnFailureListener(e -> fail("Failed to add device ID to admins collection: " + e.getMessage()));
+                        } else {
+                            System.out.println("Device ID already exists in the admins collection");
+                        }
+                    })
+                    .addOnFailureListener(e -> fail("Failed to check if device ID exists: " + e.getMessage()));
+        });
+
+
+        sleep(3000);
 
         // Delete all existing events
         firestore.collection("events").get().addOnCompleteListener(task -> {
@@ -86,6 +117,11 @@ public class AdminDeleteEventTest {
         firestore.collection("events").document(testEventId).set(testEvent);
 
         sleep(3000);
+
+        // Relaunch the app to load admin button
+        relaunchApp();
+
+        sleep(2000);
     }
 
     /**
@@ -198,6 +234,24 @@ public class AdminDeleteEventTest {
         });
 
         latch.await(5, TimeUnit.SECONDS);
+    }
+
+    /**
+     * When the device ID is added to the admins collection in the db the app
+     * needs to be relaunched to load the button.
+     *
+     * @author Radhe Patel
+     */
+    private void relaunchApp() {
+        activityRule.getScenario().onActivity(activity -> {
+            // Create an explicit intent for MainActivity
+            android.content.Intent intent = new android.content.Intent(activity, MainActivity.class);
+            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK | android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(intent); // Start MainActivity explicitly
+
+            // Finish the current activity to simulate an app restart
+            activity.finish();
+        });
     }
 
 }
