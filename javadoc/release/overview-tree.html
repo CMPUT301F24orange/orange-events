@@ -61,6 +61,7 @@ loadScripts(document, 'script');</script>
 <li><a href="com/example/orange/ui/facility/package-tree.html">com.example.orange.ui.facility</a>, </li>
 <li><a href="com/example/orange/ui/home/package-tree.html">com.example.orange.ui.home</a>, </li>
 <li><a href="com/example/orange/ui/join/package-tree.html">com.example.orange.ui.join</a>, </li>
+<li><a href="com/example/orange/ui/notifications/package-tree.html">com.example.orange.ui.notifications</a>, </li>
 <li><a href="com/example/orange/ui/organizer/package-tree.html">com.example.orange.ui.organizer</a>, </li>
 <li><a href="com/example/orange/ui/profile/package-tree.html">com.example.orange.ui.profile</a>, </li>
 <li><a href="com/example/orange/utils/package-tree.html">com.example.orange.utils</a></li>
@@ -71,6 +72,8 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
+<li class="circle">com.example.orange.ui.notifications.<a href="com/example/orange/ui/notifications/AccessToken.html" class="type-name-link" title="class in com.example.orange.ui.notifications">AccessToken</a></li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ActivityLotteryEventDetailsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ActivityLotteryEventDetailsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ActivityMainBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ActivityMainBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.<a href="com/example/orange/BuildConfig.html" class="type-name-link" title="class in com.example.orange">BuildConfig</a></li>
 <li class="circle">android.content.Context
@@ -94,6 +97,7 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">androidx.appcompat.app.AppCompatActivity (implements androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider, androidx.appcompat.app.AppCompatCallback, androidx.core.app.TaskStackBuilder.SupportParentable)
 <ul>
+<li class="circle">com.example.orange.ui.events.<a href="com/example/orange/ui/events/entrantEventDetailsActivity.html" class="type-name-link" title="class in com.example.orange.ui.events">entrantEventDetailsActivity</a></li>
 <li class="circle">com.example.orange.<a href="com/example/orange/MainActivity.html" class="type-name-link" title="class in com.example.orange">MainActivity</a></li>
 </ul>
 </li>
@@ -107,12 +111,31 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
+<li class="circle">android.app.Service (implements android.content.ComponentCallbacks2)
+<ul>
+<li class="circle">com.google.firebase.messaging.EnhancedIntentService
+<ul>
+<li class="circle">com.google.firebase.messaging.FirebaseMessagingService
+<ul>
+<li class="circle">com.example.orange.ui.notifications.<a href="com/example/orange/ui/notifications/FirebaseNotifications.html" class="type-name-link" title="class in com.example.orange.ui.notifications">FirebaseNotifications</a></li>
 </ul>
 </li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/DialogCancelledParticipantsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">DialogCancelledParticipantsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/DialogParticipantsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">DialogParticipantsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/DialogParticipatingUsersBinding.html" class="type-name-link" title="class in com.example.orange.databinding">DialogParticipatingUsersBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/DialogSelectedParticipantsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">DialogSelectedParticipantsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/DialogSendNotificationBinding.html" class="type-name-link" title="class in com.example.orange.databinding">DialogSendNotificationBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/EntrantItemBinding.html" class="type-name-link" title="class in com.example.orange.databinding">EntrantItemBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
-<li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/Event.html" class="type-name-link" title="class in com.example.orange.data.model">Event</a></li>
+<li class="circle">com.example.orange.ui.notifications.<a href="com/example/orange/ui/notifications/EntrantNotifications.html" class="type-name-link" title="class in com.example.orange.ui.notifications">EntrantNotifications</a></li>
+<li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/Event.html" class="type-name-link" title="class in com.example.orange.data.model">Event</a> (implements android.os.Parcelable)</li>
 <li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/Facility.html" class="type-name-link" title="class in com.example.orange.data.model">Facility</a></li>
 <li class="circle">com.example.orange.data.firebase.<a href="com/example/orange/data/firebase/FirebaseService.html" class="type-name-link" title="class in com.example.orange.data.firebase">FirebaseService</a></li>
 <li class="circle">androidx.fragment.app.Fragment (implements androidx.activity.result.ActivityResultCaller, android.content.ComponentCallbacks, androidx.lifecycle.HasDefaultViewModelProviderFactory, androidx.lifecycle.LifecycleOwner, androidx.savedstate.SavedStateRegistryOwner, android.view.View.OnCreateContextMenuListener, androidx.lifecycle.ViewModelStoreOwner)
@@ -128,6 +151,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.example.orange.ui.facility.<a href="com/example/orange/ui/facility/FacilityProfileFragment.html" class="type-name-link" title="class in com.example.orange.ui.facility">FacilityProfileFragment</a></li>
 <li class="circle">com.example.orange.ui.home.<a href="com/example/orange/ui/home/HomeFragment.html" class="type-name-link" title="class in com.example.orange.ui.home">HomeFragment</a></li>
 <li class="circle">com.example.orange.ui.join.<a href="com/example/orange/ui/join/JoinEventFragment.html" class="type-name-link" title="class in com.example.orange.ui.join">JoinEventFragment</a></li>
+<li class="circle">com.example.orange.ui.organizer.<a href="com/example/orange/ui/organizer/MapsFragment.html" class="type-name-link" title="class in com.example.orange.ui.organizer">MapsFragment</a> (implements com.google.android.gms.maps.OnMapReadyCallback)</li>
 <li class="circle">com.example.orange.ui.events.<a href="com/example/orange/ui/events/MyEventsFragment.html" class="type-name-link" title="class in com.example.orange.ui.events">MyEventsFragment</a></li>
 <li class="circle">com.example.orange.ui.profile.<a href="com/example/orange/ui/profile/ProfileFragment.html" class="type-name-link" title="class in com.example.orange.ui.profile">ProfileFragment</a></li>
 <li class="circle">com.example.orange.ui.organizer.<a href="com/example/orange/ui/organizer/ViewEventWaitlistFragment.html" class="type-name-link" title="class in com.example.orange.ui.organizer">ViewEventWaitlistFragment</a></li>
@@ -146,6 +170,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/FragmentFacilityProfileBinding.html" class="type-name-link" title="class in com.example.orange.databinding">FragmentFacilityProfileBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/FragmentHomeBinding.html" class="type-name-link" title="class in com.example.orange.databinding">FragmentHomeBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/FragmentJoinEventBinding.html" class="type-name-link" title="class in com.example.orange.databinding">FragmentJoinEventBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/FragmentMapsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">FragmentMapsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/FragmentMyEventsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">FragmentMyEventsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/FragmentOrganizerEventEntrantsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">FragmentOrganizerEventEntrantsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/FragmentProfileBinding.html" class="type-name-link" title="class in com.example.orange.databinding">FragmentProfileBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
@@ -154,22 +179,43 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/FragmentViewMyEventsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">FragmentViewMyEventsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/FragmentViewMyOrganizerEventsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">FragmentViewMyOrganizerEventsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/GeolocationWarningBinding.html" class="type-name-link" title="class in com.example.orange.databinding">GeolocationWarningBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/ImageData.html" class="type-name-link" title="class in com.example.orange.data.model">ImageData</a></li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemAdminEventListBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemAdminEventListBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemAdminFacilityListBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemAdminFacilityListBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemAdminProfileListBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemAdminProfileListBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemEventBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemEventBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemJoinEventBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemJoinEventBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemMyEventsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemMyEventsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemNotificationCustomBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemNotificationCustomBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemNotificationNotChosenBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemNotificationNotChosenBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemNotificationSampledBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemNotificationSampledBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemParticipantBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemParticipantBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemSelectedParticipantBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemSelectedParticipantBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemViewMyEventsBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemViewMyEventsBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ItemViewOrganizerEventBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ItemViewOrganizerEventBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
+<li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/Notification.html" class="type-name-link" title="class in com.example.orange.data.model">Notification</a></li>
 <li class="circle">com.example.orange.databinding.<a href="com/example/orange/databinding/ProfileItemBinding.html" class="type-name-link" title="class in com.example.orange.databinding">ProfileItemBinding</a> (implements androidx.viewbinding.ViewBinding)</li>
 <li class="circle">androidx.recyclerview.widget.RecyclerView.Adapter&lt;VH&gt;
 <ul>
 <li class="circle">com.example.orange.ui.join.<a href="com/example/orange/ui/join/EventAdapter.html" class="type-name-link" title="class in com.example.orange.ui.join">EventAdapter</a></li>
+<li class="circle">com.example.orange.ui.organizer.<a href="com/example/orange/ui/organizer/ParticipantsAdapter.html" class="type-name-link" title="class in com.example.orange.ui.organizer">ParticipantsAdapter</a></li>
+<li class="circle">com.example.orange.ui.organizer.<a href="com/example/orange/ui/organizer/SelectedParticipantsAdapter.html" class="type-name-link" title="class in com.example.orange.ui.organizer">SelectedParticipantsAdapter</a></li>
 </ul>
 </li>
 <li class="circle">com.example.orange.utils.<a href="com/example/orange/utils/SessionManager.html" class="type-name-link" title="class in com.example.orange.utils">SessionManager</a></li>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Throwable.html" class="type-name-link external-link" title="class or interface in java.lang">Throwable</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a>)
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" class="type-name-link external-link" title="class or interface in java.lang">Exception</a>
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/RuntimeException.html" class="type-name-link external-link" title="class or interface in java.lang">RuntimeException</a>
+<ul>
+<li class="circle">com.example.orange.data.firebase.<a href="com/example/orange/data/firebase/FirebaseService.FirebaseServiceException.html" class="type-name-link" title="class in com.example.orange.data.firebase">FirebaseService.FirebaseServiceException</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/User.html" class="type-name-link" title="class in com.example.orange.data.model">User</a></li>
 <li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/UserSession.html" class="type-name-link" title="class in com.example.orange.data.model">UserSession</a></li>
 <li class="circle">androidx.lifecycle.ViewModel
@@ -185,6 +231,8 @@ loadScripts(document, 'script');</script>
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
 <li class="circle">com.example.orange.data.firebase.<a href="com/example/orange/data/firebase/FirebaseCallback.html" class="type-name-link" title="interface in com.example.orange.data.firebase">FirebaseCallback</a>&lt;T&gt;</li>
+<li class="circle">com.example.orange.ui.organizer.<a href="com/example/orange/ui/organizer/ParticipantsAdapter.OnParticipantActionListener.html" class="type-name-link" title="interface in com.example.orange.ui.organizer">ParticipantsAdapter.OnParticipantActionListener</a></li>
+<li class="circle">com.example.orange.ui.organizer.<a href="com/example/orange/ui/organizer/SelectedParticipantsAdapter.OnParticipantRemoveListener.html" class="type-name-link" title="interface in com.example.orange.ui.organizer">SelectedParticipantsAdapter.OnParticipantRemoveListener</a></li>
 </ul>
 </section>
 <section class="hierarchy">
@@ -194,6 +242,8 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" class="type-name-link external-link" title="class or interface in java.lang">Enum</a>&lt;E&gt; (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link">Comparable</a>&lt;T&gt;, java.lang.constant.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/constant/Constable.html" title="class or interface in java.lang.constant" class="external-link">Constable</a>, java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a>)
 <ul>
+<li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/NotificationStatus.html" class="type-name-link" title="enum class in com.example.orange.data.model">NotificationStatus</a></li>
+<li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/NotificationType.html" class="type-name-link" title="enum class in com.example.orange.data.model">NotificationType</a></li>
 <li class="circle">com.example.orange.data.model.<a href="com/example/orange/data/model/UserType.html" class="type-name-link" title="enum class in com.example.orange.data.model">UserType</a></li>
 </ul>
 </li>

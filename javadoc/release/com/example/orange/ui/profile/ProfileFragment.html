@@ -83,10 +83,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">ProfileFragment</span>
 <span class="extends-implements">extends androidx.fragment.app.Fragment</span></div>
-<div class="block">ProfileFragment manages user profile functionality within the Orange application.
- This fragment handles the display and editing of user information, including profile
- images, personal details, and type-specific features for different user roles
- (Entrant vs Organizer).</div>
+<div class="block">ProfileFragment manages user profile functionality within the Orange application.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -137,7 +134,7 @@ loadScripts(document, 'script');</script>
  android.view.ViewGroup&nbsp;container,
  android.os.Bundle&nbsp;savedInstanceState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Creates and returns the view hierarchy associated with the fragment.</div>
+<div class="block">Called to have the fragment instantiate its user interface view.</div>
 </div>
 </div>
 </div>
@@ -179,16 +176,16 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">android.view.View</span>&nbsp;<span class="element-name">onCreateView</span><wbr><span class="parameters">(android.view.LayoutInflater&nbsp;inflater,
  android.view.ViewGroup&nbsp;container,
  android.os.Bundle&nbsp;savedInstanceState)</span></div>
-<div class="block">Creates and returns the view hierarchy associated with the fragment.</div>
+<div class="block">Called to have the fragment instantiate its user interface view.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreateView</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.Fragment</code></dd>
 <dt>Parameters:</dt>
-<dd><code>inflater</code> - LayoutInflater object to inflate views</dd>
-<dd><code>container</code> - If non-null, parent view that the fragment's UI should be attached to</dd>
-<dd><code>savedInstanceState</code> - If non-null, fragment is being re-constructed from previous saved state</dd>
+<dd><code>inflater</code> - The LayoutInflater object that can be used to inflate any views in the fragment.</dd>
+<dd><code>container</code> - If non-null, this is the parent view that the fragment's UI should be attached to.</dd>
+<dd><code>savedInstanceState</code> - If non-null, this fragment is being re-constructed from a previous saved state as given here.</dd>
 <dt>Returns:</dt>
-<dd>The View for the fragment's UI</dd>
+<dd>Return the View for the fragment's UI.</dd>
 </dl>
 </section>
 </li>
