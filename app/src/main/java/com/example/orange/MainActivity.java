@@ -1,5 +1,6 @@
 package com.example.orange;
 
+
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.Manifest;
+
 
 import com.example.orange.data.firebase.FirebaseService;
 import com.example.orange.data.firebase.FirebaseCallback;
@@ -26,6 +28,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -33,8 +36,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import com.example.orange.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
+
+
 
 
 /**
@@ -45,15 +52,19 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_NOTIFICATION  = 99 ;
     private ActivityMainBinding binding;
     private FirebaseService firebaseService;
+    private FirebaseFirestore db;
     private SessionManager sessionManager;
     private NavController navController;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
 
         //Allow Notifications
 //        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
@@ -63,13 +74,16 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
 
+
         if (FirebaseApp.getApps(this).isEmpty()) {
             FirebaseApp.initializeApp(this);
         }
 
+
         firebaseService = new FirebaseService();
         sessionManager = new SessionManager(this);
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+
 
         binding.navView.inflateMenu(R.menu.bottom_nav_menu);
 
@@ -79,11 +93,15 @@ public class MainActivity extends AppCompatActivity {
         } else {
             setupInitialNavigation();
         }
+
+
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
 
         if(requestCode == RC_NOTIFICATION){
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
@@ -93,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
     /**
      * Creates the option menu at the top of the page.
@@ -106,10 +125,14 @@ public class MainActivity extends AppCompatActivity {
             getMenuInflater().inflate(R.menu.toolbar_menu, menu);
             return true;
         } else {
-            getMenuInflater().inflate(R.menu.toolbar_admin_button, menu);
+            binding.toolbar.getMenu().clear();
+            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+            System.out.println(deviceId);
+            checkIfAdmin(deviceId);
         }
         return super.onCreateOptionsMenu(menu);
     }
+
 
     /**
      * Sets the profile button in the top right corner of the app
@@ -127,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
             // Navigate to admin screen
             navController.navigate(R.id.navigation_admin);
 
+
             // Clear current menu and inflate the admin menu
             binding.toolbar.getMenu().clear();
             getMenuInflater().inflate(R.menu.toolbar_admin, binding.toolbar.getMenu());
@@ -136,11 +160,14 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.navigation_camera);
             return true;
         }else if (item.getItemId() == R.id.navigation_admin_profiles){
-        navController.navigate(R.id.navigation_admin_profiles);
+            navController.navigate(R.id.navigation_admin_profiles);
 
-    }
+
+        }
         return super.onOptionsItemSelected(item);
     }
+
+
 
 
     /**
@@ -154,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
         navController.navigate(R.id.navigation_home);
     }
 
+
     /**
      * Sets all on click listeners.
      */
@@ -161,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         binding.navView.setOnItemSelectedListener(item -> {
             String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             Log.d(TAG, "Initial menu item clicked: " + item.getTitle());
+
 
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_join_event) {
@@ -177,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     /**
      * Updates menu to only show proper selection based on userSession
      */
@@ -187,15 +217,18 @@ public class MainActivity extends AppCompatActivity {
             // First clear all listeners
             binding.navView.setOnItemSelectedListener(null);
 
+
             // Hide all items first
             for (int i = 0; i < menu.size(); i++) {
                 menu.getItem(i).setVisible(false);
             }
 
+
             // Show initial items and ensure they're enabled
             MenuItem joinItem = menu.findItem(R.id.navigation_join_event);
             MenuItem homeItem = menu.findItem(R.id.navigation_home);
             MenuItem createItem = menu.findItem(R.id.navigation_create_event);
+
 
             if (joinItem != null) {
                 joinItem.setVisible(true);
@@ -210,13 +243,17 @@ public class MainActivity extends AppCompatActivity {
                 createItem.setEnabled(true);
             }
 
+
             // Ensure the view is refreshed
             binding.navView.invalidate();
+
 
             // Set the click listener after updating visibility
             setInitialClickListener();
         }
     }
+
+
 
 
     /**
@@ -232,13 +269,16 @@ public class MainActivity extends AppCompatActivity {
                 menu.getItem(i).setVisible(false);
             }
 
+
             // Show home for all users
             MenuItem homeItem = menu.findItem(R.id.navigation_home);
             if (homeItem != null) homeItem.setVisible(true);
 
+
             if (userType == UserType.ENTRANT) {
                 MenuItem myEventsItem = menu.findItem(R.id.navigation_my_events);
                 MenuItem joinItem = menu.findItem(R.id.navigation_join_event);
+
 
                 if (myEventsItem != null) myEventsItem.setVisible(true);
                 if (joinItem != null) joinItem.setVisible(true);
@@ -246,14 +286,17 @@ public class MainActivity extends AppCompatActivity {
                 MenuItem viewEventsItem = menu.findItem(R.id.navigation_view_my_events);
                 MenuItem createItem = menu.findItem(R.id.navigation_create_event);
 
+
                 if (viewEventsItem != null) viewEventsItem.setVisible(true);
                 if (createItem != null) createItem.setVisible(true);
             }
+
 
             // Set the appropriate click listener
             setLoggedInClickListener(userType);
         }
     }
+
 
     /**
      * Listener for user login
@@ -264,6 +307,7 @@ public class MainActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             Log.d(TAG, "Logged in menu item clicked: " + item.getTitle());
 
+
             if (itemId == R.id.navigation_home) {
                 handleLogout();
             } else {
@@ -272,6 +316,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
     }
+
 
     /**
      * Function to handle login/signup and create the user session
@@ -296,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
 
+
             @Override
             public void onFailure(Exception e) {
                 Log.e(TAG, "Sign in failed", e);
@@ -303,27 +349,73 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     /**
      * Logs user out of session.
      */
     public void handleLogout() {
         Log.d(TAG, "Handling logout");
 
+
         // First clear the session data
         firebaseService.logOut();
         sessionManager.logoutUser();
 
+
         // Then update the UI
         invalidateOptionsMenu(); // This will hide the profile icon
+
 
         // Force menu refresh
         binding.navView.getMenu().clear();
         binding.navView.inflateMenu(R.menu.bottom_nav_menu);
 
+
         // Finally set up navigation and navigate home
         setupInitialNavigation();
+
 
         // Ensure the view is refreshed
         binding.navView.invalidate();
     }
+
+
+    // Method to check if the device ID is in the admins collection
+    private void checkIfAdmin(String deviceId) {
+        db = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
+        db.setFirestoreSettings(settings);
+
+        db.collection("admins")
+                .document(deviceId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Device ID is in the admins collection, inflate admin menu
+                        Log.d(TAG, "Admin privileges confirmed");
+                        binding.toolbar.getMenu().clear();
+                        getMenuInflater().inflate(R.menu.toolbar_admin_button, binding.toolbar.getMenu());
+                    } else {
+                        // Device ID is not in the admins collection, clear the menu
+                        Log.d(TAG, "No admin privileges");
+                        binding.toolbar.getMenu().clear();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to check admin status", e);
+                    // Clear the menu in case of failure
+                    binding.toolbar.getMenu().clear();
+                });
+    }
+
+
+
+    // Method to navigate to admin view
+    private void navigateToAdminView() {
+        Log.d(TAG, "Navigating to Admin View");
+        binding.navView.getMenu().clear();
+        getMenuInflater().inflate(R.menu.toolbar_admin_button, binding.navView.getMenu());
+        navController.navigate(R.id.navigation_admin);
+    }
 }
+
