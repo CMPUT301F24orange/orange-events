@@ -169,8 +169,10 @@ public class CreateEventTest {
         onView(withId(R.id.fragment_create_event_main)).perform(swipeUp());
 
         // Check the waitlist checkbox and fill in the waitlist limit
+        sleep(2000);
         onView(withId(R.id.waitlist_limit_checkbox))
                 .perform(click());
+        sleep(2000);
         onView(withId(R.id.waitlist_limit_edit_text))
                 .perform(replaceText("10"), closeSoftKeyboard());
 
