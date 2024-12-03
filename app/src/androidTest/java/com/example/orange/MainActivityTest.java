@@ -1,6 +1,8 @@
 package com.example.orange;
 
 import android.content.Context;
+import android.provider.Settings;
+
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -8,6 +10,8 @@ import androidx.test.filters.LargeTest;
 
 import com.example.orange.data.model.UserType;
 import com.example.orange.utils.SessionManager;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,7 +24,10 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.junit.Assert.fail;
 import static java.lang.Thread.sleep;
+
+import java.util.HashMap;
 
 /**
  * Instrumented test suite for the MainActivity, testing navigation and visibility
@@ -193,9 +200,63 @@ public class MainActivityTest {
      * Tests the Admin mode button in the top navigation.
      * Verifies that the Admin view is displayed after clicking the button.
      * Navigates back to the home page after and checks that the user returns correctly.
+     *
+     * @author Radhe Patel
      */
     @Test
     public void testAdminMode() throws InterruptedException {
+
+        // Add user as a admin and set up admin button for the test
+        setUpAdmin();
+
+        sleep(2000);
+
+        // Locate and click the Admin mode button
+        onView(withId(R.id.navigation_admin)).check(matches(isDisplayed())).perform(click());
+        sleep(1000);
+        onView(withId(R.id.admin_navigation_home)).check(matches(isDisplayed())).perform(click());
+        sleep(2000);
+        onView(withId(R.id.navigation_join_event)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * tests the admin events button
+     *
+     * @author Radhe Patel
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void testAdminEvents() throws InterruptedException {
+        // Add user as a admin and set up admin button for the test
+        setUpAdmin();
+
+        sleep(2000);
+
+        // Locate and click the Admin mode button
+        onView(withId(R.id.navigation_admin)).check(matches(isDisplayed())).perform(click());
+        sleep(1000);
+        onView(withId(R.id.admin_navigation_view_events)).check(matches(isDisplayed()));
+        sleep(2000);
+        onView(withId(R.id.admin_navigation_home)).check(matches(isDisplayed())).perform(click());
+        sleep(2000);
+        onView(withId(R.id.navigation_join_event)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * tests the admin facilities button
+     *
+     * @author Radhe Patel
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void testAdminFacilities() throws InterruptedException {
+        // Add user as a admin and set up admin button for the test
+        setUpAdmin();
+
+        sleep(2000);
+
         // Locate and click the Admin mode button
         onView(withId(R.id.navigation_admin)).check(matches(isDisplayed())).perform(click());
         sleep(1000);
@@ -204,6 +265,79 @@ public class MainActivityTest {
         onView(withId(R.id.admin_navigation_home)).check(matches(isDisplayed())).perform(click());
         sleep(2000);
         onView(withId(R.id.navigation_join_event)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * tests the admin profiles button
+     *
+     * @author Radhe Patel
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void testAdminProfiles() throws InterruptedException {
+        // Add user as a admin and set up admin button for the test
+        setUpAdmin();
+
+        sleep(2000);
+
+        // Locate and click the Admin mode button
+        onView(withId(R.id.navigation_admin)).check(matches(isDisplayed())).perform(click());
+        sleep(1000);
+        onView(withId(R.id.navigation_admin_profiles)).check(matches(isDisplayed()));
+        sleep(2000);
+        onView(withId(R.id.admin_navigation_home)).check(matches(isDisplayed())).perform(click());
+        sleep(2000);
+        onView(withId(R.id.navigation_join_event)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * adds the device ID to the admins in the db so the device has access to admin mode.
+     * Reloads the app so that the admin mode button comes into view.
+     *
+     * @author Radhe Patel
+     *
+     * @throws InterruptedException
+     */
+    private void setUpAdmin() throws InterruptedException{
+        FirebaseFirestore firestore;
+
+        firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder().build();
+        firestore.setFirestoreSettings(settings);
+
+        activityRule.getScenario().onActivity(activity -> {
+            String deviceId = Settings.Secure.getString(
+                    activity.getContentResolver(),
+                    Settings.Secure.ANDROID_ID
+            );
+
+            firestore.collection("admins").document(deviceId).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (!documentSnapshot.exists()) {
+                            // Add the device ID to the 'admins' collection if it doesn't exist
+                            firestore.collection("admins").document(deviceId)
+                                    .set(new HashMap<>()) // Add an empty document for this device ID
+                                    .addOnSuccessListener(aVoid -> System.out.println("Device ID added to admins collection"))
+                                    .addOnFailureListener(e -> fail("Failed to add device ID to admins collection: " + e.getMessage()));
+                        } else {
+                            System.out.println("Device ID already exists in the admins collection");
+                        }
+                    })
+                    .addOnFailureListener(e -> fail("Failed to check if device ID exists: " + e.getMessage()));
+        });
+
+        sleep(2000);
+
+        activityRule.getScenario().onActivity(activity -> {
+            // Create an explicit intent for MainActivity
+            android.content.Intent intent = new android.content.Intent(activity, MainActivity.class);
+            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK | android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(intent); // Start MainActivity explicitly
+
+            // Finish the current activity to simulate an app restart
+            activity.finish();
+        });
     }
 
 }
